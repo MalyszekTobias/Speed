@@ -1,6 +1,6 @@
 import pygame
-
-from app import custom_text, custom_images, button
+from Speed import maps
+from app import custom_text, custom_images, button, player
 
 class basic_display():
     def __init__(self, game):
@@ -20,6 +20,14 @@ class basic_display():
 class game_display(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
+        self.currentMap = maps.tuto
+        self.tileSize = int(self.game.height / len(self.currentMap))
+        print(self.game.width)
+        print(self.tileSize)
+
+
+        print(self.objects)
+        self.player = player.Player(self)
 
     def mainloop(self):
         pass

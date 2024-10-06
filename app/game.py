@@ -1,4 +1,5 @@
 import pygame
+from Speed import maps
 from app import config, display, custom_text
 
 class Game:
@@ -18,6 +19,7 @@ class Game:
 
         self.clock = pygame.time.Clock()
         self.font = None
+        self.currentMap = maps.tuto
 
         self.run = True
 
