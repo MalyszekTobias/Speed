@@ -1,5 +1,5 @@
 import pygame
-from Speed import maps
+import maps
 from app import config, display, custom_text
 
 class Game:

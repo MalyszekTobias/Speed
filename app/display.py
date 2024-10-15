@@ -1,5 +1,5 @@
 import pygame
-from Speed import maps
+import maps
 from app import custom_text, custom_images, button, player
 
 class basic_display():
@@ -20,10 +20,9 @@ class basic_display():
 class game_display(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
+        self.tileColor = (200, 200, 200)
         self.currentMap = maps.tuto
         self.tileSize = int(self.game.height / len(self.currentMap))
-        print(self.game.width)
-        print(self.tileSize)
 
 
         print(self.objects)
@@ -33,6 +32,12 @@ class game_display(basic_display):
         pass
 
     def render(self):
+        for i in range(len(self.currentMap)):
+            for j in range(len(self.currentMap[0])):
+                if self.currentMap[i][j] == 1:
+                    pygame.draw.rect(self.screen, self.tileColor, (j * self.tileSize, i * self.tileSize, self.tileSize, self.tileSize))
+
+
         for obj in self.objects:
             obj.render()
 
