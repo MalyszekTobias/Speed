@@ -20,26 +20,29 @@ class basic_display():
 class game_display(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
+        self.camera = 0
         self.tileColor = (200, 200, 200)
         self.currentMap = maps.tuto
         self.tileSize = int(self.game.height / len(self.currentMap))
 
 
-        print(self.objects)
         self.player = player.Player(self)
 
     def mainloop(self):
         pass
+        # self.camera -= 1
 
     def render(self):
         for i in range(len(self.currentMap)):
             for j in range(len(self.currentMap[0])):
                 if self.currentMap[i][j] == 1:
-                    pygame.draw.rect(self.screen, self.tileColor, (j * self.tileSize, i * self.tileSize, self.tileSize, self.tileSize))
+                    pygame.draw.rect(self.screen, self.tileColor, (j * self.tileSize + self.camera, i * self.tileSize, self.tileSize, self.tileSize))
 
 
         for obj in self.objects:
-            obj.render()
+            c = obj.render()
+            if c > 0:
+                self.camera = -c
 
     def events(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:

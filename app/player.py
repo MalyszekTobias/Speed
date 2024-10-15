@@ -18,7 +18,7 @@ class Player:
         self.left = False
         self.right = False
         self.jump = False
-        self.grounded = True
+        self.grounded = False
         self.maxSpeed = 8
         self.maxFallSpeed = -7
         self.jumpLength = 15
@@ -30,9 +30,14 @@ class Player:
 
 
     def render(self):
-        pygame.draw.rect(self.display.screen, self.playerColor, (self.x, self.y, self.width, self.height))
+        if self.x + self.width / 2 > self.display.game.width / 2:
+            print()
+            pygame.draw.rect(self.display.screen, self.playerColor, ((self.display.game.width - self.width )/ 2, self.y, self.width, self.height))
+        else:
+            pygame.draw.rect(self.display.screen, self.playerColor, (self.x, self.y, self.width, self.height))
 
         self.movement()
+        return self.x + self.width / 2 - self.display.game.width / 2
 
 
     def events(self, event):
@@ -81,12 +86,12 @@ class Player:
         if self.grounded:
             if self.velRight < 0:
                 self.velRight += self.groundFriction
-            else:
+            elif self.velRight > 0:
                 self.velRight -= self.groundFriction
         else:
             if self.velRight < 0:
                 self.velRight += self.airFriction
-            else:
+            elif self.velRight > 0:
                 self.velRight -= self.airFriction
 
 
