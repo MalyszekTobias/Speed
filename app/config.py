@@ -30,7 +30,7 @@ def generate_default_config_data(version):
         'version': version,
         'width': 1000,
         'height': 1000,
-        'fps': 60,
+        'fps': 10,
         'title': 'Game',
         'enable_debug': 1
     }

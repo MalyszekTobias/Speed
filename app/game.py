@@ -13,7 +13,8 @@ class Game:
         self.version = self.cfg['version']
         self.width = int(self.cfg['width'])
         self.height = int(self.cfg['height'])
-        self.fps = float(self.cfg['fps'])
+        # self.fps = float(self.cfg['fps'])
+        self.fps = 60
         self.title = self.cfg['title']
         self.enable_debug = int(self.cfg['enable_debug'])
 

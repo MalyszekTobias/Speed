@@ -22,7 +22,7 @@ class game_display(basic_display):
         basic_display.__init__(self, game)
         self.camera = 0
         self.tileColor = (200, 200, 200)
-        self.currentMap = maps.tuto
+        self.currentMap = maps.platform
         self.tileSize = int(self.game.height / len(self.currentMap))
 
 
