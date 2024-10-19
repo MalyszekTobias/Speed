@@ -11,26 +11,33 @@ class Player:
         self.y = 600
         self.velUp = 0
         self.velRight = 0
-        self.width = 50
-        self.height = 50
+        self.width = 48
+        self.height = 48
         self.playerColor = (200, 30, 30)
-        self.g = 0.5
+        self.g = 1
         self.left = False
         self.right = False
         self.up = False
         self.down = False
         self.jump = False
         self.grounded = False
-        self.maxSpeed = 8
-        self.maxFallSpeed = -7
-        self.jumpLength = 15
+        self.regularMaxSpeed = 8
+        self.boostedMaxSpeed = 18
+        self.maxSpeed = self.boostedMaxSpeed
+        self.maxFallSpeed = -10
+        self.regularJump = 7
+        self.boostedJump = 27
+        self.jumpLength = self.regularJump
         self.airAcceleration = 0.4
         self.groundAcceleration = 1
         self.airFriction = 0.1
         self.groundFriction = 0.5
         self.archiveCords = [self.x, self.y]
         self.gravity = True
-        self.founded = False
+        self.hugLeft = False
+        self.hugRight = False
+        self.touchingUp = False
+
 
 
     def collision(self, list, block: list) -> bool:
@@ -64,15 +71,24 @@ class Player:
 
     def corner(self, block: list):
         right, down = False, False
-        a, b = abs(self.x - self.archiveCords[0]), abs(self.y - self.archiveCords[1])
         c = self.x + self.width - block[0]
+        d = self.y + self.height - block[1]
         if block[0] + block[2] - self.x < c:
             c = block[0] + block[2] - self.x
             right = True
-        d = self.y + self.height - block[1]
+            if self.hugLeft:
+                return 'left'
+        elif self.hugRight:
+            return 'right'
         if block[1] + block[3] - self.y < d:
             d = block[1] + block[3] - self.y
             down = True
+            if self.isCapped():
+                print('cap')
+                return 'up'
+        elif self.isFounded():
+            return 'down'
+        a, b = abs(self.x - self.archiveCords[0]), abs(self.y - self.archiveCords[1])
 
         try:
             if c / a < d / b:
@@ -115,10 +131,8 @@ class Player:
     def collisions(self):
         for row in range(len(self.display.currentMap)):
             for column in range(len(self.display.currentMap[row])):
-                if self.display.currentMap[row][column] == 1:
+                if self.display.currentMap[row][column] in (1, 2):
                     block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
-                    if self.collision((self.archiveCords[0], self.archiveCords[1], self.width, self.height),block):
-                        print('collide')
                     if self.collision((self.x, self.y, self.width, self.height),block):
                         self.correction(block)
                         pygame.draw.rect(self.display.screen, (200, 0, 0), (block[0] + self.display.camera,block[1],block[2],block[3]))
@@ -135,7 +149,7 @@ class Player:
         t = True
         for row in range(len(self.display.currentMap)):
             for column in range(len(self.display.currentMap[row])):
-                if self.display.currentMap[row][column] == 1:
+                if self.display.currentMap[row][column] in (1, 2):
                     block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
                     if self.collision((self.x, self.y, self.width, self.height),block):
                         t = False
@@ -159,8 +173,7 @@ class Player:
             if event.key == pygame.K_w:
                 self.up = True
             if event.key == pygame.K_SPACE:
-                if self.velUp < 0:
-                    self.velUp = 0
+                self.velUp = 0
                 self.jump = self.jumpLength
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_a:
@@ -176,18 +189,48 @@ class Player:
     def isFounded(self):
         for row in range(len(self.display.currentMap)):
             for column in range(len(self.display.currentMap[row])):
-                if self.display.currentMap[row][column] == 1:
+                if self.display.currentMap[row][column] in (1, 2):
                     block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
+                    # if block[1] == self.y + self.height and block[0]
                     if self.collision((self.x + 1, self.y + self.height - 1, self.width - 2, 1),block):
                         return True
-        print(1)
         return False
+
+    def isCapped(self):
+        for row in range(len(self.display.currentMap)):
+            for column in range(len(self.display.currentMap[row])):
+                if self.display.currentMap[row][column] in (1, 2):
+                    block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
+                    if self.collision((self.x + 1, self.y, self.width - 2, 1),block):
+                        return True
+        return False
+
+    def hugsLeft(self):
+        for row in range(len(self.display.currentMap)):
+            for column in range(len(self.display.currentMap[row])):
+                if self.display.currentMap[row][column] in (1, 2):
+                    block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
+                    if self.collision((self.x, self.y - 1, 1, self.height - 2), block):
+                        return True
+        return False
+    def hugsRight(self):
+        for row in range(len(self.display.currentMap)):
+            for column in range(len(self.display.currentMap[row])):
+                if self.display.currentMap[row][column] in (1, 2):
+                    block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
+                    if self.collision((self.x + self.width - 1, self.y - 1, 1, self.height - 2), block):
+                        return True
+        return False
+
 
     def movement(self):
         self.grounded = self.isFounded()
+        self.hugLeft = self.hugsLeft()
+        self.hugRight = self.hugsRight()
+        self.touchingUp = self.isCapped()
         if self.gravity:
-            if self.jump > 0:
-                self.velUp += 3 * self.jump / (self.jumpLength) - 1.2
+            if self.jump > 1:
+                self.velUp += (self.jump + 2) ** 2 / (self.jumpLength * 2)
                 self.jump -= 1
             elif not self.grounded:
                 self.velUp -= self.g
@@ -223,20 +266,25 @@ class Player:
         if self.velRight > self.maxSpeed:
             self.velRight = self.maxSpeed
 
+
         if self.grounded:
-            if self.velRight < 0:
-                self.velRight += self.groundFriction
-            elif self.velRight > 0:
-                self.velRight -= self.groundFriction
-            if -self.groundFriction < self.velRight < self.groundFriction:
-                self.velRight = 0
+            if not self.right and not self.left:
+                if self.velRight < 0:
+                    self.velRight += self.groundFriction
+                elif self.velRight > 0:
+                    self.velRight -= self.groundFriction
+                if -self.groundFriction < self.velRight < self.groundFriction:
+                    self.velRight = 0
         else:
-            if self.velRight < 0:
-                self.velRight += self.airFriction
-            elif self.velRight > 0:
-                self.velRight -= self.airFriction
-            if -self.airFriction < self.velRight < self.airFriction:
-                self.velRight = 0
+            if not self.right and not self.left:
+                if self.velRight < 0:
+                    self.velRight += self.airFriction
+                elif self.velRight > 0:
+                    self.velRight -= self.airFriction
+                if -self.airFriction < self.velRight < self.airFriction:
+                    self.velRight = 0
+
+
         if not self.gravity:
             if self.velUp < 0:
                 self.velUp += self.airFriction
