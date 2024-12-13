@@ -11,8 +11,8 @@ class Game:
         self.cfg = config.read_config()
 
         self.version = self.cfg['version']
-        self.width = int(self.cfg['width'])
-        self.height = int(self.cfg['height'])
+        self.width = int(800)
+        self.height = int(800)
         # self.fps = float(self.cfg['fps'])
         self.fps = 60
         self.title = self.cfg['title']

@@ -1,6 +1,8 @@
 import pygame
 import maps
 from app import custom_text, custom_images, button, player
+from mapMaker import camera
+
 
 class basic_display():
     def __init__(self, game):
@@ -25,7 +27,7 @@ class game_display(basic_display):
         self.speedColor = (50, 230, 50)
         self.jumpColor = (250, 200, 50)
         self.colors = ((0, 0, 0), (200, 200, 200), (50, 230, 50), (250, 200, 50))
-        self.currentMap = maps.speed
+        self.currentMap = maps.tuto
         self.tileSize = int(self.game.height / len(self.currentMap))
 
 
@@ -33,7 +35,6 @@ class game_display(basic_display):
 
     def mainloop(self):
         pass
-        # self.camera -= 1
 
     def render(self):
         for i in range(len(self.currentMap)):
@@ -47,6 +48,8 @@ class game_display(basic_display):
             c = obj.render()
             if c > 0:
                 self.camera = -c
+            else:
+                self.camera = 0
 
     def events(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
