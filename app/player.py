@@ -1,6 +1,12 @@
+import time as czas
+from random import random
+
 import pygame
 from pygame import *
 from app import game
+from mapMaker import tileSize, height
+import random
+from random import *
 
 
 class Player:
@@ -11,10 +17,10 @@ class Player:
         self.y = 600
         self.velUp = 0
         self.velRight = 0
-        self.width = 48
-        self.height = 48
+        self.width = self.display.tileSize
+        self.height = self.width
         self.playerColor = (200, 30, 30)
-        self.g = 1
+        self.g = 0.6
         self.left = False
         self.right = False
         self.up = False
@@ -23,13 +29,14 @@ class Player:
         self.grounded = False
         self.regularMaxSpeed = 8
         self.boostedMaxSpeed = 18
-        self.maxSpeed = self.boostedMaxSpeed
-        self.maxFallSpeed = -10
-        self.regularJump = 7
+        self.maxSpeed = self.regularMaxSpeed
+        self.maxFallSpeed = -15
+        self.regularJump = 15
         self.boostedJump = 27
         self.jumpLength = self.regularJump
         self.airAcceleration = 0.4
         self.groundAcceleration = 1
+        self.acceleration = self.airAcceleration
         self.airFriction = 0.1
         self.groundFriction = 0.5
         self.archiveCords = [self.x, self.y]
@@ -37,36 +44,92 @@ class Player:
         self.hugLeft = False
         self.hugRight = False
         self.touchingUp = False
-
+        # self.frame = 0
+        self.wallAndCeilingBounce = 5
+        self.floorBounce = 5
+        self.minBounce = 5
+        self.jumpAmount = 2
+        self.jumpsLeft = self.jumpAmount
+        self.bounceBlockPower = 2
+        self.energyConservation = 0.7
+        self.bbEnergyConservation = 1.2
+        self.bouncyMode = True
+        self.jumpRecoveryFromAllBounces = False
 
 
     def collision(self, list, block: list) -> bool:
-        x, y, w, h = list[0],list[1],list[2],list[3]
-        if x <= block[0] <= x + w or block[0] <= x <= block[0] + block[2]:
-            if y <= block[1] <= y + h or block[1] <= y <= block[1] + block[3]:
+        if self.verticalCollision(list[1], list[3], block[1], block[3]) and self.horizontalCollision(list[0], list[2], block[0], block[2]):
                 return True
         return False
+    #Checks if objects share a horizontal line
+    def verticalCollision(self, y1,h1,y2,h2):
+
+        if y2 + h2 < y1:
+            return False
+        if y1 + h1 < y2:
+            return False
+        return True #checks
+    #Checks if objects share a vertical line
+    def horizontalCollision(self, x1, w1, x2, w2):
+        if x2 + w2 < x1:
+            return False
+        if x1 + w1 < x2:
+            return False
+        return True
 
 
-    def nudge(self, direction: str, block: list):
-        if direction == 'down':
-            self.y = block[1] - self.height
-            self.velUp = 0
-            self.grounded = True
-            return
+    def nudge(self, direction: str, block: list, blockType):
+        if self.bouncyMode:
 
-        elif direction == 'up':
-            self.y = block[1] + block[3]
-            self.velUp = 0
-            return
-        elif direction == 'left':
-            self.x = block[0] + block[2]
-            self.velRight = 0
-            return
-        elif direction == 'right':
-            self.x = block[0] - self.width
-            self.velRight = 0
-            return
+            if blockType == 4:
+                bounceMulti = 1.5
+            else:
+                bounceMulti = 1
+            if self.jumpRecoveryFromAllBounces:
+                self.jumpsLeft = self.jumpAmount
+            if direction == 'down':
+                self.y = block[1] - self.height
+                if self.velUp < -self.minBounce * bounceMulti:
+                    self.velUp *= -self.energyConservation * bounceMulti
+                elif 0 > self.velUp:
+                    self.velUp = self.minBounce * bounceMulti
+
+                self.grounded = True
+                self.jumpsLeft = self.jumpAmount
+                return
+
+            elif direction == 'up':
+                self.y = self.archiveCords[1]
+
+                if self.velUp > self.minBounce * bounceMulti:
+                    self.velUp *= -self.energyConservation * bounceMulti
+                elif 0 < self.velUp:
+                    self.velUp = -self.minBounce * bounceMulti
+
+                self.touchingUp = True
+                return
+
+            elif direction == 'left':
+                self.x = self.archiveCords[0]
+
+                if self.velRight < -self.minBounce * bounceMulti:
+                    self.velRight *= -self.energyConservation * bounceMulti
+                elif 0 > self.velRight:
+                    self.velRight = self.minBounce * bounceMulti
+                self.hugLeft = True
+                return
+            elif direction == 'right':
+                self.x = self.archiveCords[0]
+
+                if self.velRight > self.minBounce * bounceMulti:
+                    self.velRight *= -self.energyConservation * bounceMulti
+                elif 0 < self.velRight:
+                    self.velRight = -self.minBounce * bounceMulti
+                self.hugRight = True
+                return
+        else:
+            if not direction == None:
+                self.velUp, self.velRight = 0, 0
 
 
     def corner(self, block: list):
@@ -84,7 +147,6 @@ class Player:
             d = block[1] + block[3] - self.y
             down = True
             if self.isCapped():
-                print('cap')
                 return 'up'
         elif self.isFounded():
             return 'down'
@@ -104,64 +166,52 @@ class Player:
         except:
             pass
 
-
-
-
-    def correction(self, block: list):
-        direction = None
-        if self.archiveCords[0] <= block[0] <= self.archiveCords[0] + self.width or block[0] <= self.archiveCords[0] <= block[0] + block[2]:
-            if self.y - self.archiveCords[1] < 0:
-                direction = 'up'
-            elif not self.grounded:
-                direction = 'down'
-        elif self.archiveCords[1] < block[1] < self.archiveCords[1] + self.width or block[1] < self.archiveCords[1] < block[1] + block[3]:
-            if self.x - self.archiveCords[0] < 0:
-                direction = 'left'
+    def detection(self, block: list):
+        # keep track of whether the player is on the ground or in the ait
+        if self.horizontalCollision(self.archiveCords[0], self.width, block[0], block[2]):
+            if  self.archiveCords[1] + self.height < block[1]:
+                return 'down' #going down
             else:
-                direction = 'right'
+                return 'up'
+        elif self.verticalCollision(self.archiveCords[1], self.height, block[1], block[3]):
+            if self.archiveCords[0] + self.width < block[0]:
+                return 'right'  # going right
+            else:
+                return 'left'
         else:
-            direction = 'else'
-            self.nudge(self.corner(block), block)
-
-        if not direction == 'else':
-            self.nudge(direction, block)
+            print('corner')
+            return self.corner(block)
 
 
-
-    def collisions(self):
-        for row in range(len(self.display.currentMap)):
-            for column in range(len(self.display.currentMap[row])):
-                if self.display.currentMap[row][column] in (1, 2):
-                    block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
-                    if self.collision((self.x, self.y, self.width, self.height),block):
-                        self.correction(block)
-                        pygame.draw.rect(self.display.screen, (200, 0, 0), (block[0] + self.display.camera,block[1],block[2],block[3]))
-
-
+    def collisionFinder(self, actOrNot: bool):
+        for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 3)):
+            for column in range(int(self.x // self.display.tileSize - 1), int(self.x //self.display.tileSize + 3)):
+                # if self.frame % 20 == 0:
+                #     pygame.draw.rect(self.display.screen, self.playerColor, (column * self.display.tileSize + self.display.camera,row * self.display.tileSize, self.width, self.height))
+                try:
+                    if self.display.currentMap[row][column] != 0:
+                        block = (column * self.display.tileSize, row * self.display.tileSize , self.display.tileSize, self.display.tileSize)
+                        if self.collision((self.x, self.y, self.width, self.height),block):
+                            if actOrNot:
+                                self.nudge(self.detection(block), block, self.display.currentMap[row][column])
+                                pygame.draw.rect(self.display.screen, (200, 0, 0), (block[0] + self.display.camera,block[1],block[2],block[3]))
+                            else:
+                                return True
+                except:
+                    pass
+        return False
 
 
     def render(self):
+        # self.frame += 1
         if self.x + self.width / 2 > self.display.game.width / 2:
             pygame.draw.rect(self.display.screen, self.playerColor, ((self.display.game.width - self.width )/ 2, self.y, self.width, self.height))
         else:
             pygame.draw.rect(self.display.screen, self.playerColor, (self.x, self.y, self.width, self.height))
 
-        t = True
-        for row in range(len(self.display.currentMap)):
-            for column in range(len(self.display.currentMap[row])):
-                if self.display.currentMap[row][column] in (1, 2):
-                    block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
-                    if self.collision((self.x, self.y, self.width, self.height),block):
-                        t = False
-
-        if t:
-            self.archiveCords = [self.x, self.y]
         self.movement()
-        self.collisions()
 
         return self.x + self.width / 2 - self.display.game.width / 2
-
-
     def events(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_a:
@@ -173,8 +223,10 @@ class Player:
             if event.key == pygame.K_w:
                 self.up = True
             if event.key == pygame.K_SPACE:
-                self.velUp = 0
-                self.jump = self.jumpLength
+                self.jump = True
+                if self.jumpsLeft > 0:
+                    self.jumpsLeft -= 1
+                    self.velUp = self.jumpLength
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_a:
                 self.left = False
@@ -185,54 +237,78 @@ class Player:
             if event.key == pygame.K_w:
                 self.up = False
             if event.key == pygame.K_SPACE:
-                self.jump = 0
+                if self.jump:
+                    self.velUp /= 2
+                    self.jump = False
+
     def isFounded(self):
-        for row in range(len(self.display.currentMap)):
-            for column in range(len(self.display.currentMap[row])):
-                if self.display.currentMap[row][column] in (1, 2):
-                    block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
-                    # if block[1] == self.y + self.height and block[0]
-                    if self.collision((self.x + 1, self.y + self.height - 1, self.width - 2, 1),block):
-                        return True
-        return False
+        self.maxSpeed = self.regularMaxSpeed
+        self.acceleration = self.groundAcceleration
+        self.jumpLength = self.regularJump
 
+        for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 3)):
+            for column in range(int(self.x // self.display.tileSize - 1), int(self.x // self.display.tileSize + 3)):
+                try:
+                    if self.display.currentMap[row][column] != 0:
+                        block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
+                        # if block[1] == self.y + self.height and block[0]
+                        if self.collision((self.x, self.y + self.height, self.width, 1),block):
+
+                            if self.display.currentMap[row][column] == 2:
+                                self.maxSpeed = self.boostedMaxSpeed
+                                self.acceleration = self.groundAcceleration * 2
+                            if self.display.currentMap[row][column] == 3:
+                                self.jumpLength = self.boostedJump
+                            return True
+                except:
+                    pass
+        self.acceleration = self.airAcceleration
+        return False
     def isCapped(self):
-        for row in range(len(self.display.currentMap)):
-            for column in range(len(self.display.currentMap[row])):
-                if self.display.currentMap[row][column] in (1, 2):
-                    block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
-                    if self.collision((self.x + 1, self.y, self.width - 2, 1),block):
-                        return True
+        for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 2)):
+            for column in range(int(self.x // self.display.tileSize - 1), int(self.x // self.display.tileSize + 3)):
+                try:
+                    if self.display.currentMap[row][column] != 0:
+                        block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
+                        if self.collision((self.x + 1, self.y, self.width - 2, 1),block):
+                            return True
+                except:
+                    pass
         return False
-
     def hugsLeft(self):
-        for row in range(len(self.display.currentMap)):
-            for column in range(len(self.display.currentMap[row])):
-                if self.display.currentMap[row][column] in (1, 2):
-                    block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
-                    if self.collision((self.x, self.y - 1, 1, self.height - 2), block):
-                        return True
+        for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 3)):
+            for column in range(int(self.x // self.display.tileSize - 1), int(self.x // self.display.tileSize + 3)):
+                try:
+                    if self.display.currentMap[row][column] != 0:
+                        block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
+                        if self.collision((self.x, self.y - 1, 1, self.height - 2), block):
+                            return True
+                except:
+                    pass
         return False
     def hugsRight(self):
-        for row in range(len(self.display.currentMap)):
-            for column in range(len(self.display.currentMap[row])):
-                if self.display.currentMap[row][column] in (1, 2):
-                    block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
-                    if self.collision((self.x + self.width - 1, self.y - 1, 1, self.height - 2), block):
-                        return True
+        for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 3)):
+            for column in range(int(self.x // self.display.tileSize - 1), int(self.x // self.display.tileSize + 3)):
+                try:
+                    if self.display.currentMap[row][column] != 0:
+                        block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
+                        if self.collision((self.x + self.width - 1, self.y - 1, 1, self.height - 2), block):
+                            return True
+                except:
+                    pass
         return False
-
-
-    def movement(self):
+    def updateBlockStatuses(self):
         self.grounded = self.isFounded()
         self.hugLeft = self.hugsLeft()
         self.hugRight = self.hugsRight()
         self.touchingUp = self.isCapped()
+    def movement(self):
+        self.updateBlockStatuses()
         if self.gravity:
-            if self.jump > 1:
-                self.velUp += (self.jump + 2) ** 2 / (self.jumpLength * 2)
-                self.jump -= 1
-            elif not self.grounded:
+            if self.jump:
+                if self.velUp <= 0:
+                    self.jump = False
+            if not self.grounded:
                 self.velUp -= self.g
 
             if self.velUp < self.maxFallSpeed:
@@ -243,6 +319,7 @@ class Player:
                 self.velUp += self.airAcceleration
             if self.down:
                 self.velUp -= self.airAcceleration
+
 
             if self.velUp < -self.maxSpeed:
                 self.velUp = -self.maxSpeed
@@ -290,7 +367,20 @@ class Player:
                 self.velUp += self.airFriction
             elif self.velUp > 0:
                 self.velUp -= self.airFriction
+        self.pixelMove()
+    def pixelMove(self):
+        divisor = abs(int(max(self.velRight, self.velUp))) + 1
+        for i in range(divisor):
+            # a = self.collisionFinder(False)
+            # if a:
+            #     print(a)
+            if not self.collisionFinder(False):
+                self.archiveCords = [self.x, self.y]
+            self.x += self.velRight / divisor
+            self.y -= self.velUp / divisor
+            self.updateBlockStatuses()
+            self.collisionFinder(True)
 
 
-        self.x += self.velRight
-        self.y -= self.velUp
+        if self.grounded:
+            self.jumpsLeft = self.jumpAmount
