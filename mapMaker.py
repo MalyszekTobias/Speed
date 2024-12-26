@@ -8,6 +8,7 @@ bg = (0, 0, 0)
 tileColor = (230, 230, 230)
 speedColor = (50, 230, 50)
 jumpColor = (250, 200, 50)
+bounceColor = (250, 50, 50)
 width, height = int(columnAmount * tileSize), int(rowAmount * tileSize)
 
 screen = pygame.display.set_mode((width, height))
@@ -72,6 +73,9 @@ if __name__ == '__main__':
                                      (column * tileSize - camera, row * tileSize, tileSize - 1, tileSize - 1))
                 elif map[row][column] == 3:
                     pygame.draw.rect(screen, jumpColor,
+                                     (column * tileSize - camera, row * tileSize, tileSize - 1, tileSize - 1))
+                elif map[row][column] == 4:
+                    pygame.draw.rect(screen, bounceColor,
                                      (column * tileSize - camera, row * tileSize, tileSize - 1, tileSize - 1))
 
         for even in pygame.event.get():

@@ -30,7 +30,7 @@ class Player:
         self.regularMaxSpeed = 8
         self.boostedMaxSpeed = 18
         self.maxSpeed = self.regularMaxSpeed
-        self.maxFallSpeed = -10
+        self.maxFallSpeed = -15
         self.regularJump = 15
         self.boostedJump = 27
         self.jumpLength = self.regularJump
@@ -47,8 +47,15 @@ class Player:
         # self.frame = 0
         self.wallAndCeilingBounce = 5
         self.floorBounce = 5
-        self.jumpAmount = 1
+        self.minBounce = 5
+        self.jumpAmount = 2
         self.jumpsLeft = self.jumpAmount
+        self.bounceBlockPower = 2
+        self.energyConservation = 0.7
+        self.bbEnergyConservation = 1.2
+        self.bouncyMode = True
+        self.jumpRecoveryFromAllBounces = False
+
 
     def collision(self, list, block: list) -> bool:
         if self.verticalCollision(list[1], list[3], block[1], block[3]) and self.horizontalCollision(list[0], list[2], block[0], block[2]):
@@ -71,33 +78,58 @@ class Player:
         return True
 
 
-    def nudge(self, direction: str, block: list):
-        if not direction == None:
-            self.velUp, self.velRight = 0, 0
-        if direction == 'down':
-            self.y = block[1] - self.height
-            self.velUp = self.floorBounce
-            # self.y = self.archiveCords[1]
+    def nudge(self, direction: str, block: list, blockType):
+        if self.bouncyMode:
 
-            self.grounded = True
-            return
+            if blockType == 4:
+                bounceMulti = 1.5
+            else:
+                bounceMulti = 1
+            if self.jumpRecoveryFromAllBounces:
+                self.jumpsLeft = self.jumpAmount
+            if direction == 'down':
+                self.y = block[1] - self.height
+                if self.velUp < -self.minBounce * bounceMulti:
+                    self.velUp *= -self.energyConservation * bounceMulti
+                elif 0 > self.velUp:
+                    self.velUp = self.minBounce * bounceMulti
 
-        elif direction == 'up':
-            self.y = self.archiveCords[1]
-            self.velUp = -self.wallAndCeilingBounce
-            self.touchingUp = True
-            return
+                self.grounded = True
+                self.jumpsLeft = self.jumpAmount
+                return
 
-        elif direction == 'left':
-            self.x = self.archiveCords[0]
-            self.velRight = self.wallAndCeilingBounce
-            self.hugLeft = True
-            return
-        elif direction == 'right':
-            self.x = self.archiveCords[0]
-            self.velRight = -self.wallAndCeilingBounce
-            self.hugRight = True
-            return
+            elif direction == 'up':
+                self.y = self.archiveCords[1]
+
+                if self.velUp > self.minBounce * bounceMulti:
+                    self.velUp *= -self.energyConservation * bounceMulti
+                elif 0 < self.velUp:
+                    self.velUp = -self.minBounce * bounceMulti
+
+                self.touchingUp = True
+                return
+
+            elif direction == 'left':
+                self.x = self.archiveCords[0]
+
+                if self.velRight < -self.minBounce * bounceMulti:
+                    self.velRight *= -self.energyConservation * bounceMulti
+                elif 0 > self.velRight:
+                    self.velRight = self.minBounce * bounceMulti
+                self.hugLeft = True
+                return
+            elif direction == 'right':
+                self.x = self.archiveCords[0]
+
+                if self.velRight > self.minBounce * bounceMulti:
+                    self.velRight *= -self.energyConservation * bounceMulti
+                elif 0 < self.velRight:
+                    self.velRight = -self.minBounce * bounceMulti
+                self.hugRight = True
+                return
+        else:
+            if not direction == None:
+                self.velUp, self.velRight = 0, 0
 
 
     def corner(self, block: list):
@@ -161,7 +193,7 @@ class Player:
                         block = (column * self.display.tileSize, row * self.display.tileSize , self.display.tileSize, self.display.tileSize)
                         if self.collision((self.x, self.y, self.width, self.height),block):
                             if actOrNot:
-                                self.nudge(self.detection(block), block)
+                                self.nudge(self.detection(block), block, self.display.currentMap[row][column])
                                 pygame.draw.rect(self.display.screen, (200, 0, 0), (block[0] + self.display.camera,block[1],block[2],block[3]))
                             else:
                                 return True
@@ -278,7 +310,6 @@ class Player:
                     self.jump = False
             if not self.grounded:
                 self.velUp -= self.g
-                print(1)
 
             if self.velUp < self.maxFallSpeed:
                 self.velUp = self.maxFallSpeed

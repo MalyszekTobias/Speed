@@ -26,8 +26,9 @@ class game_display(basic_display):
         self.tileColor = (200, 200, 200)
         self.speedColor = (50, 230, 50)
         self.jumpColor = (250, 200, 50)
-        self.colors = ((0, 0, 0), (200, 200, 200), (50, 230, 50), (250, 200, 50))
-        self.currentMap = maps.tuto
+        self.bounceColor = (250, 50, 50)
+        self.colors = ((0, 0, 0), (200, 200, 200), (50, 230, 50), (250, 200, 50), (250, 50, 50))
+        self.currentMap = maps.multicolor
         self.tileSize = int(self.game.height / len(self.currentMap))
 
 
@@ -37,8 +38,9 @@ class game_display(basic_display):
         pass
 
     def render(self):
-        for i in range(len(self.currentMap)):
-            for j in range(len(self.currentMap[0])):
+        m, n = len(self.currentMap), len(self.currentMap[0])
+        for i in range(m):
+            for j in range(n):
                 num = self.currentMap[i][j]
                 if num in [1, 2, 3, 4]:
                     pygame.draw.rect(self.screen, self.colors[num], (j * self.tileSize + self.camera, i * self.tileSize, self.tileSize, self.tileSize))
