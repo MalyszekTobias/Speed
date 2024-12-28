@@ -7,8 +7,9 @@ pygame.init()
 bg = (0, 0, 0)
 tileColor = (230, 230, 230)
 speedColor = (50, 230, 50)
-jumpColor = (250, 200, 50)
+jumpColor = (50, 50, 250)
 bounceColor = (250, 50, 50)
+winColor = (182, 196, 77)
 width, height = int(columnAmount * tileSize), int(rowAmount * tileSize)
 
 screen = pygame.display.set_mode((width, height))
@@ -42,13 +43,18 @@ map = [[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
 
 
-def printMap(Map: list):
-    print('[')
-    for row in range(len(map)):
+def printMap():
+    map[0].append(1)
+    print('[', map[0], ',')
+    map[0].pop(-1)
+    for row in range(1, len(map)):
+        map[row].append(1)
         if row <= len(map) - 2:
             print(map[row], ',')
         else:
             print(map[row], ']')
+        map[row].pop(-1)
+
 
 run = True
 
@@ -63,7 +69,7 @@ if __name__ == '__main__':
                     map[i].append(1)
 
         for row in range(rowAmount):
-            for column in range(len(map[0])):
+            for column in range(len(map[0]) - 1):
                 if map[row][column] == 1:
                     pygame.draw.rect(screen, tileColor,
                                      (column * tileSize - camera, row * tileSize, tileSize - 1, tileSize - 1))
@@ -76,6 +82,9 @@ if __name__ == '__main__':
                 elif map[row][column] == 4:
                     pygame.draw.rect(screen, bounceColor,
                                      (column * tileSize - camera, row * tileSize, tileSize - 1, tileSize - 1))
+                elif map[row][column] == 5:
+                    pygame.draw.rect(screen, winColor,
+                                     (column * tileSize - camera, row * tileSize, tileSize - 1, tileSize - 1))
 
         for even in pygame.event.get():
             if even.type == pygame.QUIT:
@@ -87,7 +96,7 @@ if __name__ == '__main__':
 
             if even.type == pygame.KEYDOWN:
                 if even.key == pygame.K_RETURN:
-                    printMap(map)
+                    printMap()
                 if even.key == pygame.K_d:
                     move = speed
                 if even.key == pygame.K_a:

@@ -190,7 +190,7 @@ class Player:
                 # if self.frame % 20 == 0:
                 #     pygame.draw.rect(self.display.screen, self.playerColor, (column * self.display.tileSize + self.display.camera,row * self.display.tileSize, self.width, self.height))
                 try:
-                    if self.display.currentMap[row][column] != 0:
+                    if not self.display.currentMap[row][column] in(0, 5):
                         block = (column * self.display.tileSize, row * self.display.tileSize , self.display.tileSize, self.display.tileSize)
                         if self.collision((self.x, self.y, self.width, self.height),block):
                             if actOrNot:
@@ -198,6 +198,10 @@ class Player:
                                 pygame.draw.rect(self.display.screen, (200, 0, 0), (block[0] + self.display.camera,block[1],block[2],block[3]))
                             else:
                                 return True
+                    elif self.display.currentMap[row][column] == 5:
+                        block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize,self.display.tileSize)
+                        if self.collision((self.x, self.y, self.width, self.height), block):
+                            print('congrats!!! ')
                 except:
                     pass
         return False
@@ -241,7 +245,6 @@ class Player:
                 if self.jump:
                     self.velUp /= 2
                     self.jump = False
-
     def isFounded(self):
         self.maxSpeed = self.regularMaxSpeed
         self.acceleration = self.groundAcceleration
@@ -250,7 +253,7 @@ class Player:
         for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 3)):
             for column in range(int(self.x // self.display.tileSize - 1), int(self.x // self.display.tileSize + 3)):
                 try:
-                    if self.display.currentMap[row][column] != 0:
+                    if not self.display.currentMap[row][column] in (0, 5):
                         block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
                         # if block[1] == self.y + self.height and block[0]
                         if self.collision((self.x, self.y + self.height, self.width, 1),block):
@@ -269,7 +272,7 @@ class Player:
         for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 2)):
             for column in range(int(self.x // self.display.tileSize - 1), int(self.x // self.display.tileSize + 3)):
                 try:
-                    if self.display.currentMap[row][column] != 0:
+                    if not self.display.currentMap[row][column] in (0, 5):
                         block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
                         if self.collision((self.x + 1, self.y, self.width - 2, 1),block):
                             return True
@@ -280,7 +283,7 @@ class Player:
         for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 3)):
             for column in range(int(self.x // self.display.tileSize - 1), int(self.x // self.display.tileSize + 3)):
                 try:
-                    if self.display.currentMap[row][column] != 0:
+                    if not self.display.currentMap[row][column] in (0, 5):
                         block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
                         if self.collision((self.x, self.y - 1, 1, self.height - 2), block):
                             return True
@@ -291,7 +294,7 @@ class Player:
         for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 3)):
             for column in range(int(self.x // self.display.tileSize - 1), int(self.x // self.display.tileSize + 3)):
                 try:
-                    if self.display.currentMap[row][column] != 0:
+                    if not self.display.currentMap[row][column] in (0, 5):
                         block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
                         if self.collision((self.x + self.width - 1, self.y - 1, 1, self.height - 2), block):
                             return True
