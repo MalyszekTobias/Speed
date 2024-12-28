@@ -30,8 +30,8 @@ class Player:
         self.regularMaxSpeed = 8
         self.boostedMaxSpeed = 18
         self.maxSpeed = self.regularMaxSpeed
-        self.maxFallSpeed = -15
-        self.regularJump = 15
+        self.maxFallSpeed = -20
+        self.regularJump = 16
         self.boostedJump = 27
         self.jumpLength = self.regularJump
         self.airAcceleration = 0.4
@@ -48,13 +48,13 @@ class Player:
         self.wallAndCeilingBounce = 5
         self.floorBounce = 5
         self.minBounce = 5
-        self.jumpAmount = 2
+        self.jumpAmount = 1
         self.jumpsLeft = self.jumpAmount
         self.bounceBlockPower = 2
         self.energyConservation = 0.7
-        self.bbEnergyConservation = 1.2
         self.bouncyMode = True
         self.jumpRecoveryFromAllBounces = False
+        self.jumpRecoveryFromReds = False
 
 
     def collision(self, list, block: list) -> bool:
@@ -95,7 +95,8 @@ class Player:
                     self.velUp = self.minBounce * bounceMulti
 
                 self.grounded = True
-                self.jumpsLeft = self.jumpAmount
+                if bounceMulti == 1:
+                    self.jumpsLeft = self.jumpAmount
                 return
 
             elif direction == 'up':
@@ -381,6 +382,6 @@ class Player:
             self.updateBlockStatuses()
             self.collisionFinder(True)
 
-
-        if self.grounded:
-            self.jumpsLeft = self.jumpAmount
+        #
+        # if self.grounded:
+        #     self.jumpsLeft = self.jumpAmount

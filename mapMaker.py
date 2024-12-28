@@ -61,7 +61,6 @@ if __name__ == '__main__':
                     map[i].append(0)
                 else:
                     map[i].append(1)
-                    print(1)
 
         for row in range(rowAmount):
             for column in range(len(map[0])):

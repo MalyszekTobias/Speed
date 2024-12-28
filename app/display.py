@@ -28,7 +28,7 @@ class game_display(basic_display):
         self.jumpColor = (250, 200, 50)
         self.bounceColor = (250, 50, 50)
         self.colors = ((0, 0, 0), (200, 200, 200), (50, 230, 50), (250, 200, 50), (250, 50, 50))
-        self.currentMap = maps.multicolor
+        self.currentMap = maps.trampoline
         self.tileSize = int(self.game.height / len(self.currentMap))
 
 
@@ -78,7 +78,7 @@ class pause_display(basic_display):
 class start_screen(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
-        custom_text.Custom_text(self, self.game.width/2, self.game.height/3, None, 100, 'PyGame Game', text_color='Green')
+        custom_text.Custom_text(self, self.game.width/2, self.game.height/3, None, 100, 'Speed', text_color='Green')
         button.Button(self, 'settings', self.game.width/2 - 100, self.game.height * 0.75, 200, 75, (0, 0, 0), outline_color='white', text='Settings', text_color='white')
         button.Button(self, 'game_display', self.game.width / 2 - 100, self.game.height * 0.75 - 100, 200, 75, (0, 0, 0), outline_color='white', text='Start', text_color='white')
 class settings_screen(basic_display):
