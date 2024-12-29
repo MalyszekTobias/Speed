@@ -13,20 +13,8 @@ class Player:
     def __init__(self, display):
         self.display = display
         self.display.objects.append(self)
-        self.x = 100
-        self.y = 600
-        self.velUp = 0
-        self.velRight = 0
-        self.width = self.display.tileSize
-        self.height = self.width
-        self.playerColor = (200, 30, 30)
+
         self.g = 0.6
-        self.left = False
-        self.right = False
-        self.up = False
-        self.down = False
-        self.jump = False
-        self.grounded = False
         self.regularMaxSpeed = 8
         self.boostedMaxSpeed = 18
         self.maxSpeed = self.regularMaxSpeed
@@ -39,29 +27,45 @@ class Player:
         self.acceleration = self.airAcceleration
         self.airFriction = 0.1
         self.groundFriction = 0.5
-        self.archiveCords = [self.x, self.y]
         self.gravity = True
-        self.hugLeft = False
-        self.hugRight = False
-        self.touchingUp = False
-        # self.frame = 0
         self.wallAndCeilingBounce = 5
         self.floorBounce = 5
         self.minBounce = 5
-        self.jumpAmount = 1
-        self.jumpsLeft = self.jumpAmount
         self.bounceBlockPower = 2
         self.energyConservation = 0.7
         self.bouncyMode = True
         self.jumpRecoveryFromAllDirectionBounces = False
         self.jumpRecoveryFromReds = False
+        self.jumpAmount = 1
+
+        self.width = self.display.tileSize
+        self.height = self.width
+        self.playerColor = (200, 30, 30)
+
+        self.x = self.display.spawnCords[0]
+        self.y = self.display.spawnCords[1]
+        self.velUp = 0
+        self.velRight = 0
+        self.left = False
+        self.right = False
+        self.up = False
+        self.down = False
+        self.jump = False
+        self.grounded = False
+        self.hugLeft = False
+        self.hugRight = False
+        self.touchingUp = False
+        self.archiveCords = [self.x, self.y]
+        self.jumpsLeft = self.jumpAmount
+
+
 
 
     def collision(self, list, block: list) -> bool:
         if self.verticalCollision(list[1], list[3], block[1], block[3]) and self.horizontalCollision(list[0], list[2], block[0], block[2]):
                 return True
         return False
-    #Checks if objects share a horizontal line
+    #Checks if two objects share a horizontal line:
     def verticalCollision(self, y1,h1,y2,h2):
 
         if y2 + h2 < y1:
@@ -69,7 +73,7 @@ class Player:
         if y1 + h1 < y2:
             return False
         return True #checks
-    #Checks if objects share a vertical line
+    #Checks if two objects share a vertical line:
     def horizontalCollision(self, x1, w1, x2, w2):
         if x2 + w2 < x1:
             return False
@@ -77,6 +81,21 @@ class Player:
             return False
         return True
 
+    def restart(self):
+        self.x = self.display.spawnCords[0]
+        self.y = self.display.spawnCords[1]
+        self.velUp = 0
+        self.velRight = 0
+        self.jump = False
+        self.grounded = False
+        self.hugLeft = False
+        self.hugRight = False
+        self.touchingUp = False
+        self.archiveCords = [self.x, self.y]
+        self.jumpsLeft = self.jumpAmount
+
+        self.display.game.pauseSum = 0
+        self.display.game.startTime = czas.time_ns() // 1000000
 
     def nudge(self, direction: str, block: list, blockType):
         if self.bouncyMode:
@@ -131,8 +150,6 @@ class Player:
         else:
             if not direction == None:
                 self.velUp, self.velRight = 0, 0
-
-
     def corner(self, block: list):
         right, down = False, False
         c = self.x + self.width - block[0]
@@ -166,7 +183,6 @@ class Player:
                     return 'down'
         except:
             pass
-
     def detection(self, block: list):
         # keep track of whether the player is on the ground or in the ait
         if self.horizontalCollision(self.archiveCords[0], self.width, block[0], block[2]):
@@ -182,15 +198,13 @@ class Player:
         else:
             print('corner')
             return self.corner(block)
-
-
     def collisionFinder(self, actOrNot: bool):
         for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 3)):
             for column in range(int(self.x // self.display.tileSize - 1), int(self.x //self.display.tileSize + 3)):
                 # if self.frame % 20 == 0:
                 #     pygame.draw.rect(self.display.screen, self.playerColor, (column * self.display.tileSize + self.display.camera,row * self.display.tileSize, self.width, self.height))
                 try:
-                    if not self.display.currentMap[row][column] in(0, 5):
+                    if not self.display.currentMap[row][column] in(0, 5, 6, 7, 8, 9):
                         block = (column * self.display.tileSize, row * self.display.tileSize , self.display.tileSize, self.display.tileSize)
                         if self.collision((self.x, self.y, self.width, self.height),block):
                             if actOrNot:
@@ -201,13 +215,11 @@ class Player:
                     elif self.display.currentMap[row][column] == 5:
                         block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize,self.display.tileSize)
                         if self.collision((self.x, self.y, self.width, self.height), block):
-                            print('congrats!!! ')
-                            self.display.game.pauseSum = 0
-                            self.display.game.startTime = None
+                            print('Your time: ', self.display.game.getTimer())
+                            self.restart()
                 except:
                     pass
         return False
-
 
     def render(self):
         # self.frame += 1
@@ -234,6 +246,9 @@ class Player:
                 if self.jumpsLeft > 0:
                     self.jumpsLeft -= 1
                     self.velUp = self.jumpLength
+            if event.key == pygame.K_r:
+                self.restart()
+
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_a:
                 self.left = False
@@ -247,6 +262,7 @@ class Player:
                 if self.jump:
                     self.velUp /= 2
                     self.jump = False
+
     def isFounded(self):
         self.maxSpeed = self.regularMaxSpeed
         self.acceleration = self.groundAcceleration
@@ -255,7 +271,7 @@ class Player:
         for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 3)):
             for column in range(int(self.x // self.display.tileSize - 1), int(self.x // self.display.tileSize + 3)):
                 try:
-                    if not self.display.currentMap[row][column] in (0, 5):
+                    if not self.display.currentMap[row][column] in (0, 5, 6, 7, 8, 9):
                         block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
                         # if block[1] == self.y + self.height and block[0]
                         if self.collision((self.x, self.y + self.height, self.width, 1),block):
@@ -274,7 +290,7 @@ class Player:
         for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 2)):
             for column in range(int(self.x // self.display.tileSize - 1), int(self.x // self.display.tileSize + 3)):
                 try:
-                    if not self.display.currentMap[row][column] in (0, 5):
+                    if not self.display.currentMap[row][column] in (0, 5, 6, 7, 8, 9):
                         block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
                         if self.collision((self.x + 1, self.y, self.width - 2, 1),block):
                             return True
@@ -285,7 +301,7 @@ class Player:
         for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 3)):
             for column in range(int(self.x // self.display.tileSize - 1), int(self.x // self.display.tileSize + 3)):
                 try:
-                    if not self.display.currentMap[row][column] in (0, 5):
+                    if not self.display.currentMap[row][column] in (0, 5, 6, 7, 8, 9):
                         block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
                         if self.collision((self.x, self.y - 1, 1, self.height - 2), block):
                             return True
@@ -296,7 +312,7 @@ class Player:
         for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 3)):
             for column in range(int(self.x // self.display.tileSize - 1), int(self.x // self.display.tileSize + 3)):
                 try:
-                    if not self.display.currentMap[row][column] in (0, 5):
+                    if not self.display.currentMap[row][column] in (0, 5, 6, 7, 8, 9):
                         block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize, self.display.tileSize)
                         if self.collision((self.x + self.width - 1, self.y - 1, 1, self.height - 2), block):
                             return True
@@ -308,6 +324,7 @@ class Player:
         self.hugLeft = self.hugsLeft()
         self.hugRight = self.hugsRight()
         self.touchingUp = self.isCapped()
+
     def movement(self):
         self.updateBlockStatuses()
         if self.gravity:

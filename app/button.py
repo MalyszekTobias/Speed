@@ -45,7 +45,6 @@ class Button:  # A button class
             elif self.action == 'start_screen':
                 self.display.game.current_display = self.display.game.displays['start_screen']
             elif self.action == 'game_display':
-                print(self.text)
                 if self.text == 'Start':
                     self.display.game.startTime = time.time_ns() // 1000000
                 elif self.text == 'Resume':

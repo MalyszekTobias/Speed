@@ -3,7 +3,7 @@ import time
 import pygame
 import maps
 from app import custom_text, custom_images, button, player
-from mapMaker import camera
+from mapMaker import camera, tileSize
 
 
 class basic_display():
@@ -34,6 +34,10 @@ class game_display(basic_display):
         self.colors = (self.bgColor, self.tileColor, self.speedColor, self.jumpColor, self.bounceColor, self.winColor)
         self.currentMap = maps.trampoline
         self.tileSize = int(self.game.height / len(self.currentMap))
+        for i in range(len(self.currentMap)):
+            for j in range(len(self.currentMap[i])):
+                if self.currentMap[i][j] == 6:
+                    self.spawnCords = [j * tileSize, i * tileSize]
 
 
         self.player = player.Player(self)
@@ -46,7 +50,7 @@ class game_display(basic_display):
         for i in range(m):
             for j in range(n):
                 num = self.currentMap[i][j]
-                if not num == 0:
+                if not num in (0, 6, 7, 8, 9):
                     pygame.draw.rect(self.screen, self.colors[num], (j * self.tileSize + self.camera, i * self.tileSize, self.tileSize, self.tileSize))
 
 

@@ -61,6 +61,9 @@ class Game:
 
         self.mainloop()
 
+    def getTimer(self):
+        return (self.timeNow - self.startTime - self.pauseSum - self.currPauseTime)/1000
+
     def mainloop(self):
         while self.run:
             self.events()
@@ -72,14 +75,15 @@ class Game:
             self.timeNow = time.time_ns() // 1000000
             if not self.pausedStart == None:
                 self.currPauseTime = self.timeNow - self.pausedStart
-            if not self.startTime == None:
-                print((self.timeNow - self.startTime - self.pauseSum - self.currPauseTime)/1000)
+            # if not self.startTime == None:
+            #     print(self.getTimer())
 
     def events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.run = False
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_BACKSLASH and self.enable_debug:
+                print(self.startTime)
                 self.debug = not self.debug
                 for di in self.debug_items:
                     di.hidden = not di.hidden
