@@ -1,3 +1,5 @@
+import time
+
 import pygame
 import maps
 from app import custom_text, custom_images, button, player
@@ -58,6 +60,7 @@ class game_display(basic_display):
     def events(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             self.game.current_display = self.game.displays['pause_display']
+            self.game.pausedStart = time.time_ns() // 1000000
         else:
             for obj in self.objects:
                 obj.events(event)
@@ -73,6 +76,9 @@ class pause_display(basic_display):
     def events(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             self.game.current_display = self.game.displays['game_display']
+            self.game.pauseSum += self.game.currPauseTime
+            self.game.currPauseTime = 0
+            self.game.pausedStart = None
         else:
             for obj in self.objects:
                 obj.events(event)

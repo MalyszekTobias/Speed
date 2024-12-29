@@ -53,7 +53,7 @@ class Player:
         self.bounceBlockPower = 2
         self.energyConservation = 0.7
         self.bouncyMode = True
-        self.jumpRecoveryFromAllBounces = False
+        self.jumpRecoveryFromAllDirectionBounces = False
         self.jumpRecoveryFromReds = False
 
 
@@ -85,7 +85,7 @@ class Player:
                 bounceMulti = 1.5
             else:
                 bounceMulti = 1
-            if self.jumpRecoveryFromAllBounces:
+            if self.jumpRecoveryFromAllDirectionBounces:
                 self.jumpsLeft = self.jumpAmount
             if direction == 'down':
                 self.y = block[1] - self.height
@@ -202,6 +202,8 @@ class Player:
                         block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize,self.display.tileSize)
                         if self.collision((self.x, self.y, self.width, self.height), block):
                             print('congrats!!! ')
+                            self.display.game.pauseSum = 0
+                            self.display.game.startTime = None
                 except:
                     pass
         return False

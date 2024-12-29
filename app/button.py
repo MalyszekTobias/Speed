@@ -1,3 +1,5 @@
+import time
+
 import pygame
 from app import custom_text
 
@@ -5,7 +7,7 @@ class Button:  # A button class
     def __init__(self, display, action, x, y, width, height, color, text=None, text_color='black', outline_color=None, outline_width=5):  # Getting all the parameters of the button
 
         self.action = action
-
+        self.text = text
         self.display = display
 
         self.x = x
@@ -21,6 +23,7 @@ class Button:  # A button class
         if text != None:  # if there is text it's put on the button
             self.text = custom_text.Custom_text(self.display, self.x + self.width / 2, self.y + self.height / 2, None,
                                     self.height // 2, text, text_color=text_color)
+            self.text = text
 
         self.outline_color = outline_color
         self.outline_width = outline_width
@@ -42,6 +45,14 @@ class Button:  # A button class
             elif self.action == 'start_screen':
                 self.display.game.current_display = self.display.game.displays['start_screen']
             elif self.action == 'game_display':
+                print(self.text)
+                if self.text == 'Start':
+                    self.display.game.startTime = time.time_ns() // 1000000
+                elif self.text == 'Resume':
+                    print('res')
+                    self.display.game.pauseSum += self.display.game.currPauseTime
+                    self.display.game.currPauseTime = 0
+                    self.display.game.pausedStart = None
                 self.display.game.current_display = self.display.game.displays['game_display']
             else:
                 print('clicked')

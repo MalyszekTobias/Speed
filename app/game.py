@@ -1,4 +1,8 @@
+import time
+
 import pygame
+
+import app.player
 import maps
 from app import config, display, custom_text
 
@@ -17,14 +21,22 @@ class Game:
         self.fps = 60
         self.title = self.cfg['title']
         self.enable_debug = int(self.cfg['enable_debug'])
-
+        self.pauseTimerVisible = True
+        self.currentMap = maps.tuto
         self.clock = pygame.time.Clock()
         self.font = None
-        self.currentMap = maps.tuto
+
+
+        self.startTime = None
+        self.pausedStart = None
+        self.pauseSum = 0
+        self.currPauseTime = 0
+        self.timeNow = None
 
         self.run = True
 
         self.objects = []
+
 
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption(f"{self.title} (v {self.version})")
@@ -57,6 +69,11 @@ class Game:
             self.clock.tick(self.fps)
             if self.current_display == self.displays['game_display']:
                 self.current_display.mainloop()
+            self.timeNow = time.time_ns() // 1000000
+            if not self.pausedStart == None:
+                self.currPauseTime = self.timeNow - self.pausedStart
+            if not self.startTime == None:
+                print((self.timeNow - self.startTime - self.pauseSum - self.currPauseTime)/1000)
 
     def events(self):
         for event in pygame.event.get():
@@ -80,9 +97,12 @@ class Game:
         if self.debug:
 
             for obj in self.current_display.objects:
-                if obj.rect.collidepoint(pygame.mouse.get_pos()):
-                    if obj not in self.pointing_at:
-                        self.pointing_at.append(obj)
+                try:
+                    if obj.rect.collidepoint(pygame.mouse.get_pos()):
+                        if obj not in self.pointing_at:
+                            self.pointing_at.append(obj)
+                except:
+                    pass
 
             i = []
             for obj in self.pointing_at:
