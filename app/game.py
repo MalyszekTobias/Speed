@@ -5,6 +5,8 @@ import pygame
 import app.player
 import maps
 from app import config, display, custom_text
+from mapMaker import height, width
+
 
 class Game:
     def __init__(self):
@@ -15,13 +17,12 @@ class Game:
         self.cfg = config.read_config()
 
         self.version = self.cfg['version']
-        self.width = int(800)
-        self.height = int(800)
+        self.width = float(self.cfg['width'])
+        self.height = float(self.cfg['height'])
         # self.fps = float(self.cfg['fps'])
         self.fps = 60
         self.title = self.cfg['title']
         self.enable_debug = int(self.cfg['enable_debug'])
-        self.timerVisibility = True
         self.currentMap = maps.tuto
         self.clock = pygame.time.Clock()
         self.font = None
@@ -60,6 +61,7 @@ class Game:
         for debug_item in self.debug_items:
             debug_item.hidden = True
 
+
         self.mainloop()
 
     def getTimer(self):
@@ -93,10 +95,10 @@ class Game:
                     for di in self.debug_items:
                         di.hidden = not di.hidden
                 elif event.key == pygame.K_t:
-                    if self.timerVisibility:
-                        self.timerVisibility = False
+                    if self.timer.hidden:
+                        self.timer.hidden = False
                     else:
-                        self.timerVisibility = True
+                        self.timer.hidden = True
                 else:
                     self.current_display.events(event)
             else:
