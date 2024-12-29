@@ -21,7 +21,7 @@ class Game:
         self.fps = 60
         self.title = self.cfg['title']
         self.enable_debug = int(self.cfg['enable_debug'])
-        self.pauseTimerVisible = True
+        self.timerVisibility = True
         self.currentMap = maps.tuto
         self.clock = pygame.time.Clock()
         self.font = None
@@ -54,6 +54,7 @@ class Game:
                             custom_text.Custom_text(self, 12, 135, self.font, 30, f'Objects in memory: {len(self.current_display.objects)}', text_color='white', center=False),
                             custom_text.Custom_text(self, 12, 165, self.font, 30, f'Current display: {type(self.current_display)}', text_color='white', center=False),
                             custom_text.Custom_text(self, 12, 195, self.font, 30, f'Pointing at: {self.pointing_at}', text_color='white', center=False)]
+        self.timer = custom_text.Custom_text(self, self.width - 200, 50, "Assets/digital-7.ttf", 90, self.getTimer(), text_color='white', background_color='black', center=False)
 
 
         for debug_item in self.debug_items:
@@ -62,7 +63,10 @@ class Game:
         self.mainloop()
 
     def getTimer(self):
-        return (self.timeNow - self.startTime - self.pauseSum - self.currPauseTime)/1000
+        try:
+            return (self.timeNow - self.startTime - self.pauseSum - self.currPauseTime)/1000
+        except:
+            return '0:00'
 
     def mainloop(self):
         while self.run:
@@ -82,11 +86,19 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.run = False
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_BACKSLASH and self.enable_debug:
-                print(self.startTime)
-                self.debug = not self.debug
-                for di in self.debug_items:
-                    di.hidden = not di.hidden
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_BACKSLASH and self.enable_debug:
+                    print(self.startTime)
+                    self.debug = not self.debug
+                    for di in self.debug_items:
+                        di.hidden = not di.hidden
+                elif event.key == pygame.K_t:
+                    if self.timerVisibility:
+                        self.timerVisibility = False
+                    else:
+                        self.timerVisibility = True
+                else:
+                    self.current_display.events(event)
             else:
                 self.current_display.events(event)
 
@@ -121,6 +133,7 @@ class Game:
             self.debug_items[4].update_text(f'Objects in memory: {len(self.current_display.objects)}')
             self.debug_items[5].update_text(f'Current display: {type(self.current_display)}')
             self.debug_items[6].update_text(f'Pointing at: {self.pointing_at}')
+        self.timer.update_text(str(self.getTimer()))
 
 
         pygame.display.update()
