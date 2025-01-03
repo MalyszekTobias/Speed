@@ -49,7 +49,12 @@ class Button:  # A button class
                     self.display.game.startTime = time.time_ns() // 1000000
                 elif self.text == 'Resume':
                     print('res')
+
+                    # self.display.game.
                     self.display.game.pauseSum += self.display.game.currPauseTime
+                    if self.display.game.countdown > 0:
+                        self.display.game.countdownText.hidden = False
+                        self.display.game.pauseSum = 0
                     self.display.game.currPauseTime = 0
                     self.display.game.pausedStart = None
                 self.display.game.current_display = self.display.game.displays['game_display']

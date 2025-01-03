@@ -65,6 +65,7 @@ class game_display(basic_display):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             self.game.current_display = self.game.displays['pause_display']
             self.game.pausedStart = time.time_ns() // 1000000
+            self.game.countdownText.hidden = True
         else:
             for obj in self.objects:
                 obj.events(event)
@@ -83,6 +84,9 @@ class pause_display(basic_display):
             self.game.pauseSum += self.game.currPauseTime
             self.game.currPauseTime = 0
             self.game.pausedStart = None
+            if self.game.countdown > 0:
+                self.game.countdownText.hidden = False
+                self.game.pauseSum = 0
         else:
             for obj in self.objects:
                 obj.events(event)

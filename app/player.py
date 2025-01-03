@@ -9,6 +9,7 @@ import random
 from random import *
 
 
+
 class Player:
     def __init__(self, display):
         self.display = display
@@ -57,6 +58,7 @@ class Player:
         self.touchingUp = False
         self.archiveCords = [self.x, self.y]
         self.jumpsLeft = self.jumpAmount
+        self.justStarted = True
 
 
 
@@ -82,6 +84,8 @@ class Player:
         return True
 
     def restart(self):
+        self.display.game.countdown = 59
+        self.display.game.countdownText.hidden = False
         self.x = self.display.spawnCords[0]
         self.y = self.display.spawnCords[1]
         self.velUp = 0
@@ -95,7 +99,6 @@ class Player:
         self.jumpsLeft = self.jumpAmount
 
         self.display.game.pauseSum = 0
-        self.display.game.startTime = czas.time_ns() // 1000000
 
     def nudge(self, direction: str, block: list, blockType):
         if self.bouncyMode:
@@ -209,7 +212,7 @@ class Player:
                         if self.collision((self.x, self.y, self.width, self.height),block):
                             if actOrNot:
                                 self.nudge(self.detection(block), block, self.display.currentMap[row][column])
-                                pygame.draw.rect(self.display.screen, (200, 0, 0), (block[0] + self.display.camera,block[1],block[2],block[3]))
+                                # pygame.draw.rect(self.display.screen, (200, 0, 0), (block[0] + self.display.camera,block[1],block[2],block[3]))
                             else:
                                 return True
                     elif self.display.currentMap[row][column] == 5:
@@ -222,13 +225,17 @@ class Player:
         return False
 
     def render(self):
+        if self.justStarted:
+            self.justStarted = False
+            self.restart()
         # self.frame += 1
         if self.x + self.width / 2 > self.display.game.width / 2:
             pygame.draw.rect(self.display.screen, self.playerColor, ((self.display.game.width - self.width )/ 2, self.y, self.width, self.height))
         else:
             pygame.draw.rect(self.display.screen, self.playerColor, (self.x, self.y, self.width, self.height))
 
-        self.movement()
+        if self.display.game.countdown == 0:
+            self.movement()
 
         return self.x + self.width / 2 - self.display.game.width / 2
     def events(self, event):
@@ -242,10 +249,11 @@ class Player:
             if event.key == pygame.K_w:
                 self.up = True
             if event.key == pygame.K_SPACE:
-                self.jump = True
-                if self.jumpsLeft > 0:
-                    self.jumpsLeft -= 1
-                    self.velUp = self.jumpLength
+                if self.display.game.countdown == 0:
+                    self.jump = True
+                    if self.jumpsLeft > 0:
+                        self.jumpsLeft -= 1
+                        self.velUp = self.jumpLength
             if event.key == pygame.K_r:
                 self.restart()
 

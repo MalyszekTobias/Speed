@@ -26,6 +26,7 @@ class Game:
         self.currentMap = maps.tuto
         self.clock = pygame.time.Clock()
         self.font = None
+        self.countdown = 0
 
 
         self.startTime = None
@@ -55,7 +56,9 @@ class Game:
                             custom_text.Custom_text(self, 12, 135, self.font, 30, f'Objects in memory: {len(self.current_display.objects)}', text_color='white', center=False),
                             custom_text.Custom_text(self, 12, 165, self.font, 30, f'Current display: {type(self.current_display)}', text_color='white', center=False),
                             custom_text.Custom_text(self, 12, 195, self.font, 30, f'Pointing at: {self.pointing_at}', text_color='white', center=False)]
-        self.timer = custom_text.Custom_text(self, self.width - 200, 50, "Assets/digital-7.ttf", 90, self.getTimer(), text_color='white', background_color='black', center=False)
+        self.timerText = custom_text.Custom_text(self, self.width - 200, 50, "Assets/digital-7.ttf", 90, self.getTimer(), text_color='white', background_color='black', center=False)
+        self.countdownText = custom_text.Custom_text(self, self.width / 2, self.height / 3, "Assets/digital-7.ttf", 80, str(self.countdown // 6), text_color='white', background_color='black', center=False)
+        self.countdownText.hidden = True
 
 
         for debug_item in self.debug_items:
@@ -81,8 +84,13 @@ class Game:
             self.timeNow = time.time_ns() // 1000000
             if not self.pausedStart == None:
                 self.currPauseTime = self.timeNow - self.pausedStart
-            # if not self.startTime == None:
-            #     print(self.getTimer())
+            if self.currPauseTime == 0:
+                if self.countdown > 0:
+                    self.startTime = time.time_ns() // 1000000
+                    self.countdown -= 1
+                else:
+                    self.countdownText.hidden = True
+            # print(self.countdown)
 
     def events(self):
         for event in pygame.event.get():
@@ -95,10 +103,10 @@ class Game:
                     for di in self.debug_items:
                         di.hidden = not di.hidden
                 elif event.key == pygame.K_t:
-                    if self.timer.hidden:
-                        self.timer.hidden = False
+                    if self.timerText.hidden:
+                        self.timerText.hidden = False
                     else:
-                        self.timer.hidden = True
+                        self.timerText.hidden = True
                 else:
                     self.current_display.events(event)
             else:
@@ -135,7 +143,8 @@ class Game:
             self.debug_items[4].update_text(f'Objects in memory: {len(self.current_display.objects)}')
             self.debug_items[5].update_text(f'Current display: {type(self.current_display)}')
             self.debug_items[6].update_text(f'Pointing at: {self.pointing_at}')
-        self.timer.update_text(str(self.getTimer()))
+        self.timerText.update_text(str(self.getTimer()))
+        self.countdownText.update_text(str(self.countdown // 6))
 
 
         pygame.display.update()
