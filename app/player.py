@@ -99,6 +99,7 @@ class Player:
         self.jumpsLeft = self.jumpAmount
 
         self.display.game.pauseSum = 0
+        self.display.game.startTime = czas.time_ns() // 1000000
 
     def nudge(self, direction: str, block: list, blockType):
         if self.bouncyMode:
@@ -228,28 +229,30 @@ class Player:
         if self.justStarted:
             self.justStarted = False
             self.restart()
+            self.display.game.timerText.hidden = False
+
         # self.frame += 1
         if self.x + self.width / 2 > self.display.game.width / 2:
             pygame.draw.rect(self.display.screen, self.playerColor, ((self.display.game.width - self.width )/ 2, self.y, self.width, self.height))
         else:
             pygame.draw.rect(self.display.screen, self.playerColor, (self.x, self.y, self.width, self.height))
 
-        if self.display.game.countdown == 0:
+        if self.display.game.countdown < 1:
             self.movement()
 
         return self.x + self.width / 2 - self.display.game.width / 2
     def events(self, event):
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_a:
+            if event.key in (pygame.K_a, pygame.K_LEFT):
                 self.left = True
-            if event.key == pygame.K_d:
+            if event.key in (pygame.K_d, pygame.K_RIGHT):
                 self.right = True
-            if event.key == pygame.K_s:
+            if event.key in (pygame.K_s, pygame.K_DOWN):
                 self.down = True
-            if event.key == pygame.K_w:
+            if event.key in (pygame.K_w, pygame.K_UP):
                 self.up = True
             if event.key == pygame.K_SPACE:
-                if self.display.game.countdown == 0:
+                if self.display.game.countdown < 1:
                     self.jump = True
                     if self.jumpsLeft > 0:
                         self.jumpsLeft -= 1
@@ -258,13 +261,13 @@ class Player:
                 self.restart()
 
         if event.type == pygame.KEYUP:
-            if event.key == pygame.K_a:
+            if event.key in (pygame.K_a, pygame.K_LEFT):
                 self.left = False
-            if event.key == pygame.K_d:
+            if event.key in (pygame.K_d, pygame.K_RIGHT):
                 self.right = False
-            if event.key == pygame.K_s:
+            if event.key in (pygame.K_s, pygame.K_DOWN):
                 self.down = False
-            if event.key == pygame.K_w:
+            if event.key in (pygame.K_w, pygame.K_UP):
                 self.up = False
             if event.key == pygame.K_SPACE:
                 if self.jump:

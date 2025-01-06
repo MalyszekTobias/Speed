@@ -59,6 +59,7 @@ class Game:
         self.timerText = custom_text.Custom_text(self, self.width - 200, 50, "Assets/digital-7.ttf", 90, self.getTimer(), text_color='white', background_color='black', center=False)
         self.countdownText = custom_text.Custom_text(self, self.width / 2, self.height / 3, "Assets/digital-7.ttf", 80, str(self.countdown // 6), text_color='white', background_color='black', center=False)
         self.countdownText.hidden = True
+        self.timerText.hidden = True
 
 
         for debug_item in self.debug_items:
@@ -75,6 +76,8 @@ class Game:
 
     def mainloop(self):
         while self.run:
+            print(self.timerText.hidden)
+
             self.events()
             self.render()
             self.update()
@@ -88,8 +91,13 @@ class Game:
                 if self.countdown > 0:
                     self.startTime = time.time_ns() // 1000000
                     self.countdown -= 1
+                    self.timerText.hidden = True
+                elif self.countdown == 0:
+                    self.countdown -= 1
+                    self.timerText.hidden = False
                 else:
                     self.countdownText.hidden = True
+
             # print(self.countdown)
 
     def events(self):

@@ -17,6 +17,7 @@ class basic_display():
         for obj in self.objects:
             obj.render()
 
+
     def events(self, event):
         for obj in self.objects:
             obj.events(event)
@@ -85,8 +86,9 @@ class pause_display(basic_display):
             self.game.currPauseTime = 0
             self.game.pausedStart = None
             if self.game.countdown > 0:
-                self.game.countdownText.hidden = False
                 self.game.pauseSum = 0
+                self.game.countdownText.hidden = False
+
         else:
             for obj in self.objects:
                 obj.events(event)
