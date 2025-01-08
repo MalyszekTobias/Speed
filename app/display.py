@@ -12,8 +12,11 @@ class basic_display():
         self.screen = self.game.screen
 
         self.objects = []
+        self.particles = []
 
     def render(self):
+        for obj in self.particles:
+            obj.render()
         for obj in self.objects:
             obj.render()
 
@@ -55,12 +58,16 @@ class game_display(basic_display):
                     pygame.draw.rect(self.screen, self.colors[num], (j * self.tileSize + self.camera, i * self.tileSize, self.tileSize, self.tileSize))
 
 
+
+        for obj in self.particles:
+            obj.render()
         for obj in self.objects:
             c = obj.render()
             if c > 0:
                 self.camera = -c
             else:
                 self.camera = 0
+
 
     def events(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
