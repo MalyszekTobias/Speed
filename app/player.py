@@ -234,7 +234,6 @@ class Player:
             self.restart()
             self.display.game.timerText.hidden = False
         # self.createParticle(5, self.playerColor, self.x + self.width/2, self.y + self.height/2, ran.random() * ran.choice([-1, 1]), ran.random() * ran.choice([-1, 1]), 0, 10)
-        self.createParticle(self.width, (90, 20, 20), self.x, self.y, 0, 0, 0, 6)
         # self.frame += 1
         if self.x + self.width / 2 > self.display.game.width / 2:
             pygame.draw.rect(self.display.screen, self.playerColor, ((self.display.game.width - self.width )/ 2, self.y, self.width, self.height))
@@ -416,6 +415,7 @@ class Player:
                 self.archiveCords = [self.x, self.y]
             self.x += self.velRight / divisor
             self.y -= self.velUp / divisor
+            self.createParticle(self.width, (90, 20, 20), self.x, self.y, 0, 0, 0, 6)
             self.updateBlockStatuses()
             self.collisionFinder(True)
 
