@@ -412,10 +412,10 @@ class Player:
             # if a:
             #     print(a)
             if not self.collisionFinder(False):
+                self.createParticle(self.width, (90, 20, 20), self.x, self.y, 0, 0, 0, 6)
                 self.archiveCords = [self.x, self.y]
             self.x += self.velRight / divisor
             self.y -= self.velUp / divisor
-            self.createParticle(self.width, (90, 20, 20), self.x, self.y, 0, 0, 0, 6)
             self.updateBlockStatuses()
             self.collisionFinder(True)
 
