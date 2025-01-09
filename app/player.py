@@ -27,7 +27,7 @@ class Player:
         self.acceleration = self.airAcceleration
         self.airFriction = 0.1
         self.groundFriction = 0.5
-        self.gravity = True
+        self.gravity = False
         self.wallAndCeilingBounce = 5
         self.floorBounce = 5
         self.minBounce = 5
@@ -37,6 +37,8 @@ class Player:
         self.jumpRecoveryFromAllDirectionBounces = False
         self.jumpRecoveryFromReds = False
         self.jumpAmount = 1
+        self.jumpSpeedBoost = 4
+        self.speedCorrection = 1
 
         self.width = self.display.tileSize
         self.height = self.width
@@ -256,10 +258,15 @@ class Player:
                 self.up = True
             if event.key == pygame.K_SPACE:
                 if self.display.game.countdown < 1:
-                    self.jump = True
                     if self.jumpsLeft > 0:
+                        self.jump = True
                         self.jumpsLeft -= 1
                         self.velUp = self.jumpLength
+                        if self.right and not self.left:
+                            self.velRight += self.jumpSpeedBoost
+                        elif self.left and not self.right:
+                            self.velRight -= self.jumpSpeedBoost
+
             if event.key == pygame.K_r:
                 self.restart()
 
@@ -376,9 +383,9 @@ class Player:
                 self.velRight -= self.airAcceleration
 
         if self.velRight < -self.maxSpeed:
-            self.velRight = -self.maxSpeed
+            self.velRight += self.speedCorrection
         if self.velRight > self.maxSpeed:
-            self.velRight = self.maxSpeed
+            self.velRight -= self.speedCorrection
 
 
         if self.grounded:
