@@ -76,8 +76,6 @@ class Game:
 
     def mainloop(self):
         while self.run:
-            print(self.timerText.hidden)
-
             self.events()
             self.render()
             self.update()
