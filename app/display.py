@@ -1,5 +1,4 @@
 import time
-
 import pygame
 import maps
 from app import custom_text, custom_images, button, player

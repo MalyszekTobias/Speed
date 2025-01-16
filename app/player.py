@@ -43,20 +43,23 @@ class Player:
         self.width = self.display.tileSize
         self.height = self.width
         self.playerColor = (200, 30, 30)
+        self.trailColor = (90, 20, 20)
 
-        self.character = 2  # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
+        self.character = 1  # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
 
         if self.character == 0:
             self.bouncyMode = False
             self.gravity = False
             self.airAcceleration = 1
+            self.playerColor = (200, 200, 200)
+            self.trailColor = (90, 90, 90)
 
         if self.character == 1:
             # bouncer bounces from every block, has 1 jump in the air after bouncing from a white floor
             self.bouncyMode = True
             self.gravity = True
             self.g = 0.6
-
+            self.trailColor = (90, 20, 20)
             self.minBounce = 5
             self.wallAndCeilingBounce = 5
             self.floorBounce = 5
@@ -64,6 +67,12 @@ class Player:
         if self.character == 2:
             # runner can run along the floor and jump, pretty normal stuff
             self.bouncyMode = False
+            self.playerColor = (30, 200, 30)
+            self.trailColor = (20, 90, 20)
+
+        # hooker will have 1 small jump and a hook
+
+        # magneter will get attracted to the mouse, no jump, no gravity
 
         self.x = self.display.spawnCords[0]
         self.y = self.display.spawnCords[1]
@@ -304,6 +313,8 @@ class Player:
                         self.velUp = self.jumpLength
                         if self.grounded:
                             self.y -= 1
+                            if self.character == 2:
+                                self.jumpsLeft += 1
                         if self.right and not self.left:
                             self.velRight += self.jumpSpeedBoost
                         elif self.left and not self.right:
@@ -327,10 +338,6 @@ class Player:
                     self.jump = False
 
     def isFounded(self):
-        self.maxSpeed = self.regularMaxSpeed
-        self.acceleration = self.groundAcceleration
-        self.jumpLength = self.regularJump
-
         for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 3)):
             for column in range(int(self.x // self.display.tileSize - 1), int(self.x // self.display.tileSize + 3)):
                 try:
@@ -338,7 +345,10 @@ class Player:
                         block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize,
                                  self.display.tileSize)
                         # if block[1] == self.y + self.height and block[0]
-                        if self.collision((self.x, self.y + self.height, self.width, 1), block):
+                        if self.collision((self.x + 1, self.y + self.height, self.width - 2, 1), block):
+                            self.maxSpeed = self.regularMaxSpeed
+                            self.acceleration = self.groundAcceleration
+                            self.jumpLength = self.regularJump
 
                             if self.display.currentMap[row][column] == 2:
                                 self.maxSpeed = self.boostedMaxSpeed
@@ -463,7 +473,10 @@ class Player:
         divisor = abs(int(max(self.velRight, self.velUp))) + 1
         for i in range(divisor):
             if not self.collisionFinder(False):
-                self.createParticle(self.width, (90, 20, 20), self.x, self.y, 0, 0, 0, 10, 4.5)
+                if self.maxSpeed == self.boostedMaxSpeed:
+                    self.createParticle(self.width, self.display.speedColor, self.x, self.y, 0, 0, 0, 10, 4.5)
+                else:
+                    self.createParticle(self.width, self.trailColor, self.x, self.y, 0, 0, 0, 10, 4.5)
                 self.archiveCords = [self.x, self.y]
             self.x += self.velRight / divisor
             self.y -= self.velUp / divisor
