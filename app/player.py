@@ -365,7 +365,7 @@ class Player:
                 self.velUp -= self.airAcceleration
 
 
-            if self.velUp < -self.maxSpeed:
+            if self.velUp < -self.maxFallSpeed:
                 self.velUp = -self.maxSpeed
             if self.velUp > self.maxSpeed:
                 self.velUp = self.maxSpeed
