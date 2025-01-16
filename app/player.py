@@ -13,6 +13,7 @@ class Player:
         self.display = display
         self.display.objects.append(self)
 
+
         self.g = 0.6
         self.regularMaxSpeed = 8
         self.boostedMaxSpeed = 18
@@ -43,6 +44,27 @@ class Player:
         self.height = self.width
         self.playerColor = (200, 30, 30)
 
+        self.character = 2  # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
+
+        if self.character == 0:
+            self.bouncyMode = False
+            self.gravity = False
+            self.airAcceleration = 1
+
+        if self.character == 1:
+            # bouncer bounces from every block, has 1 jump in the air after bouncing from a white floor
+            self.bouncyMode = True
+            self.gravity = True
+            self.g = 0.6
+
+            self.minBounce = 5
+            self.wallAndCeilingBounce = 5
+            self.floorBounce = 5
+
+        if self.character == 2:
+            # runner can run along the floor and jump, pretty normal stuff
+            self.bouncyMode = False
+
         self.x = self.display.spawnCords[0]
         self.y = self.display.spawnCords[1]
         self.velUp = 0
@@ -60,29 +82,6 @@ class Player:
         self.jumpsLeft = self.jumpAmount
         self.justStarted = True
 
-    def collision(self, list, block: list) -> bool:
-        if self.verticalCollision(list[1], list[3], block[1], block[3]) and self.horizontalCollision(list[0], list[2],
-                                                                                                     block[0],
-                                                                                                     block[2]):
-            return True
-        return False
-
-    # Checks if two objects share a horizontal line:
-    def verticalCollision(self, y1, h1, y2, h2):
-
-        if y2 + h2 < y1:
-            return False
-        if y1 + h1 < y2:
-            return False
-        return True  # checks
-
-    # Checks if two objects share a vertical line:
-    def horizontalCollision(self, x1, w1, x2, w2):
-        if x2 + w2 < x1:
-            return False
-        if x1 + w1 < x2:
-            return False
-        return True
 
     def restart(self):
         self.display.game.countdown = 59
@@ -103,6 +102,25 @@ class Player:
         self.display.game.pauseSum = 0
         self.display.game.startTime = czas.time_ns() // 1000000
 
+    def collision(self, list, block: list) -> bool:
+        if self.verticalCollision(list[1], list[3], block[1], block[3]) and self.horizontalCollision(list[0], list[2], block[0], block[2]):
+            return True
+        return False
+    # Checks if two objects share a horizontal line:
+    def verticalCollision(self, y1, h1, y2, h2):
+
+        if y2 + h2 < y1:
+            return False
+        if y1 + h1 < y2:
+            return False
+        return True  # checks
+    # Checks if two objects share a vertical line:
+    def horizontalCollision(self, x1, w1, x2, w2):
+        if x2 + w2 < x1:
+            return False
+        if x1 + w1 < x2:
+            return False
+        return True
     def nudge(self, direction: str, block: list, blockType):
         if self.bouncyMode:
 
@@ -154,10 +172,31 @@ class Player:
                 self.hugRight = True
                 return
         else:
-            if not direction == None:
-                self.velUp, self.velRight = 0, 0
+            print(direction)
 
+            if direction == 'down':
+                self.y = block[1] - self.height - 1
+                self.velUp = 0
+                print(self.collisionFinder(False))
+                # self.grounded = True
+                return
+
+            elif direction == 'up':
+                self.y = block[1] + block[3] + 1
+                self.velUp = 0
+                return
+            elif direction == 'left':
+                self.x = block[0] + block[2] + 1
+                self.velRight = 0
+                return
+            elif direction == 'right':
+                self.x = block[0] - self.width - 1
+                self.velRight = 0
+                return
     def corner(self, block: list):
+        mapx, mapy = block[0] // self.display.tileSize, block[1] // self.display.tileSize
+
+
         right, down = False, False
         c = self.x + self.width - block[0]
         d = self.y + self.height - block[1]
@@ -176,7 +215,7 @@ class Player:
         elif self.isFounded():
             return 'down'
         a, b = abs(self.x - self.archiveCords[0]), abs(self.y - self.archiveCords[1])
-
+        print(1)
         try:
             if c / a < d / b:
                 if right:
@@ -190,7 +229,6 @@ class Player:
                     return 'down'
         except:
             pass
-
     def detection(self, block: list):
         # keep track of whether the player is on the ground or in the ait
         if self.horizontalCollision(self.archiveCords[0], self.width, block[0], block[2]):
@@ -204,9 +242,8 @@ class Player:
             else:
                 return 'left'
         else:
-            print('corner')
+            print(self.archiveCords, self.x, self.y)
             return self.corner(block)
-
     def collisionFinder(self, actOrNot: bool):
         for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 3)):
             for column in range(int(self.x // self.display.tileSize - 1), int(self.x // self.display.tileSize + 3)):
@@ -235,23 +272,20 @@ class Player:
     def createParticle(self, size, color, x, y, velRight, velUp, g, lifetime, shrink):
         self.particle = particle.Particle(self.display, size, color, x, y, velRight, velUp, g, lifetime, shrink)
         self.display.particles.append(self.particle)
-
     def render(self):
         if self.justStarted:
             self.justStarted = False
             self.restart()
             self.display.game.timerText.hidden = False
         if self.x + self.width / 2 > self.display.game.width / 2:
-            pygame.draw.rect(self.display.screen, self.playerColor,
-                             ((self.display.game.width - self.width) / 2, self.y, self.width, self.height))
+            pygame.draw.rect(self.display.screen, self.playerColor,((self.display.game.width - self.width) / 2 - 1, self.y - 1, self.width + 2, self.height + 2))    # camera work
         else:
-            pygame.draw.rect(self.display.screen, self.playerColor, (self.x, self.y, self.width, self.height))
+            pygame.draw.rect(self.display.screen, self.playerColor, (self.x - 1, self.y - 1, self.width + 2, self.height + 2))
 
         if self.display.game.countdown < 1:
             self.movement()
 
         return self.x + self.width / 2 - self.display.game.width / 2
-
     def events(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key in (pygame.K_a, pygame.K_LEFT):
@@ -268,6 +302,8 @@ class Player:
                         self.jump = True
                         self.jumpsLeft -= 1
                         self.velUp = self.jumpLength
+                        if self.grounded:
+                            self.y -= 1
                         if self.right and not self.left:
                             self.velRight += self.jumpSpeedBoost
                         elif self.left and not self.right:
@@ -435,5 +471,5 @@ class Player:
             self.collisionFinder(True)
 
         #
-        # if self.grounded:
-        #     self.jumpsLeft = self.jumpAmount
+        if self.grounded and not self.bouncyMode:
+            self.jumpsLeft = self.jumpAmount
