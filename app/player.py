@@ -27,7 +27,7 @@ class Player:
         self.acceleration = self.airAcceleration
         self.airFriction = 0.1
         self.groundFriction = 0.5
-        self.gravity = False
+        self.gravity = True
         self.wallAndCeilingBounce = 5
         self.floorBounce = 5
         self.minBounce = 5
