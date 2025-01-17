@@ -16,11 +16,11 @@ class Player:
 
         self.g = 0.6
         self.regularMaxSpeed = 8
-        self.boostedMaxSpeed = 18
+        self.boostedMaxSpeed = 16
         self.maxSpeed = self.regularMaxSpeed
         self.maxFallSpeed = -20
         self.regularJump = 16
-        self.boostedJump = 27
+        self.boostedJump = 23
         self.jumpLength = self.regularJump
         self.airAcceleration = 0.4
         self.groundAcceleration = 1
@@ -35,7 +35,7 @@ class Player:
         self.energyConservation = 0.7
         self.bouncyMode = True
         self.jumpRecoveryFromAllDirectionBounces = False
-        self.jumpRecoveryFromReds = False
+        self.jumpRecoveryFromReds = 0
         self.jumpAmount = 1
         self.jumpSpeedBoost = 4
         self.speedCorrection = 1
@@ -53,7 +53,6 @@ class Player:
             self.airAcceleration = 1
             self.playerColor = (200, 200, 200)
             self.trailColor = (90, 90, 90)
-
         if self.character == 1:
             # bouncer bounces from every block, has 1 jump in the air after bouncing from a white floor
             self.bouncyMode = True
@@ -63,7 +62,6 @@ class Player:
             self.minBounce = 5
             self.wallAndCeilingBounce = 5
             self.floorBounce = 5
-
         if self.character == 2:
             # runner can run along the floor and jump, pretty normal stuff
             self.bouncyMode = False
@@ -132,11 +130,21 @@ class Player:
         return True
     def nudge(self, direction: str, block: list, blockType):
         if self.bouncyMode:
+            bounceMulti = 1
 
             if blockType == 4:
-                bounceMulti = 1.5
-            else:
-                bounceMulti = 1
+                r, c = block[1] // self.display.tileSize, block[0] // self.display.tileSize
+                bouncable = False
+                if self.x < block[0]:
+                    if self.display.currentMap[r][c - 1] == 4:
+                        bouncable = True
+                elif self.x + self.width > block[0] + block[2]:
+                    if self.display.currentMap[r][c + 1] == 4:
+                        bouncable = True
+                else:
+                    bouncable = True
+                if bouncable:
+                    bounceMulti = 1.5
             if self.jumpRecoveryFromAllDirectionBounces:
                 self.jumpsLeft = self.jumpAmount
             if direction == 'down':
@@ -146,7 +154,6 @@ class Player:
                 elif 0 > self.velUp:
                     self.velUp = self.minBounce * bounceMulti
 
-                self.grounded = True
                 if bounceMulti == 1:
                     self.jumpsLeft = self.jumpAmount
                 return
@@ -181,14 +188,24 @@ class Player:
                 self.hugRight = True
                 return
         else:
-            print(direction)
-
             if direction == 'down':
                 self.y = block[1] - self.height - 1
                 self.velUp = 0
-                print(self.collisionFinder(False))
-                # self.grounded = True
-                return
+                r,c = block[1] // self.display.tileSize, block[0] // self.display.tileSize
+                bouncable = False
+                if self.x < block[0]:
+                    if self.display.currentMap[r][c - 1] == 4:
+                        bouncable = True
+                elif self.x + self.width > block[0] + block[2]:
+                    if self.display.currentMap[r][c + 1] == 4:
+                        bouncable = True
+                else:
+                    bouncable = True
+
+                if blockType != 4:
+                    return False
+                elif bouncable:
+                    return True
 
             elif direction == 'up':
                 self.y = block[1] + block[3] + 1
@@ -224,7 +241,6 @@ class Player:
         elif self.isFounded():
             return 'down'
         a, b = abs(self.x - self.archiveCords[0]), abs(self.y - self.archiveCords[1])
-        print(1)
         try:
             if c / a < d / b:
                 if right:
@@ -251,7 +267,6 @@ class Player:
             else:
                 return 'left'
         else:
-            print(self.archiveCords, self.x, self.y)
             return self.corner(block)
     def collisionFinder(self, actOrNot: bool):
         for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 3)):
@@ -264,7 +279,9 @@ class Player:
                                  self.display.tileSize)
                         if self.collision((self.x, self.y, self.width, self.height), block):
                             if actOrNot:
-                                self.nudge(self.detection(block), block, self.display.currentMap[row][column])
+                                if self.nudge(self.detection(block), block, self.display.currentMap[row][column]) == True and self.character == 2:
+                                    self.velUp = self.minBounce * 2
+                                    self.jumpsLeft = 1
                                 # pygame.draw.rect(self.display.screen, (200, 0, 0), (block[0] + self.display.camera,block[1],block[2],block[3]))
                             else:
                                 return True
@@ -290,7 +307,6 @@ class Player:
             pygame.draw.rect(self.display.screen, self.playerColor,((self.display.game.width - self.width) / 2 - 1, self.y - 1, self.width + 2, self.height + 2))    # camera work
         else:
             pygame.draw.rect(self.display.screen, self.playerColor, (self.x - 1, self.y - 1, self.width + 2, self.height + 2))
-
         if self.display.game.countdown < 1:
             self.movement()
 
@@ -311,6 +327,7 @@ class Player:
                         self.jump = True
                         self.jumpsLeft -= 1
                         self.velUp = self.jumpLength
+                        print(self.grounded)
                         if self.grounded:
                             self.y -= 1
                             if self.character == 2:
@@ -319,6 +336,8 @@ class Player:
                             self.velRight += self.jumpSpeedBoost
                         elif self.left and not self.right:
                             self.velRight -= self.jumpSpeedBoost
+                    else:
+                        print(123)
 
             if event.key == pygame.K_r:
                 self.restart()
@@ -359,8 +378,9 @@ class Player:
                 except:
                     pass
         self.acceleration = self.airAcceleration
+        if self.maxSpeed == self.boostedMaxSpeed:
+            self.acceleration = self.groundAcceleration
         return False
-
     def isCapped(self):
         for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 2)):
             for column in range(int(self.x // self.display.tileSize - 1), int(self.x // self.display.tileSize + 3)):
@@ -373,7 +393,6 @@ class Player:
                 except:
                     pass
         return False
-
     def hugsLeft(self):
         for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 3)):
             for column in range(int(self.x // self.display.tileSize - 1), int(self.x // self.display.tileSize + 3)):
@@ -386,7 +405,6 @@ class Player:
                 except:
                     pass
         return False
-
     def hugsRight(self):
         for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 3)):
             for column in range(int(self.x // self.display.tileSize - 1), int(self.x // self.display.tileSize + 3)):
@@ -399,7 +417,6 @@ class Player:
                 except:
                     pass
         return False
-
     def updateBlockStatuses(self):
         self.grounded = self.isFounded()
         self.hugLeft = self.hugsLeft()
@@ -468,7 +485,6 @@ class Player:
             elif self.velUp > 0:
                 self.velUp -= self.airFriction
         self.pixelMove()
-
     def pixelMove(self):
         divisor = abs(int(max(self.velRight, self.velUp))) + 1
         for i in range(divisor):
