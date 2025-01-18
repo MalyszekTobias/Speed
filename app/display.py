@@ -19,10 +19,10 @@ class basic_display():
         for obj in self.objects:
             obj.render()
 
-
     def events(self, event):
         for obj in self.objects:
             obj.events(event)
+
 
 class game_display(basic_display):
     def __init__(self, game):
@@ -42,6 +42,7 @@ class game_display(basic_display):
                 if self.currentMap[i][j] == 6:
                     self.spawnCords = [j * tileSize, i * tileSize]
 
+        pygame.draw.rect(self.screen, self.bgColor, (0, 0, self.game.width, self.game.height))
 
         self.player = player.Player(self)
 
@@ -54,9 +55,8 @@ class game_display(basic_display):
             for j in range(n):
                 num = self.currentMap[i][j]
                 if not num in (0, 6, 7, 8, 9):
-                    pygame.draw.rect(self.screen, self.colors[num], (j * self.tileSize + self.camera, i * self.tileSize, self.tileSize, self.tileSize))
-
-
+                    pygame.draw.rect(self.screen, self.colors[num],
+                                     (j * self.tileSize + self.camera, i * self.tileSize, self.tileSize, self.tileSize))
 
         for obj in self.particles:
             obj.render()
@@ -67,7 +67,6 @@ class game_display(basic_display):
             else:
                 self.camera = 0
 
-
     def events(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             self.game.current_display = self.game.displays['pause_display']
@@ -77,13 +76,15 @@ class game_display(basic_display):
             for obj in self.objects:
                 obj.events(event)
 
+
 class pause_display(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
 
-
-        custom_text.Custom_text(self, self.game.width / 2, self.game.height / 3, None, 100, 'Paused', text_color='White')
-        button.Button(self, 'game_display', self.game.width / 2 - 150, self.game.height * 0.45 + 100, 300, 75, (0, 0, 0), outline_color='white', text='Resume', text_color='white')
+        custom_text.Custom_text(self, self.game.width / 2, self.game.height / 3, None, 100, 'Paused',
+                                text_color='White')
+        button.Button(self, 'game_display', self.game.width / 2 - 150, self.game.height * 0.45 + 100, 300, 75,
+                      (0, 0, 0), outline_color='white', text='Resume', text_color='white')
 
     def events(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
@@ -99,15 +100,28 @@ class pause_display(basic_display):
             for obj in self.objects:
                 obj.events(event)
 
+
 class start_screen(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
-        custom_text.Custom_text(self, self.game.width/2, self.game.height/3, None, 100, 'Speed', text_color='Green')
-        button.Button(self, 'settings', self.game.width/2 - 100, self.game.height * 0.75, 200, 75, (0, 0, 0), outline_color='white', text='Settings', text_color='white')
-        button.Button(self, 'game_display', self.game.width / 2 - 100, self.game.height * 0.75 - 100, 200, 75, (0, 0, 0), outline_color='white', text='Start', text_color='white')
+        custom_text.Custom_text(self, self.game.width / 2, self.game.height / 3, None, 100, 'Speed', text_color='Green')
+        button.Button(self, 'settings', self.game.width / 2 - 100, self.game.height * 0.75, 200, 75, (0, 0, 0),
+                      outline_color='white', text='Settings', text_color='white')
+        button.Button(self, 'game_display', self.game.width / 2 - 100, self.game.height * 0.75 - 100, 200, 75,
+                      (0, 0, 0), outline_color='white', text='Start', text_color='white')
+
+
 class settings_screen(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
-        button.Button(self, 'start_screen', 25, self.game.height - 100, 200, 75, (0, 0, 0), outline_color='white', text=' Save & exit', text_color='white')
+        button.Button(self, 'start_screen', 25, self.game.height - 100, 200, 75, (0, 0, 0), outline_color='white',
+                      text=' Save & exit', text_color='white')
 
 
+class win_screen(basic_display):
+    def __init__(self, game):
+        basic_display.__init__(self, game)
+        button.Button(self, 'restart', 25, self.game.height - 100, 200, 75, (0, 0, 0), outline_color='white',
+                      text=' restart', text_color='white')
+        button.Button(self, 'start_screen_after_win', self.game.width - 175, self.game.height - 100, 200, 75, (0, 0, 0),
+                      outline_color='white', text='main menu', text_color='white')

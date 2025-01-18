@@ -1,7 +1,7 @@
 import time
 
 import pygame
-from app import custom_text
+from app import custom_text, player
 
 class Button:  # A button class
     def __init__(self, display, action, x, y, width, height, color, text=None, text_color='black', outline_color=None, outline_width=5):  # Getting all the parameters of the button
@@ -45,11 +45,12 @@ class Button:  # A button class
             elif self.action == 'start_screen':
                 self.display.game.current_display = self.display.game.displays['start_screen']
             elif self.action == 'game_display':
+                self.display.game.current_display = self.display.game.displays['game_display']
                 if self.text == 'Start':
                     self.display.game.startTime = time.time_ns() // 1000000
-                elif self.text == 'Resume':
-                    print('res')
+                    self.display.game.current_display.player = player.Player(self.display.game.current_display)
 
+                elif self.text == 'Resume':
                     # self.display.game.
                     self.display.game.pauseSum += self.display.game.currPauseTime
                     if self.display.game.countdown > 0:
@@ -57,9 +58,18 @@ class Button:  # A button class
                         self.display.game.pauseSum = 0
                     self.display.game.currPauseTime = 0
                     self.display.game.pausedStart = None
+            elif self.action == 'restart':
                 self.display.game.current_display = self.display.game.displays['game_display']
+                self.display.game.startTime = time.time_ns() // 1000000
+                self.display.game.current_display.player = player.Player(self.display.game.current_display)
+
+            elif self.action == 'start_screen_after_win':
+                self.display.game.current_display = self.display.game.displays['start_screen']
+                self.display.game.startTime = time.time_ns() // 1000000
+
             else:
                 print('clicked')
+
 
     def delete(self):
         self.display.objects.remove(self)

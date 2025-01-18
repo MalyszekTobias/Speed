@@ -44,13 +44,14 @@ class Player:
         self.height = self.width
         self.playerColor = (200, 30, 30)
         self.trailColor = (90, 20, 20)
-
-        self.character = 1  # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
+        self.character = 0 # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
 
         if self.character == 0:
             self.bouncyMode = False
             self.gravity = False
-            self.airAcceleration = 1
+            self.airAcceleration = 2
+            self.groundAcceleration = 2
+            self.maxSpeed = self.boostedMaxSpeed
             self.playerColor = (200, 200, 200)
             self.trailColor = (90, 90, 90)
         if self.character == 1:
@@ -88,11 +89,16 @@ class Player:
         self.archiveCords = [self.x, self.y]
         self.jumpsLeft = self.jumpAmount
         self.justStarted = True
+        self.won = False
 
+        print(self.x)
 
-    def restart(self):
-        self.display.game.countdown = 59
-        self.display.game.countdownText.hidden = False
+    def restart(self, start):
+        if start:
+            self.display.game.countdown = 59
+            self.display.game.pauseSum = 0
+            self.display.game.startTime = czas.time_ns() // 1000000
+            self.display.game.countdownText.hidden = False
         self.display.particles = []
         self.x = self.display.spawnCords[0]
         self.y = self.display.spawnCords[1]
@@ -106,8 +112,7 @@ class Player:
         self.archiveCords = [self.x, self.y]
         self.jumpsLeft = self.jumpAmount
 
-        self.display.game.pauseSum = 0
-        self.display.game.startTime = czas.time_ns() // 1000000
+        self.won = False
 
     def collision(self, list, block: list) -> bool:
         if self.verticalCollision(list[1], list[3], block[1], block[3]) and self.horizontalCollision(list[0], list[2], block[0], block[2]):
@@ -270,29 +275,33 @@ class Player:
             return self.corner(block)
     def collisionFinder(self, actOrNot: bool):
         for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 3)):
-            for column in range(int(self.x // self.display.tileSize - 1), int(self.x // self.display.tileSize + 3)):
-                # if self.frame % 20 == 0:
-                #     pygame.draw.rect(self.display.screen, self.playerColor, (column * self.display.tileSize + self.display.camera,row * self.display.tileSize, self.width, self.height))
-                try:
-                    if not self.display.currentMap[row][column] in (0, 5, 6, 7, 8, 9):
-                        block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize,
-                                 self.display.tileSize)
-                        if self.collision((self.x, self.y, self.width, self.height), block):
-                            if actOrNot:
-                                if self.nudge(self.detection(block), block, self.display.currentMap[row][column]) == True and self.character == 2:
-                                    self.velUp = self.minBounce * 2
-                                    self.jumpsLeft = 1
-                                # pygame.draw.rect(self.display.screen, (200, 0, 0), (block[0] + self.display.camera,block[1],block[2],block[3]))
-                            else:
-                                return True
-                    elif self.display.currentMap[row][column] == 5:
-                        block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize,
-                                 self.display.tileSize)
-                        if self.collision((self.x, self.y, self.width, self.height), block):
-                            print('Your time: ', self.display.game.getTimer())
-                            self.restart()
-                except:
-                    pass
+            if not self.won:
+                for column in range(int(self.x // self.display.tileSize - 1), int(self.x // self.display.tileSize + 3)):
+                    # if self.frame % 20 == 0:
+                    #     pygame.draw.rect(self.display.screen, self.playerColor, (column * self.display.tileSize + self.display.camera,row * self.display.tileSize, self.width, self.height))
+                    try:
+                        if not self.display.currentMap[row][column] in (0, 5, 6, 7, 8, 9):
+                            block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize,
+                                     self.display.tileSize)
+                            if self.collision((self.x, self.y, self.width, self.height), block):
+                                if actOrNot:
+                                    if self.nudge(self.detection(block), block, self.display.currentMap[row][column]) == True and self.character == 2:
+                                        self.velUp = self.minBounce * 2
+                                        self.jumpsLeft = 1
+                                    # pygame.draw.rect(self.display.screen, (200, 0, 0), (block[0] + self.display.camera,block[1],block[2],block[3]))
+                                else:
+                                    return True
+                        elif self.display.currentMap[row][column] == 5:
+                            block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize,
+                                     self.display.tileSize)
+                            if self.collision((self.x, self.y, self.width, self.height), block):
+                                print('Your time: ', self.display.game.getTimer(), self.x)
+                                self.restart(False)
+                                self.won = True
+                                break
+
+                    except:
+                        pass
         return False
 
     def createParticle(self, size, color, x, y, velRight, velUp, g, lifetime, shrink):
@@ -301,7 +310,7 @@ class Player:
     def render(self):
         if self.justStarted:
             self.justStarted = False
-            self.restart()
+            self.restart(True)
             self.display.game.timerText.hidden = False
         if self.x + self.width / 2 > self.display.game.width / 2:
             pygame.draw.rect(self.display.screen, self.playerColor,((self.display.game.width - self.width) / 2 - 1, self.y - 1, self.width + 2, self.height + 2))    # camera work
@@ -327,7 +336,6 @@ class Player:
                         self.jump = True
                         self.jumpsLeft -= 1
                         self.velUp = self.jumpLength
-                        print(self.grounded)
                         if self.grounded:
                             self.y -= 1
                             if self.character == 2:
@@ -337,10 +345,10 @@ class Player:
                         elif self.left and not self.right:
                             self.velRight -= self.jumpSpeedBoost
                     else:
-                        print(123)
+                        pass
 
             if event.key == pygame.K_r:
-                self.restart()
+                self.restart(True)
 
         if event.type == pygame.KEYUP:
             if event.key in (pygame.K_a, pygame.K_LEFT):
@@ -498,7 +506,18 @@ class Player:
             self.y -= self.velUp / divisor
             self.updateBlockStatuses()
             self.collisionFinder(True)
+            if self.won:
+                self.delete()
+                break
 
-        #
-        if self.grounded and not self.bouncyMode:
-            self.jumpsLeft = self.jumpAmount
+        try:
+            if self.grounded and not self.bouncyMode:
+                self.jumpsLeft = self.jumpAmount
+        except:
+            pass
+    def delete(self):
+        self.display.game.timerText.hidden = True
+        self.display.game.current_display = self.display.game.displays['win_screen']
+        self.display.objects.remove(self)
+        self.display.particles = []
+        del self
