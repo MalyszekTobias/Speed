@@ -42,6 +42,7 @@ class Player:
 
         self.hookX = None
         self.hookY = None
+        self.hookSize = 20
         self.hooked = False
         self.hookSpeed = 15
         self.hookVelUp = 0
@@ -289,28 +290,44 @@ class Player:
                 return 'left'
         else:
             return self.corner(block)
-    def collisionFinder(self, actOrNot: bool):
-        for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 3)):
+    def collisionFinder(self, actOrNot: bool, entity):
+        if entity == 'p':
+            y = self.y
+            x = self.x
+            w = self.width
+            h = self.height
+        elif entity == 'h':
+            y = self.hookY
+            x = self.hookX
+            w = self.hookSize
+            h = self.hookSize
+            if self.hookReeling:
+                return
+
+        for row in range(int(y // self.display.tileSize - 1), int(y // self.display.tileSize + 3)):
             if not self.won:
-                for column in range(int(self.x // self.display.tileSize - 1), int(self.x // self.display.tileSize + 3)):
-                    # if self.frame % 20 == 0:
-                    #     pygame.draw.rect(self.display.screen, self.playerColor, (column * self.display.tileSize + self.cam,row * self.display.tileSize, self.width, self.height))
+                for column in range(int(x // self.display.tileSize - 1), int(x // self.display.tileSize + 3)):
                     try:
                         if not self.display.currentMap[row][column] in (0, 5, 6, 7, 8, 9):
                             block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize,
                                      self.display.tileSize)
-                            if self.collision((self.x, self.y, self.width, self.height), block):
+                            if self.collision((x, y, w, h), block):
                                 if actOrNot:
-                                    if self.nudge(self.detection(block), block, self.display.currentMap[row][column]) == True and self.character == 2:
-                                        self.velUp = self.minBounce * 2
-                                        self.jumpsLeft = 1
-                                    # pygame.draw.rect(self.display.screen, (200, 0, 0), (block[0] + self.cam,block[1],block[2],block[3]))
+                                    if entity == 'p':
+                                        if self.nudge(self.detection(block), block, self.display.currentMap[row][column]) == True and self.character == 2:
+                                            self.velUp = self.minBounce * 2
+                                            self.jumpsLeft = 1
+                                        # pygame.draw.rect(self.display.screen, (200, 0, 0), (block[0] + self.cam,block[1],block[2],block[3]))
+                                    elif entity == 'h':
+                                        self.hooked = True
+                                        self.hookVelLeft, self.hookVelUp = 0, 0
+                                        pygame.draw.rect(self.display.screen, (200, 100, 200), (block[0], block[1], block[2], block[3]))
                                 else:
                                     return True
                         elif self.display.currentMap[row][column] == 5:
                             block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize,
                                      self.display.tileSize)
-                            if self.collision((self.x, self.y, self.width, self.height), block):
+                            if self.collision((x, y, w, h), block) and entity == 'p':
                                 print('Your time: ', self.display.game.getTimer(), self.x)
                                 self.restart(False)
                                 self.won = True
@@ -340,11 +357,30 @@ class Player:
             a, b = self.getHookVels(self.hookX - self.x - self.width / 2, self.hookY - self.y - self.width / 2, self.hookSpeed)
             self.hookVelLeft = -a
             self.hookVelUp = -b
-        if self.hookX != None and not self.hooked:
-            self.hookX += self.hookVelLeft
-            self.hookY += self.hookVelUp
-            pygame.draw.circle(self.display.screen, self.playerColor, (self.hookX + self.cam, self.hookY), 10)
-            pygame.draw.line(self.display.screen, (200, 100, 0), (self.x + self.cam + self.width / 2, self.y + self.width / 2), (self.hookX + self.cam, self.hookY), 4)
+            print('go')
+            if self.collision((self.hookX, self.hookY, self.hookSize, self.hookSize), (self.x, self.y, self.width, self.height)):
+                print('pl')
+                self.hookX, self.hookY = None, None
+                self.hookReeling = False
+                self.hookVelUp = 0
+                self.hookVelLeft = 0
+
+
+        if self.hookX != None:
+            col = (100, 200, 100)
+            if self.hooked:
+                print('hooked')
+            if not self.hooked:
+                print('not hooked')
+                self.hookX += self.hookVelLeft
+                self.hookY += self.hookVelUp
+                col = self.playerColor
+            if self.hookReeling:
+                col = (200, 100, 100)
+            pygame.draw.circle(self.display.screen, self.playerColor, (self.hookX + self.cam, self.hookY), self.hookSize / 2)
+            pygame.draw.line(self.display.screen, col, (self.x + self.cam + self.width / 2, self.y + self.width / 2), (self.hookX + self.cam, self.hookY), 4)
+            if not self.hookReeling:
+                self.collisionFinder(True, 'h')
 
         return self.x + self.width / 2 - self.display.game.width / 2
     def events(self, event):
@@ -463,13 +499,14 @@ class Player:
         self.touchingUp = self.isCapped()
 
     def shootHook(self, mousepos):
-        if self.hookX == None and not self.hookReeling:
+        if self.hookX == None:
             self.hookX, self.hookY = self.x + self.width / 2, self.y + self.height / 2
-            x_offset, y_offset = self.x + self.cam - mousepos[0], self.y - mousepos[1]
+            x_offset, y_offset = self.x + self.width / 2 + self.cam - mousepos[0], self.y + self.width / 2 - mousepos[1]
             a, b = self.getHookVels(x_offset, y_offset, self.hookSpeed)
             self.hookVelLeft, self.hookVelUp = -a, -b
-        else:
+        elif not self.hookReeling:
             print('reel')
+            self.hooked = False
             self.hookReeling = True
     def getHookVels(self, x_offset, y_offset, speed):
         d = (x_offset ** 2 + y_offset ** 2) ** 0.5
@@ -544,7 +581,7 @@ class Player:
     def pixelMove(self):
         divisor = abs(int(max(self.velRight, self.velUp))) + 1
         for i in range(divisor):
-            if not self.collisionFinder(False):
+            if not self.collisionFinder(False, 'p'):
                 if self.maxSpeed == self.boostedMaxSpeed:
                     self.createParticle(self.width, self.display.speedColor, self.x, self.y, 0, 0, 0, 10, 4.5)
                 else:
@@ -553,7 +590,7 @@ class Player:
             self.x += self.velRight / divisor
             self.y -= self.velUp / divisor
             self.updateBlockStatuses()
-            self.collisionFinder(True)
+            self.collisionFinder(True, 'p')
             if self.won:
                 self.delete()
                 break
