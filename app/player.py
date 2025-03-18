@@ -12,6 +12,7 @@ class Player:
     def __init__(self, display):
         self.display = display
         self.display.objects.append(self)
+        print('player')
 
 
         self.g = 0.6
@@ -369,9 +370,8 @@ class Player:
         if self.hookX != None:
             col = (100, 200, 100)
             if self.hooked:
-                print('hooked')
+                pass
             if not self.hooked:
-                print('not hooked')
                 self.hookX += self.hookVelLeft
                 self.hookY += self.hookVelUp
                 col = self.playerColor
@@ -500,6 +500,7 @@ class Player:
 
     def shootHook(self, mousepos):
         if self.hookX == None:
+            print('shot')
             self.hookX, self.hookY = self.x + self.width / 2, self.y + self.height / 2
             x_offset, y_offset = self.x + self.width / 2 + self.cam - mousepos[0], self.y + self.width / 2 - mousepos[1]
             a, b = self.getHookVels(x_offset, y_offset, self.hookSpeed)

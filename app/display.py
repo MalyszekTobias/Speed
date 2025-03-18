@@ -44,7 +44,6 @@ class game_display(basic_display):
 
         pygame.draw.rect(self.screen, self.bgColor, (0, 0, self.game.width, self.game.height))
 
-        self.player = player.Player(self)
 
     def mainloop(self):
         pass
