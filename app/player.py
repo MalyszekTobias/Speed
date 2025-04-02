@@ -55,7 +55,7 @@ class Player:
         self.height = self.width
         self.playerColor = (200, 30, 30)
         self.trailColor = (90, 20, 20)
-        self.character = 0 # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
+        self.character = 2 # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
 
         if self.character == 0:
             self.bouncyMode = False
@@ -300,8 +300,8 @@ class Player:
         elif entity == 'h':
             y = self.hookY
             x = self.hookX
-            w = self.hookSize
-            h = self.hookSize
+            w = 1
+            h = 1
             if self.hookReeling:
                 return
 
@@ -322,7 +322,7 @@ class Player:
                                     elif entity == 'h':
                                         self.hooked = True
                                         self.hookVelLeft, self.hookVelUp = 0, 0
-                                        pygame.draw.rect(self.display.screen, (200, 100, 200), (block[0], block[1], block[2], block[3]))
+                                        pygame.draw.rect(self.display.screen, (200, 100, 200), (block[0] + self.cam, block[1], block[2], block[3]))
                                 else:
                                     return True
                         elif self.display.currentMap[row][column] == 5:
@@ -342,43 +342,35 @@ class Player:
         self.particle = particle.Particle(self.display, size, color, x, y, velRight, velUp, g, lifetime, shrink)
         self.display.particles.append(self.particle)
     def render(self):
-        self.cam = self.display.camera
         if self.justStarted:
             self.justStarted = False
             self.restart(True)
             self.display.game.timerText.hidden = False
+        self.cam = self.display.camera
         if self.x + self.width / 2 > self.display.game.width / 2:
             pygame.draw.rect(self.display.screen, self.playerColor,((self.display.game.width - self.width) / 2 - 1, self.y - 1, self.width + 2, self.height + 2))    # camera work
         else:
             pygame.draw.rect(self.display.screen, self.playerColor, (self.x - 1, self.y - 1, self.width + 2, self.height + 2))
+
+
         if self.display.game.countdown < 1:
             self.movement()
 
-        if self.hookReeling:
-            a, b = self.getHookVels(self.hookX - self.x - self.width / 2, self.hookY - self.y - self.width / 2, self.hookSpeed)
-            self.hookVelLeft = -a
-            self.hookVelUp = -b
-            print('go')
-            if self.collision((self.hookX, self.hookY, self.hookSize, self.hookSize), (self.x, self.y, self.width, self.height)):
-                print('pl')
-                self.hookX, self.hookY = None, None
-                self.hookReeling = False
-                self.hookVelUp = 0
-                self.hookVelLeft = 0
+            self.hook_movement()
 
 
         if self.hookX != None:
             col = (100, 200, 100)
             if self.hooked:
                 pass
-            if not self.hooked:
+            else:
                 self.hookX += self.hookVelLeft
                 self.hookY += self.hookVelUp
                 col = self.playerColor
             if self.hookReeling:
                 col = (200, 100, 100)
-            pygame.draw.circle(self.display.screen, self.playerColor, (self.hookX + self.cam, self.hookY), self.hookSize / 2)
             pygame.draw.line(self.display.screen, col, (self.x + self.cam + self.width / 2, self.y + self.width / 2), (self.hookX + self.cam, self.hookY), 4)
+            pygame.draw.circle(self.display.screen, self.playerColor, (self.hookX + self.cam, self.hookY), self.hookSize / 2)
             if not self.hookReeling:
                 self.collisionFinder(True, 'h')
 
@@ -428,7 +420,7 @@ class Player:
                     self.jump = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
+            if event.button == 1 and self.display.game.countdown < 1:
                 self.shootHook(pygame.mouse.get_pos())
 
     def isFounded(self):
@@ -498,6 +490,18 @@ class Player:
         self.hugRight = self.hugsRight()
         self.touchingUp = self.isCapped()
 
+    def hook_movement(self):
+        if self.hookReeling:
+            a, b = self.getHookVels(self.hookX - self.x - self.width / 2, self.hookY - self.y - self.width / 2, self.hookSpeed)
+            self.hookVelLeft = -a
+            self.hookVelUp = -b
+            print('go')
+            if self.collision((self.hookX, self.hookY, self.hookSize, self.hookSize), (self.x, self.y, self.width, self.height)):
+                print('pl')
+                self.hookX, self.hookY = None, None
+                self.hookReeling = False
+                self.hookVelUp = 0
+                self.hookVelLeft = 0
     def shootHook(self, mousepos):
         if self.hookX == None:
             print('shot')
