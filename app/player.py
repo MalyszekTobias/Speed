@@ -12,7 +12,6 @@ class Player:
     def __init__(self, display):
         self.display = display
         self.display.objects.append(self)
-        print('player')
 
 
         self.g = 0.6
@@ -45,7 +44,8 @@ class Player:
         self.hookY = None
         self.hookSize = 20
         self.hooked = False
-        self.hookSpeed = 15
+        self.hookSpeed = 25
+        self.hookPower = 3
         self.hookVelUp = 0
         self.hookVelLeft = 0
         self.hookReeling = False
@@ -102,8 +102,6 @@ class Player:
         self.jumpsLeft = self.jumpAmount
         self.justStarted = True
         self.won = False
-
-        print(self.x)
 
     def restart(self, start):
         if start:
@@ -495,22 +493,18 @@ class Player:
             a, b = self.getHookVels(self.hookX - self.x - self.width / 2, self.hookY - self.y - self.width / 2, self.hookSpeed)
             self.hookVelLeft = -a
             self.hookVelUp = -b
-            print('go')
             if self.collision((self.hookX, self.hookY, self.hookSize, self.hookSize), (self.x, self.y, self.width, self.height)):
-                print('pl')
                 self.hookX, self.hookY = None, None
                 self.hookReeling = False
                 self.hookVelUp = 0
                 self.hookVelLeft = 0
     def shootHook(self, mousepos):
         if self.hookX == None:
-            print('shot')
             self.hookX, self.hookY = self.x + self.width / 2, self.y + self.height / 2
             x_offset, y_offset = self.x + self.width / 2 + self.cam - mousepos[0], self.y + self.width / 2 - mousepos[1]
             a, b = self.getHookVels(x_offset, y_offset, self.hookSpeed)
             self.hookVelLeft, self.hookVelUp = -a, -b
         elif not self.hookReeling:
-            print('reel')
             self.hooked = False
             self.hookReeling = True
     def getHookVels(self, x_offset, y_offset, speed):
@@ -532,6 +526,8 @@ class Player:
 
             if self.velUp < self.maxFallSpeed:
                 self.velUp = self.maxFallSpeed
+            if self.velUp > self.maxSpeed and not self.jump:
+                self.velUp = self.maxSpeed
 
         else:
             if self.up:
@@ -582,6 +578,12 @@ class Player:
                 self.velUp += self.airFriction
             elif self.velUp > 0:
                 self.velUp -= self.airFriction
+
+        if self.hooked:
+            x_offset, y_offset = self.x + self.width / 2 - self.hookX, self.y + self.width / 2 - self.hookY
+            a, b = self.getHookVels(x_offset, y_offset, self.hookPower)
+            self.velUp += b
+            self.velRight -= a
         self.pixelMove()
     def pixelMove(self):
         divisor = abs(int(max(self.velRight, self.velUp))) + 1
