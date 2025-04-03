@@ -44,7 +44,7 @@ class Player:
         self.hookY = None
         self.hookSize = 20
         self.hooked = False
-        self.hookSpeed = 25
+        self.hookSpeed = 40
         self.hookPower = 3
         self.hookVelUp = 0
         self.hookVelLeft = 0
@@ -55,7 +55,7 @@ class Player:
         self.height = self.width
         self.playerColor = (200, 30, 30)
         self.trailColor = (90, 20, 20)
-        self.character = 2 # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
+        self.character = 3 # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
 
         if self.character == 0:
             self.bouncyMode = False
@@ -79,9 +79,17 @@ class Player:
             self.bouncyMode = False
             self.playerColor = (30, 200, 30)
             self.trailColor = (20, 90, 20)
+        if self.character == 3:
+            # hooker has 1 small jump and a hook
+            self.bouncyMode = False
+            self.playerColor = (200, 200, 30)
+            self.trailColor = (90, 90, 20)
+            self.g = 0.9
+            self.maxFallSpeed, self.maxSpeed, self.regularMaxSpeed = -15, 15, 15
+            self.speedCorrection = 10
 
 
-        # hooker will have 1 small jump and a hook
+
 
         # magneter will get attracted to the mouse, no jump, no gravity
 
@@ -383,6 +391,8 @@ class Player:
                 self.down = True
             if event.key in (pygame.K_w, pygame.K_UP):
                 self.up = True
+            if event.key == pygame.K_LSHIFT and self.display.game.countdown < 1:
+                self.shootHook(pygame.mouse.get_pos())
             if event.key == pygame.K_SPACE or event.key == K_UP:
                 if self.display.game.countdown < 1:
                     if self.jumpsLeft > 0:
@@ -517,28 +527,11 @@ class Player:
 
     def movement(self):
         self.updateBlockStatuses()
-        if self.gravity:
-            if self.jump:
-                if self.velUp <= 0:
-                    self.jump = False
-            if not self.grounded:
-                self.velUp -= self.g
-
-            if self.velUp < self.maxFallSpeed:
-                self.velUp = self.maxFallSpeed
-            if self.velUp > self.maxSpeed and not self.jump:
-                self.velUp = self.maxSpeed
-
-        else:
-            if self.up:
-                self.velUp += self.airAcceleration
-            if self.down:
-                self.velUp -= self.airAcceleration
-
-            if self.velUp < -self.maxSpeed:
-                self.velUp = -self.maxSpeed
-            if self.velUp > self.maxSpeed:
-                self.velUp = self.maxSpeed
+        if self.hooked:
+            x_offset, y_offset = self.x + self.width / 2 - self.hookX, self.y + self.width / 2 - self.hookY
+            a, b = self.getHookVels(x_offset, y_offset, self.hookPower)
+            self.velUp += b
+            self.velRight -= a
 
         if self.right:
             if self.grounded:
@@ -551,10 +544,11 @@ class Player:
             else:
                 self.velRight -= self.airAcceleration
 
-        if self.velRight < -self.maxSpeed:
-            self.velRight += self.speedCorrection
-        if self.velRight > self.maxSpeed:
-            self.velRight -= self.speedCorrection
+        for i in range(self.speedCorrection):
+            if self.velRight < -self.maxSpeed:
+                self.velRight += 1
+            if self.velRight > self.maxSpeed:
+                self.velRight -= 1
 
         if self.grounded:
             if not self.right and not self.left:
@@ -579,13 +573,33 @@ class Player:
             elif self.velUp > 0:
                 self.velUp -= self.airFriction
 
-        if self.hooked:
-            x_offset, y_offset = self.x + self.width / 2 - self.hookX, self.y + self.width / 2 - self.hookY
-            a, b = self.getHookVels(x_offset, y_offset, self.hookPower)
-            self.velUp += b
-            self.velRight -= a
+        if self.gravity:
+            if self.jump:
+                if self.velUp <= 0:
+                    self.jump = False
+            if not self.grounded:
+                self.velUp -= self.g
+
+            if self.velUp < self.maxFallSpeed:
+                self.velUp = self.maxFallSpeed
+            if self.velUp > self.maxSpeed and not self.jump:
+                self.velUp = self.maxSpeed
+
+        else:
+            if self.up:
+                self.velUp += self.airAcceleration
+            if self.down:
+                self.velUp -= self.airAcceleration
+
+            if self.velUp < -self.maxSpeed:
+                self.velUp = -self.maxSpeed
+            if self.velUp > self.maxSpeed:
+                self.velUp = self.maxSpeed
+
+
         self.pixelMove()
     def pixelMove(self):
+        print(self.velRight)
         divisor = abs(int(max(self.velRight, self.velUp))) + 1
         for i in range(divisor):
             if not self.collisionFinder(False, 'p'):
