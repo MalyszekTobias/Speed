@@ -46,6 +46,7 @@ class Player:
         self.hooked = False
         self.hookSpeed = 40
         self.hookPower = 3
+        self.hookLength = 520
         self.hookVelUp = 0
         self.hookVelLeft = 0
         self.hookReeling = False
@@ -496,11 +497,18 @@ class Player:
             divisor = abs(int(max(self.hookVelLeft, self.velUp))) + 1
             for i in range(divisor):
                 self.collisionFinder(True, 'h')
+                if not self.hookReeling:
+                    d = ((self.x + self.width/2 - self.hookX) ** 2 + (self.y + self.height/2 - self.hookY) ** 2) ** 0.5
+                    if d > self.hookLength:
+                        self.hookReeling = True
                 if not self.hooked:
                     self.hookX += self.hookVelLeft / divisor
                     self.hookY += self.hookVelUp / divisor
         if self.hookReeling or self.hooked:
-            if self.collision((self.hookX, self.hookY, self.hookSize, self.hookSize), (self.x, self.y, self.width, self.height)):
+            hitbox = 0
+            if self.hooked:
+                hitbox = 5
+            if self.collision((self.hookX, self.hookY, self.hookSize, self.hookSize), (self.x - hitbox, self.y - hitbox, self.width + 2*hitbox, self.height + 2*hitbox)):
                 self.hookX, self.hookY = None, None
                 self.hookReeling = False
                 self.hookVelUp = 0
@@ -536,14 +544,21 @@ class Player:
             self.velRight -= a
 
         if self.right:
-            if self.grounded:
-                self.velRight += self.groundAcceleration
-            else:
+            if self.character != 3:
+                if self.grounded:
+                    self.velRight += self.groundAcceleration
+                else:
+                    self.velRight += self.airAcceleration
+            elif self.hooked:
                 self.velRight += self.airAcceleration
         if self.left:
-            if self.grounded:
-                self.velRight -= self.groundAcceleration
-            else:
+            if self.character != 3:
+                if self.grounded:
+                    self.velRight -= self.groundAcceleration
+                else:
+                    self.velRight -= self.airAcceleration
+
+            elif self.hooked:
                 self.velRight -= self.airAcceleration
 
         for i in range(self.speedCorrection):
