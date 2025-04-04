@@ -88,8 +88,7 @@ class Player:
             self.g = 0.9
             self.maxFallSpeed, self.maxSpeed, self.regularMaxSpeed = -15, 15, 15
             self.speedCorrection = 10
-
-
+            self.jumpSpeedBoost = 0
 
 
         # magneter will get attracted to the mouse, no jump, no gravity
