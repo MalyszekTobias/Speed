@@ -35,7 +35,7 @@ class game_display(basic_display):
         self.bounceColor = (250, 50, 50)
         self.winColor = (182, 196, 77)
         self.colors = (self.bgColor, self.tileColor, self.speedColor, self.jumpColor, self.bounceColor, self.winColor)
-        self.currentMap = maps.trampoline
+        self.currentMap = maps.walljump
         self.tileSize = int(self.game.height / len(self.currentMap))
         for i in range(len(self.currentMap)):
             for j in range(len(self.currentMap[i])):

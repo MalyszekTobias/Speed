@@ -155,7 +155,6 @@ class Game:
         if a != '0:00' and int(a) >= 10 ** (self.timerDigits - 3):
             self.timerDigits += 1
             self.timerText.x = self.width - self.timerDigits * 45
-            print(a)
         self.timerText.update_text(str(a))
         self.countdownText.update_text(str(self.countdown // 6))
 

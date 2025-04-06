@@ -56,7 +56,7 @@ class Player:
         self.height = self.width
         self.playerColor = (200, 30, 30)
         self.trailColor = (90, 20, 20)
-        self.character = 3 # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
+        self.character = 2 # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
 
         if self.character == 0:
             self.bouncyMode = False
@@ -380,7 +380,12 @@ class Player:
                 self.shootHook(pygame.mouse.get_pos())
             if event.key == pygame.K_SPACE or event.key == K_UP:
                 if self.display.game.countdown < 1:
-                    if self.jumpsLeft > 0:
+                    if self.hugsRight() and not self.grounded:
+                        self.wall_jump('r')
+                    elif self.hugsLeft() and not self.grounded:
+                        print('left')
+                        self.wall_jump('l')
+                    elif self.jumpsLeft > 0:
                         self.jump = True
                         self.jumpsLeft -= 1
                         self.velUp = self.jumpLength
@@ -392,8 +397,8 @@ class Player:
                             self.velRight += self.jumpSpeedBoost
                         elif self.left and not self.right:
                             self.velRight -= self.jumpSpeedBoost
-                    else:
-                        pass
+
+
 
             if event.key == pygame.K_r:
                 self.restart(True)
@@ -460,7 +465,7 @@ class Player:
                     if not self.display.currentMap[row][column] in (0, 5, 6, 7, 8, 9):
                         block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize,
                                  self.display.tileSize)
-                        if self.collision((self.x, self.y - 1, 1, self.height - 2), block):
+                        if self.collision((self.x - 1, self.y - 1, 1, self.height - 2), block):
                             return True
                 except:
                     pass
@@ -472,7 +477,7 @@ class Player:
                     if not self.display.currentMap[row][column] in (0, 5, 6, 7, 8, 9):
                         block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize,
                                  self.display.tileSize)
-                        if self.collision((self.x + self.width - 1, self.y - 1, 1, self.height - 2), block):
+                        if self.collision((self.x + self.width, self.y - 1, 1, self.height - 2), block):
                             return True
                 except:
                     pass
@@ -532,7 +537,14 @@ class Player:
         vy = speed * y_offset / d
         return vx, vy
 
-
+    def wall_jump(self, wall):
+        xVel = 10
+        self.velUp = max(5, self.velUp + 15)
+        self.jump = True
+        if wall == 'l':
+            self.velRight += xVel
+        elif wall == 'r':
+            self.velRight -= xVel
 
     def movement(self):
         self.updateBlockStatuses()
