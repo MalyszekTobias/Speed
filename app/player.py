@@ -96,7 +96,7 @@ class Player:
         self.x = self.display.spawnCords[0]
         self.y = self.display.spawnCords[1]
         self.velUp = 0
-        self.velRight = 0
+        self.velLeft = 0
         self.left = False
         self.right = False
         self.up = False
@@ -121,7 +121,7 @@ class Player:
         self.x = self.display.spawnCords[0]
         self.y = self.display.spawnCords[1]
         self.velUp = 0
-        self.velRight = 0
+        self.velLeft = 0
         self.jump = False
         self.grounded = False
         self.hugLeft = False
@@ -201,23 +201,23 @@ class Player:
             elif direction == 'left':
                 self.x = self.archiveCords[0]
 
-                if self.velRight < -self.minBounce * bounceMulti:
-                    self.velRight *= -self.energyConservation * bounceMulti
-                elif 0 > self.velRight:
-                    self.velRight = self.minBounce * bounceMulti
+                if self.velLeft > self.minBounce * bounceMulti:
+                    self.velLeft *= -self.energyConservation * bounceMulti
+                elif 0 < self.velLeft:
+                    self.velLeft = -self.minBounce * bounceMulti
                 if self.velUp < 10:
-                    self.velUp += 4
+                    self.velUp += 4.5
                 self.hugLeft = True
                 return
             elif direction == 'right':
                 self.x = self.archiveCords[0]
 
-                if self.velRight > self.minBounce * bounceMulti:
-                    self.velRight *= -self.energyConservation * bounceMulti
-                elif 0 < self.velRight:
-                    self.velRight = -self.minBounce * bounceMulti
+                if self.velLeft < -self.minBounce * bounceMulti:
+                    self.velLeft *= self.energyConservation * bounceMulti
+                elif 0 > self.velLeft:
+                    self.velLeft = self.minBounce * bounceMulti
                 if self.velUp < 10:
-                    self.velUp += 4
+                    self.velUp += 4.5
                 self.hugRight = True
                 return
         else:
@@ -246,11 +246,11 @@ class Player:
                 return
             elif direction == 'left':
                 self.x = block[0] + block[2] + 1
-                self.velRight = 0
+                self.velLeft = 0
                 return
             elif direction == 'right':
                 self.x = block[0] - self.width - 1
-                self.velRight = 0
+                self.velLeft = 0
                 return
     def corner(self, block: list):
         mapx, mapy = block[0] // self.display.tileSize, block[1] // self.display.tileSize
@@ -398,9 +398,9 @@ class Player:
                             if self.character == 2:
                                 self.jumpsLeft += 1
                         if self.right and not self.left:
-                            self.velRight += self.jumpSpeedBoost
+                            self.velLeft -= self.jumpSpeedBoost
                         elif self.left and not self.right:
-                            self.velRight -= self.jumpSpeedBoost
+                            self.velLeft += self.jumpSpeedBoost
 
 
 
@@ -502,7 +502,7 @@ class Player:
             lineColor = (200, 100, 100)
 
         if not self.hooked:
-            divisor = abs(int(max(self.hookVelLeft, self.velUp))) + 1
+            divisor = int(max(abs(self.hookVelLeft), abs(self.velUp))) + 1
             for i in range(divisor):
                 self.collisionFinder(True, 'h')
                 if not self.hookReeling:
@@ -546,9 +546,9 @@ class Player:
         self.velUp = max(5, self.velUp + 15)
         self.jump = True
         if wall == 'l':
-            self.velRight += xVel
+            self.velLeft -= xVel
         elif wall == 'r':
-            self.velRight -= xVel
+            self.velLeft += xVel
 
     def movement(self):
         self.updateBlockStatuses()
@@ -556,48 +556,48 @@ class Player:
             x_offset, y_offset = self.x + self.width / 2 - self.hookX, self.y + self.width / 2 - self.hookY
             a, b = self.getHookVels(x_offset, y_offset, self.hookPower)
             self.velUp += b
-            self.velRight -= a
+            self.velLeft += a
 
         if self.right:
             if self.character != 3:
                 if self.grounded:
-                    self.velRight += self.groundAcceleration
+                    self.velLeft -= self.groundAcceleration
                 else:
-                    self.velRight += self.airAcceleration
+                    self.velLeft -= self.airAcceleration
             elif self.hooked:
-                self.velRight += self.airAcceleration
+                self.velLeft -= self.airAcceleration
         if self.left:
             if self.character != 3:
                 if self.grounded:
-                    self.velRight -= self.groundAcceleration
+                    self.velLeft += self.groundAcceleration
                 else:
-                    self.velRight -= self.airAcceleration
+                    self.velLeft += self.airAcceleration
 
             elif self.hooked:
-                self.velRight -= self.airAcceleration
+                self.velLeft += self.airAcceleration
 
         for i in range(self.speedCorrection):
-            if self.velRight < -self.maxSpeed:
-                self.velRight += 1
-            if self.velRight > self.maxSpeed:
-                self.velRight -= 1
+            if self.velLeft < -self.maxSpeed:
+                self.velLeft += 1
+            if self.velLeft > self.maxSpeed:
+                self.velLeft -= 1
 
         if self.grounded:
             if not self.right and not self.left:
-                if self.velRight < 0:
-                    self.velRight += self.groundFriction
-                elif self.velRight > 0:
-                    self.velRight -= self.groundFriction
-                if -self.groundFriction < self.velRight < self.groundFriction:
-                    self.velRight = 0
+                if self.velLeft < 0:
+                    self.velLeft += self.groundFriction
+                elif self.velLeft > 0:
+                    self.velLeft -= self.groundFriction
+                if -self.groundFriction < self.velLeft < self.groundFriction:
+                    self.velLeft = 0
         else:
             if not self.right and not self.left:
-                if self.velRight < 0:
-                    self.velRight += self.airFriction
-                elif self.velRight > 0:
-                    self.velRight -= self.airFriction
-                if -self.airFriction < self.velRight < self.airFriction:
-                    self.velRight = 0
+                if self.velLeft < 0:
+                    self.velLeft += self.airFriction
+                elif self.velLeft > 0:
+                    self.velLeft -= self.airFriction
+                if -self.airFriction < self.velLeft < self.airFriction:
+                    self.velLeft = 0
 
         if not self.gravity:
             if self.velUp < 0:
@@ -631,7 +631,7 @@ class Player:
 
         self.pixelMove()
     def pixelMove(self):
-        divisor = int(max(abs(self.velRight), abs(self.velUp))) + 1
+        divisor = int(max(abs(self.velLeft), abs(self.velUp))) + 1
         for i in range(divisor):
             if not self.collisionFinder(False, 'p'):
                 if self.maxSpeed == self.boostedMaxSpeed:
@@ -639,7 +639,7 @@ class Player:
                 else:
                     self.createParticle(self.width, self.trailColor, self.x, self.y, 0, 0, 0, 10, 4.5)
                 self.archiveCords = [self.x, self.y]
-            self.x += self.velRight / divisor
+            self.x -= self.velLeft / divisor
             self.y -= self.velUp / divisor
             self.updateBlockStatuses()
             self.collisionFinder(True, 'p')
