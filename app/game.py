@@ -122,7 +122,6 @@ class Game:
 
     def render(self):
         self.screen.fill('black')
-        print(self.current_display)
         self.current_display.render()
 
         for object in self.objects:
