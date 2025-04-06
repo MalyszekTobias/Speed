@@ -28,7 +28,7 @@ class Player:
         self.airFriction = 0.1
         self.groundFriction = 0.5
         self.gravity = True
-        self.wallAndCeilingBounce = 5
+        self.wallAndCeilingBounce = 6
         self.floorBounce = 5
         self.minBounce = 5
         self.bounceBlockPower = 2
@@ -56,7 +56,7 @@ class Player:
         self.height = self.width
         self.playerColor = (200, 30, 30)
         self.trailColor = (90, 20, 20)
-        self.character = 2 # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
+        self.character = 1 # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
 
         if self.character == 0:
             self.bouncyMode = False
@@ -205,6 +205,8 @@ class Player:
                     self.velRight *= -self.energyConservation * bounceMulti
                 elif 0 > self.velRight:
                     self.velRight = self.minBounce * bounceMulti
+                if self.velUp < 10:
+                    self.velUp += 4
                 self.hugLeft = True
                 return
             elif direction == 'right':
@@ -214,6 +216,8 @@ class Player:
                     self.velRight *= -self.energyConservation * bounceMulti
                 elif 0 < self.velRight:
                     self.velRight = -self.minBounce * bounceMulti
+                if self.velUp < 10:
+                    self.velUp += 4
                 self.hugRight = True
                 return
         else:
