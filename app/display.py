@@ -1,4 +1,6 @@
 import time
+from os.path import exists
+
 import pygame
 import maps
 from app import custom_text, custom_images, button, player
@@ -35,19 +37,28 @@ class game_display(basic_display):
         self.bounceColor = (250, 50, 50)
         self.winColor = (182, 196, 77)
         self.colors = (self.bgColor, self.tileColor, self.speedColor, self.jumpColor, self.bounceColor, self.winColor)
-        self.currentMap = maps.walljump
+        self.currentMap = None
+
+        pygame.draw.rect(self.screen, self.bgColor, (0, 0, self.game.width, self.game.height))
+
+
+    def load_map(self, map):
+        self.currentMap = map
         self.tileSize = int(self.game.height / len(self.currentMap))
         for i in range(len(self.currentMap)):
             for j in range(len(self.currentMap[i])):
                 if self.currentMap[i][j] == 6:
                     self.spawnCords = [j * tileSize, i * tileSize]
-
-        pygame.draw.rect(self.screen, self.bgColor, (0, 0, self.game.width, self.game.height))
-
-
     def mainloop(self):
         pass
 
+    def get_map(self):
+        self.currentMap = maps.maps[self.game.currentMap]
+        self.tileSize = int(self.game.height / len(self.currentMap))
+        for i in range(len(self.currentMap)):
+            for j in range(len(self.currentMap[i])):
+                if self.currentMap[i][j] == 6:
+                    self.spawnCords = [j * tileSize, i * tileSize]
     def render(self):
         m, n = len(self.currentMap), len(self.currentMap[0])
         for i in range(m):
@@ -106,7 +117,7 @@ class start_screen(basic_display):
         custom_text.Custom_text(self, self.game.width / 2, self.game.height / 3, None, 100, 'Speed', text_color='Green')
         button.Button(self, 'settings', self.game.width / 2 - 100, self.game.height * 0.75, 200, 75, (0, 0, 0),
                       outline_color='white', text='Settings', text_color='white')
-        button.Button(self, 'game_display', self.game.width / 2 - 100, self.game.height * 0.75 - 100, 200, 75,
+        button.Button(self, 'map_select_screen', self.game.width / 2 - 100, self.game.height * 0.75 - 100, 200, 75,
                       (0, 0, 0), outline_color='white', text='Start', text_color='white')
 
 
@@ -122,5 +133,20 @@ class win_screen(basic_display):
         basic_display.__init__(self, game)
         button.Button(self, 'restart', 25, self.game.height - 100, 200, 75, (0, 0, 0), outline_color='white',
                       text=' restart', text_color='white')
-        button.Button(self, 'start_screen_after_win', self.game.width - 175, self.game.height - 100, 200, 75, (0, 0, 0),
+        button.Button(self, 'start_screen_after_win', self.game.width - 200, self.game.height - 100, 200, 75, (0, 0, 0),
                       outline_color='white', text='main menu', text_color='white')
+
+class map_select_screen(basic_display):
+    def __init__(self, game):
+        basic_display.__init__(self, game)
+        button.Button(self, 'game_display', self.game.width / 2, self.game.height - 100, 200, 75, (0, 0, 0), outline_color='white',
+                      text='play', text_color='white')
+        self.mapNames, self.maps = self.getMaps()
+        self.game.currentMap = 4
+
+    def getMaps(self):
+        n, m = [], []
+        for i in range(len(maps.names)):
+            n.append(maps.names[i])
+            m.append(maps.maps[i])
+        return n, m

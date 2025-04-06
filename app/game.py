@@ -23,10 +23,10 @@ class Game:
         self.fps = 60
         self.title = self.cfg['title']
         self.enable_debug = int(self.cfg['enable_debug'])
-        self.currentMap = maps.tuto
         self.clock = pygame.time.Clock()
         self.font = None
         self.countdown = 0
+        self.currentMap = None
 
 
         self.startTime = None
@@ -44,7 +44,7 @@ class Game:
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption(f"{self.title} (v {self.version})")
 
-        self.displays = {'template_display': display.basic_display(self), 'game_display': display.game_display(self), 'pause_display': display.pause_display(self), 'start_screen': display.start_screen(self), 'settings_screen': display.settings_screen(self), 'win_screen': display.win_screen(self)}
+        self.displays = {'template_display': display.basic_display(self), 'map_select_screen': display.map_select_screen(self), 'game_display': display.game_display(self), 'pause_display': display.pause_display(self), 'start_screen': display.start_screen(self), 'settings_screen': display.settings_screen(self), 'win_screen': display.win_screen(self)}
         self.current_display = self.displays['start_screen']
         print(self.displays['game_display'])
 
@@ -122,6 +122,7 @@ class Game:
 
     def render(self):
         self.screen.fill('black')
+        print(self.current_display)
         self.current_display.render()
 
         for object in self.objects:

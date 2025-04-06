@@ -46,7 +46,8 @@ class Button:  # A button class
                 self.display.game.current_display = self.display.game.displays['start_screen']
             elif self.action == 'game_display':
                 self.display.game.current_display = self.display.game.displays['game_display']
-                if self.text == 'Start':
+                if self.text == 'play':
+                    self.display.game.current_display.get_map()
                     self.display.game.startTime = time.time_ns() // 1000000
                     self.display.game.current_display.player = player.Player(self.display.game.current_display)
 
@@ -66,6 +67,9 @@ class Button:  # A button class
             elif self.action == 'start_screen_after_win':
                 self.display.game.current_display = self.display.game.displays['start_screen']
                 self.display.game.startTime = time.time_ns() // 1000000
+
+            elif self.action == 'map_select_screen':
+                self.display.game.current_display = self.display.game.displays['map_select_screen']
 
             else:
                 print('clicked')
