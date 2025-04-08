@@ -142,11 +142,14 @@ class map_select_screen(basic_display):
         button.Button(self, 'game_display', self.game.width / 2, self.game.height / 2 + 100, 200, 75, (0, 0, 0), outline_color='white',
                       text='Play', text_color='white')
         self.mapNames, self.maps = self.getMaps()
-        self.game.currentMap = 4
+        self.game.currentMap = 0
+        # self.objects = []
+        self.name_text = custom_text.Custom_text(self, self.game.width / 2, self.game.height / 2, self.game.font, 30, self.mapNames[self.game.currentMap], text_color='white')
 
     def change_map(self, amount: int):
         if 0 <= self.game.currentMap + amount < len(self.mapNames):
             self.game.currentMap += amount
+            self.name_text.update_text(self.mapNames[self.game.currentMap])
         else:
             print('no further')
 
