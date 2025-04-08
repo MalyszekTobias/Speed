@@ -45,8 +45,9 @@ class Button:  # A button class
             elif self.action == 'start_screen':
                 self.display.game.current_display = self.display.game.displays['start_screen']
             elif self.action == 'game_display':
+                print('play')
                 self.display.game.current_display = self.display.game.displays['game_display']
-                if self.text == 'play':
+                if self.text == 'Play':
                     self.display.game.current_display.get_map()
                     self.display.game.startTime = time.time_ns() // 1000000
                     self.display.game.current_display.player = player.Player(self.display.game.current_display)

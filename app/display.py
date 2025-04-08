@@ -139,10 +139,25 @@ class win_screen(basic_display):
 class map_select_screen(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
-        button.Button(self, 'game_display', self.game.width / 2, self.game.height - 100, 200, 75, (0, 0, 0), outline_color='white',
-                      text='play', text_color='white')
+        button.Button(self, 'game_display', self.game.width / 2, self.game.height / 2 + 100, 200, 75, (0, 0, 0), outline_color='white',
+                      text='Play', text_color='white')
         self.mapNames, self.maps = self.getMaps()
         self.game.currentMap = 4
+
+    def change_map(self, amount: int):
+        if 0 <= self.game.currentMap + amount < len(self.mapNames):
+            self.game.currentMap += amount
+        else:
+            print('no further')
+
+    def events(self, event):
+        for obj in self.objects:
+            obj.events(event)
+        if event.type == pygame.KEYDOWN:
+            if event.key in (pygame.K_a, pygame.K_LEFT):
+                self.change_map(-1)
+            elif event.key in (pygame.K_d, pygame.K_RIGHT):
+                self.change_map(1)
 
     def getMaps(self):
         n, m = [], []
