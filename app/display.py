@@ -93,9 +93,10 @@ class pause_display(basic_display):
 
         custom_text.Custom_text(self, self.game.width / 2, self.game.height / 3, None, 100, 'Paused',
                                 text_color='White')
-        button.Button(self, 'game_display', self.game.width / 2 - 150, self.game.height * 0.45 + 100, 300, 75,
+        button.Button(self, 'game_display', self.game.width / 2 - 150, self.game.height * 0.45 + 100, 130, 70,
                       (0, 0, 0), outline_color='white', text='Resume', text_color='white')
-
+        button.Button(self, 'map_select_screen', self.game.width / 2 + 150, self.game.height * 0.45 + 100, 130, 70,
+                      (0, 0, 0), outline_color='white', text='Quit', text_color='white')
     def events(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             self.game.current_display = self.game.displays['game_display']
@@ -105,6 +106,7 @@ class pause_display(basic_display):
             if self.game.countdown > 0:
                 self.game.pauseSum = 0
                 self.game.countdownText.hidden = False
+
 
         else:
             for obj in self.objects:

@@ -56,7 +56,7 @@ class Player:
         self.height = self.width
         self.playerColor = (200, 30, 30)
         self.trailColor = (90, 20, 20)
-        self.character = 1 # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
+        self.character = 3 # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
 
         if self.character == 0:
             self.bouncyMode = False
@@ -355,7 +355,7 @@ class Player:
         if self.justStarted:
             self.justStarted = False
             self.restart(True)
-            self.display.game.timerText.hidden = False
+            self.display.game.timerText.hidden = True
         self.cam = self.display.camera
         if self.x + self.width / 2 > self.display.game.width / 2:
             pygame.draw.rect(self.display.screen, self.playerColor,((self.display.game.width - self.width) / 2 - 1, self.y - 1, self.width + 2, self.height + 2))    # camera work
@@ -654,7 +654,9 @@ class Player:
             pass
     def delete(self):
         self.display.game.timerText.hidden = True
-        self.display.game.current_display = self.display.game.displays['win_screen']
+        if self.won:
+            self.display.game.current_display = self.display.game.displays['win_screen']
+        print(self.display.objects)
         self.display.objects.remove(self)
         self.display.particles = []
         del self
