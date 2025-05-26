@@ -54,9 +54,10 @@ class Player:
 
         self.width = self.display.tileSize
         self.height = self.width
-        self.playerColor = (200, 30, 30)
-        self.trailColor = (90, 20, 20)
-        self.character = 3 # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
+        self.character = 0 # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
+
+        self.colors = [[200, 200, 200], [200, 30, 30], [30, 200, 30], [200, 200, 30], [60, 60, 200]]
+        self.trailColors = [[90, 90, 90], [90, 20, 20], [20, 90, 20], [90, 90, 20], [30, 30, 90]]
 
         if self.character == 0:
             self.bouncyMode = False
@@ -64,34 +65,28 @@ class Player:
             self.airAcceleration = 2
             self.groundAcceleration = 2
             self.maxSpeed = self.boostedMaxSpeed
-            self.playerColor = (200, 200, 200)
-            self.trailColor = (90, 90, 90)
         if self.character == 1:
             # bouncer bounces from every block, has 1 jump in the air after bouncing from a white floor
             self.bouncyMode = True
             self.gravity = True
             self.g = 0.6
-            self.trailColor = (90, 20, 20)
             self.minBounce = 5
             self.wallAndCeilingBounce = 5
             self.floorBounce = 5
         if self.character == 2:
             # runner can run along the floor and jump twice, pretty normal stuff
             self.bouncyMode = False
-            self.playerColor = (30, 200, 30)
-            self.trailColor = (20, 90, 20)
         if self.character == 3:
             # hooker has 1 small jump and a hook
-            self.bouncyMode = False
-            self.playerColor = (200, 200, 30)
-            self.trailColor = (90, 90, 20)
+            self.bouncyMode = True
             self.g = 0.9
             self.maxFallSpeed, self.maxSpeed, self.regularMaxSpeed = -15, 15, 15
             self.speedCorrection = 10
             self.jumpSpeedBoost = 0
-
+            self.jumpAmount = 0
 
         # magneter will get attracted to the mouse, no jump, no gravity
+        self.playerColor, self.trailColor = self.colors[self.character], self.trailColors[self.character]
 
         self.x = self.display.spawnCords[0]
         self.y = self.display.spawnCords[1]
@@ -160,6 +155,8 @@ class Player:
     def nudge(self, direction: str, block: list, blockType):
         if self.bouncyMode:
             bounceMulti = 1
+            if self.character == 3:
+                bounceMulti = 0
 
             if blockType == 4:
                 r, c = block[1] // self.display.tileSize, block[0] // self.display.tileSize
@@ -174,8 +171,13 @@ class Player:
                     bouncable = True
                 if bouncable:
                     bounceMulti = 1.5
+
+                elif self.character == 3:
+                    bounceMulti = 0
+                    print(None)
             if self.jumpRecoveryFromAllDirectionBounces:
                 self.jumpsLeft = self.jumpAmount
+
             if direction == 'down':
                 self.y = block[1] - self.height
                 if self.velUp < -self.minBounce * bounceMulti:
@@ -357,10 +359,22 @@ class Player:
             self.restart(True)
             self.display.game.timerText.hidden = True
         self.cam = self.display.camera
+        currentColor = []
+        self.currentTrailColor = []
+        for i in range(3):
+            if self.playerColor[i] == max(self.playerColor):
+                currentColor.append(int(self.playerColor[i] - 70 *(1 - self.jumpsLeft)))
+                self.currentTrailColor.append(int(self.trailColor[i] - 30 *(1 - self.jumpsLeft)))
+            else:
+                currentColor.append(int(self.playerColor[i] + 40 * (1-self.jumpsLeft)))
+                self.currentTrailColor.append(int(self.trailColor[i] + 20 * (1-self.jumpsLeft)))
+
+        if self.character == 3:
+            currentColor, currentTrailColor = self.playerColor, self.trailColor
         if self.x + self.width / 2 > self.display.game.width / 2:
-            pygame.draw.rect(self.display.screen, self.playerColor,((self.display.game.width - self.width) / 2 - 1, self.y - 1, self.width + 2, self.height + 2))    # camera work
+            pygame.draw.rect(self.display.screen, currentColor,((self.display.game.width - self.width) / 2 - 1, self.y - 1, self.width + 2, self.height + 2))    # camera work
         else:
-            pygame.draw.rect(self.display.screen, self.playerColor, (self.x - 1, self.y - 1, self.width + 2, self.height + 2))
+            pygame.draw.rect(self.display.screen, currentColor, (self.x - 1, self.y - 1, self.width + 2, self.height + 2))
 
 
         if self.display.game.countdown < 1:
@@ -387,7 +401,6 @@ class Player:
                     if self.hugsRight() and not self.grounded:
                         self.wall_jump('r')
                     elif self.hugsLeft() and not self.grounded:
-                        print('left')
                         self.wall_jump('l')
                     elif self.jumpsLeft > 0:
                         self.jump = True
@@ -615,8 +628,9 @@ class Player:
             if self.velUp < self.maxFallSpeed:
                 self.velUp = self.maxFallSpeed
             if self.velUp > self.maxSpeed and not self.jump:
-                self.velUp = self.maxSpeed
-
+                if self.hooked:
+                    self.velUp = self.maxSpeed
+                pass
         else:
             if self.up:
                 self.velUp += self.airAcceleration
@@ -637,7 +651,7 @@ class Player:
                 if self.maxSpeed == self.boostedMaxSpeed:
                     self.createParticle(self.width, self.display.speedColor, self.x, self.y, 0, 0, 0, 10, 4.5)
                 else:
-                    self.createParticle(self.width, self.trailColor, self.x, self.y, 0, 0, 0, 10, 4.5)
+                    self.createParticle(self.width, self.currentTrailColor, self.x, self.y, 0, 0, 0, 10, 4.5)
                 self.archiveCords = [self.x, self.y]
             self.x -= self.velLeft / divisor
             self.y -= self.velUp / divisor
@@ -656,7 +670,6 @@ class Player:
         self.display.game.timerText.hidden = True
         if self.won:
             self.display.game.current_display = self.display.game.displays['win_screen']
-        print(self.display.objects)
         self.display.objects.remove(self)
         self.display.particles = []
         del self

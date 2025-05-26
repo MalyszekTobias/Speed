@@ -89,8 +89,6 @@ class Game:
             if not self.pausedStart == None:
                 self.currPauseTime = self.timeNow - self.pausedStart
             if self.currPauseTime == 0:
-                print(self.countdown)
-
                 if self.countdown > 0:
                     self.startTime = time.time_ns() // 1000000
                     self.countdown -= 1
