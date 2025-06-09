@@ -36,6 +36,7 @@ class Game:
         self.currPauseTime = 0
         self.timeNow = None
         self.timerDigits = 4
+        self.delta_time = 0
 
         self.run = True
 
@@ -152,6 +153,12 @@ class Game:
             self.debug_items[4].update_text(f'Objects in memory: {len(self.current_display.objects)}')
             self.debug_items[5].update_text(f'Current display: {type(self.current_display)}')
             self.debug_items[6].update_text(f'Pointing at: {self.pointing_at}')
+        if self.clock.get_time() / 1000.0 > 0.1:
+            self.delta_time = 0.1
+        else:
+            self.delta_time = self.clock.get_time() / 1000.0
+
+        print(self.delta_time)
         a = self.getTimer()
         if a != '0:00' and int(a) >= 10 ** (self.timerDigits - 3):
             self.timerDigits += 1

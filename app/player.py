@@ -12,7 +12,7 @@ class Player:
     def __init__(self, display):
         self.display = display
         self.display.objects.append(self)
-
+        self.offset = 60
 
         self.g = 0.6
         self.regularMaxSpeed = 8
@@ -54,7 +54,7 @@ class Player:
 
         self.width = self.display.tileSize
         self.height = self.width
-        self.character = 0 # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
+        self.character = 1 # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
 
         self.colors = [[200, 200, 200], [200, 30, 30], [30, 200, 30], [200, 200, 30], [60, 60, 200]]
         self.trailColors = [[90, 90, 90], [90, 20, 20], [20, 90, 20], [90, 90, 20], [30, 30, 90]]
@@ -354,6 +354,7 @@ class Player:
         self.particle = particle.Particle(self.display, size, color, x, y, velRight, velUp, g, lifetime, shrink)
         self.display.particles.append(self.particle)
     def render(self):
+        self.delta = self.display.game.delta_time
         if self.justStarted:
             self.justStarted = False
             self.restart(True)
@@ -523,8 +524,8 @@ class Player:
                     if d > self.hookLength:
                         self.hookReeling = True
                 if not self.hooked:
-                    self.hookX += self.hookVelLeft / divisor
-                    self.hookY += self.hookVelUp / divisor
+                    self.hookX += self.hookVelLeft * self.delta * self.offset / divisor
+                    self.hookY += self.hookVelUp * self.delta * self.offset / divisor
         if self.hookReeling or self.hooked:
             hitbox = 0
             if self.hooked:
@@ -568,62 +569,62 @@ class Player:
         if self.hooked:
             x_offset, y_offset = self.x + self.width / 2 - self.hookX, self.y + self.width / 2 - self.hookY
             a, b = self.getHookVels(x_offset, y_offset, self.hookPower)
-            self.velUp += b
-            self.velLeft += a
+            self.velUp += b * self.delta * self.offset
+            self.velLeft += a * self.delta * self.offset
 
         if self.right:
             if self.character != 3:
                 if self.grounded:
-                    self.velLeft -= self.groundAcceleration
+                    self.velLeft -= self.groundAcceleration * self.delta * self.offset
                 else:
-                    self.velLeft -= self.airAcceleration
+                    self.velLeft -= self.airAcceleration * self.delta * self.offset
             elif self.hooked:
-                self.velLeft -= self.airAcceleration
+                self.velLeft -= self.airAcceleration * self.delta * self.offset
         if self.left:
             if self.character != 3:
                 if self.grounded:
-                    self.velLeft += self.groundAcceleration
+                    self.velLeft += self.groundAcceleration * self.delta * self.offset
                 else:
-                    self.velLeft += self.airAcceleration
+                    self.velLeft += self.airAcceleration * self.delta * self.offset
 
             elif self.hooked:
-                self.velLeft += self.airAcceleration
+                self.velLeft += self.airAcceleration * self.delta * self.offset
 
         for i in range(self.speedCorrection):
             if self.velLeft < -self.maxSpeed:
-                self.velLeft += 1
+                self.velLeft +=  self.delta * self.offset
             if self.velLeft > self.maxSpeed:
-                self.velLeft -= 1
+                self.velLeft -= self.delta * self.offset
 
         if self.grounded:
             if not self.right and not self.left:
                 if self.velLeft < 0:
-                    self.velLeft += self.groundFriction
+                    self.velLeft += self.groundFriction * self.delta * self.offset
                 elif self.velLeft > 0:
-                    self.velLeft -= self.groundFriction
+                    self.velLeft -= self.groundFriction * self.delta * self.offset
                 if -self.groundFriction < self.velLeft < self.groundFriction:
                     self.velLeft = 0
         else:
             if not self.right and not self.left:
                 if self.velLeft < 0:
-                    self.velLeft += self.airFriction
+                    self.velLeft += self.airFriction * self.delta * self.offset
                 elif self.velLeft > 0:
-                    self.velLeft -= self.airFriction
+                    self.velLeft -= self.airFriction * self.delta * self.offset
                 if -self.airFriction < self.velLeft < self.airFriction:
                     self.velLeft = 0
 
         if not self.gravity:
             if self.velUp < 0:
-                self.velUp += self.airFriction
+                self.velUp += self.airFriction * self.delta * self.offset
             elif self.velUp > 0:
-                self.velUp -= self.airFriction
+                self.velUp -= self.airFriction * self.delta * self.offset
 
         if self.gravity:
             if self.jump:
                 if self.velUp <= 0:
                     self.jump = False
             if not self.grounded:
-                self.velUp -= self.g
+                self.velUp -= self.g * self.delta * self.offset
 
             if self.velUp < self.maxFallSpeed:
                 self.velUp = self.maxFallSpeed
@@ -633,9 +634,9 @@ class Player:
                 pass
         else:
             if self.up:
-                self.velUp += self.airAcceleration
+                self.velUp += self.airAcceleration * self.delta * self.offset
             if self.down:
-                self.velUp -= self.airAcceleration
+                self.velUp -= self.airAcceleration * self.delta * self.offset
 
             if self.velUp < -self.maxSpeed:
                 self.velUp = -self.maxSpeed
@@ -653,8 +654,8 @@ class Player:
                 else:
                     self.createParticle(self.width, self.currentTrailColor, self.x, self.y, 0, 0, 0, 10, 4.5)
                 self.archiveCords = [self.x, self.y]
-            self.x -= self.velLeft / divisor
-            self.y -= self.velUp / divisor
+            self.x -= self.velLeft * self.delta * self.offset / divisor
+            self.y -= self.velUp * self.delta * self.offset / divisor
             self.updateBlockStatuses()
             self.collisionFinder(True, 'p')
             if self.won:

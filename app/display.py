@@ -10,12 +10,14 @@ from mapMaker import camera, tileSize
 class basic_display():
     def __init__(self, game):
         self.game = game
+        self.offset = 60
         self.screen = self.game.screen
 
         self.objects = []
         self.particles = []
 
     def render(self):
+        self.delta = self.game.delta_time
         for obj in self.particles:
             obj.render()
         for obj in self.objects:
@@ -60,6 +62,7 @@ class game_display(basic_display):
                 if self.currentMap[i][j] == 6:
                     self.spawnCords = [j * tileSize, i * tileSize]
     def render(self):
+        self.delta = self.game.delta_time
         m, n = len(self.currentMap), len(self.currentMap[0])
         for i in range(m):
             for j in range(n):
