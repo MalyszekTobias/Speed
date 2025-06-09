@@ -158,7 +158,6 @@ class Game:
         else:
             self.delta_time = self.clock.get_time() / 1000.0
 
-        print(self.delta_time)
         a = self.getTimer()
         if a != '0:00' and int(a) >= 10 ** (self.timerDigits - 3):
             self.timerDigits += 1
