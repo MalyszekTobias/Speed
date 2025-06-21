@@ -1,10 +1,10 @@
 import time as czas
 from random import random
-
+import Assets
 import pygame
 from pygame import *
 from app import particle
-from mapMaker import tileSize, height
+from mapMaker import tileSize, height, screen
 import random as ran
 
 
@@ -52,10 +52,15 @@ class Player:
         self.hookReeling = False
 
 
-        self.width = self.display.tileSize
+        self.width = self.display.tileSize + 10
         self.height = self.width
+
         self.character = 1 # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
 
+        self.sprite = pygame.image.load("Assets/Sprites/Blue slime white eyes-1.png.png")
+        self.sprite = pygame.transform.scale(self.sprite, (self.width, self.height))
+        self.sprite_rect = self.sprite.get_rect()
+        self.sprite_rect.x,self.sprite_rect.y = 0, 0
         self.colors = [[200, 200, 200], [200, 30, 30], [30, 200, 30], [200, 200, 30], [60, 60, 200]]
         self.trailColors = [[90, 90, 90], [90, 20, 20], [20, 90, 20], [90, 90, 20], [30, 30, 90]]
 
@@ -90,6 +95,7 @@ class Player:
 
         self.x = self.display.spawnCords[0]
         self.y = self.display.spawnCords[1]
+        self.sprite_rect.x, self.sprite_rect.y = self.x, self.y
         self.velUp = 0
         self.velLeft = 0
         self.left = False
@@ -351,7 +357,7 @@ class Player:
         return False
 
     def createParticle(self, size, color, x, y, velRight, velUp, g, lifetime, shrink):
-        self.particle = particle.Particle(self.display, size, color, x, y, velRight, velUp, g, lifetime, shrink)
+        self.particle = particle.Particle(self.display, size / 2, color, x, y, velRight, velUp, g, lifetime, shrink)
         self.display.particles.append(self.particle)
     def render(self):
         self.delta = self.display.game.delta_time
@@ -373,9 +379,14 @@ class Player:
         if self.character == 3:
             currentColor, currentTrailColor = self.playerColor, self.trailColor
         if self.x + self.width / 2 > self.display.game.width / 2:
-            pygame.draw.rect(self.display.screen, currentColor,((self.display.game.width - self.width) / 2 - 1, self.y - 1, self.width + 2, self.height + 2))    # camera work
+            self.sprite_rect.x, self.sprite_rect.y = (self.display.game.width - self.width) / 2, self.y
+
+            # pygame.draw.rect(self.display.screen, currentColor,((self.display.game.width - self.width) / 2 - 1, self.y - 1, self.width + 2, self.height + 2))    # camera work
         else:
-            pygame.draw.rect(self.display.screen, currentColor, (self.x - 1, self.y - 1, self.width + 2, self.height + 2))
+            self.sprite_rect.x, self.sprite_rect.y = self.x, self.y
+
+            # pygame.draw.rect(self.display.screen, currentColor, (self.x - 1, self.y - 1, self.width + 2, self.height + 2))
+        self.display.screen.blit(self.sprite, self.sprite_rect)
 
 
         if self.display.game.countdown < 1:
@@ -650,9 +661,9 @@ class Player:
         for i in range(divisor):
             if not self.collisionFinder(False, 'p'):
                 if self.maxSpeed == self.boostedMaxSpeed:
-                    self.createParticle(self.width, self.display.speedColor, self.x, self.y, 0, 0, 0, 10, 4.5)
+                    self.createParticle(self.width - 10, self.display.speedColor, self.x + self.width / 2, self.y + self.height / 2 + 4, 0, 0, 0, 10, 4.5)
                 else:
-                    self.createParticle(self.width, self.currentTrailColor, self.x, self.y, 0, 0, 0, 10, 4.5)
+                    self.createParticle(self.width - 10, self.currentTrailColor, self.x + self.width / 2, self.y + self.height / 2, 0, 0, 0, 10, 4.5)
                 self.archiveCords = [self.x, self.y]
             self.x -= self.velLeft * self.delta * self.offset / divisor
             self.y -= self.velUp * self.delta * self.offset / divisor
@@ -661,6 +672,7 @@ class Player:
             if self.won:
                 self.delete()
                 break
+        self.sprite_rect.x, self.sprite_rect.y = self.x, self.y
 
         try:
             if self.grounded and not self.bouncyMode:

@@ -44,19 +44,13 @@ class game_display(basic_display):
         pygame.draw.rect(self.screen, self.bgColor, (0, 0, self.game.width, self.game.height))
 
 
-    def load_map(self, map):
-        self.currentMap = map
-        self.tileSize = int(self.game.height / len(self.currentMap))
-        for i in range(len(self.currentMap)):
-            for j in range(len(self.currentMap[i])):
-                if self.currentMap[i][j] == 6:
-                    self.spawnCords = [j * tileSize, i * tileSize]
     def mainloop(self):
         pass
 
     def get_map(self):
         self.currentMap = maps.maps[self.game.currentMap]
         self.tileSize = int(self.game.height / len(self.currentMap))
+        print(self.tileSize)
         for i in range(len(self.currentMap)):
             for j in range(len(self.currentMap[i])):
                 if self.currentMap[i][j] == 6:

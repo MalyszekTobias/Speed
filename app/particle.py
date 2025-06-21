@@ -18,9 +18,9 @@ class Particle:
     def render(self):
         self.move()
         if self.size > 5:
-            pygame.draw.rect(self.display.screen, self.color, (self.x + self.display.camera, self.y, self.size, self.size))
+            pygame.draw.circle(self.display.screen, self.color, (self.x + self.display.camera, self.y), self.size)
         self.lifetime -= 1
-        self.size -= self.shrink
+        self.size -= self.shrink / 2
         self.x += self.shrink / 2
         self.y += self.shrink / 2
         if self.lifetime < 1:
