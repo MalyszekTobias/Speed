@@ -55,12 +55,8 @@ class Player:
         self.width = self.display.tileSize + 10
         self.height = self.width
 
-        self.character = 1 # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
+        self.character = 3 # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
 
-        self.sprite = pygame.image.load("Assets/Sprites/Blue slime white eyes-1.png.png")
-        self.sprite = pygame.transform.scale(self.sprite, (self.width, self.height))
-        self.sprite_rect = self.sprite.get_rect()
-        self.sprite_rect.x,self.sprite_rect.y = 0, 0
         self.colors = [[200, 200, 200], [200, 30, 30], [30, 200, 30], [200, 200, 30], [60, 60, 200]]
         self.trailColors = [[90, 90, 90], [90, 20, 20], [20, 90, 20], [90, 90, 20], [30, 30, 90]]
 
@@ -70,6 +66,7 @@ class Player:
             self.airAcceleration = 2
             self.groundAcceleration = 2
             self.maxSpeed = self.boostedMaxSpeed
+            self.sprites = [pygame.image.load("Assets/Sprites/teal_left.png"), pygame.image.load("Assets/Sprites/teal_right.png")]
         if self.character == 1:
             # bouncer bounces from every block, has 1 jump in the air after bouncing from a white floor
             self.bouncyMode = True
@@ -78,9 +75,11 @@ class Player:
             self.minBounce = 5
             self.wallAndCeilingBounce = 5
             self.floorBounce = 5
+            self.sprites = [pygame.image.load("Assets/Sprites/red_left.png"), pygame.image.load("Assets/Sprites/red_right.png")]
         if self.character == 2:
             # runner can run along the floor and jump twice, pretty normal stuff
             self.bouncyMode = False
+            self.sprites = [pygame.image.load("Assets/Sprites/green_left.png"), pygame.image.load("Assets/Sprites/green_right.png")]
         if self.character == 3:
             # hooker has 1 small jump and a hook
             self.bouncyMode = True
@@ -89,10 +88,17 @@ class Player:
             self.speedCorrection = 10
             self.jumpSpeedBoost = 0
             self.jumpAmount = 0
+            self.sprites = [pygame.image.load("Assets/Sprites/yellow_left.png"), pygame.image.load("Assets/Sprites/yellow_right.png")]
 
         # magneter will get attracted to the mouse, no jump, no gravity
         self.playerColor, self.trailColor = self.colors[self.character], self.trailColors[self.character]
 
+        for s in range(len(self.sprites)):
+            self.sprites[s] = pygame.transform.scale(self.sprites[s], (self.width, self.height))
+            self.sprite_rect = self.sprites[s].get_rect()
+            self.sprite_rect.x,self.sprite_rect.y = 0, 0
+        self.sprite = self.sprites[1]
+        print(self.sprite)
         self.x = self.display.spawnCords[0]
         self.y = self.display.spawnCords[1]
         self.sprite_rect.x, self.sprite_rect.y = self.x, self.y
@@ -591,6 +597,7 @@ class Player:
                     self.velLeft -= self.airAcceleration * self.delta * self.offset
             elif self.hooked:
                 self.velLeft -= self.airAcceleration * self.delta * self.offset
+            self.sprite = self.sprites[1]
         if self.left:
             if self.character != 3:
                 if self.grounded:
@@ -600,6 +607,8 @@ class Player:
 
             elif self.hooked:
                 self.velLeft += self.airAcceleration * self.delta * self.offset
+            self.sprite = self.sprites[0]
+
 
         for i in range(self.speedCorrection):
             if self.velLeft < -self.maxSpeed:
