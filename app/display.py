@@ -15,6 +15,7 @@ class basic_display():
 
         self.objects = []
         self.particles = []
+        self.width, self.height = game.width, game.height
 
     def render(self):
         self.delta = self.game.delta_time
@@ -88,7 +89,7 @@ class pause_display(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
 
-        custom_text.Custom_text(self, self.game.width / 2, self.game.height / 3, None, 100, 'Paused',
+        custom_text.Custom_text(self, self.game.width / 2, self.game.height / 3, None, self.game.header_text_size, 'Paused',
                                 text_color='White')
         button.Button(self, 'game_display', self.game.width / 2 - 150, self.game.height * 0.45 + 100, 130, 70,
                       (0, 0, 0), outline_color='white', text='Resume', text_color='white')
@@ -113,7 +114,7 @@ class pause_display(basic_display):
 class start_screen(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
-        custom_text.Custom_text(self, self.game.width / 2, self.game.height / 3, None, 100, 'Speed', text_color='Green')
+        custom_text.Custom_text(self, self.game.width / 2, self.game.height / 3, None, self.game.header_text_size, 'Speed', text_color='Green')
         button.Button(self, 'settings', self.game.width / 2 - 100, self.game.height * 0.75, 200, 75, (0, 0, 0),
                       outline_color='white', text='Settings', text_color='white')
         button.Button(self, 'map_select_screen', self.game.width / 2 - 100, self.game.height * 0.75 - 100, 200, 75,
@@ -138,12 +139,12 @@ class win_screen(basic_display):
 class map_select_screen(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
-        button.Button(self, 'game_display', self.game.width / 2, self.game.height / 2 + 100, 200, 75, (0, 0, 0), outline_color='white',
+        button.Button(self, 'game_display', self.game.width / 2 + 50, self.game.height / 2 + 100, 300, 100, (0, 0, 0), outline_color='white',
                       text='Play', text_color='white')
         self.mapNames, self.maps = self.getMaps()
         self.game.currentMap = 0
         # self.objects = []
-        self.name_text = custom_text.Custom_text(self, self.game.width / 2, self.game.height / 2, self.game.font, 30, self.mapNames[self.game.currentMap], text_color='white')
+        self.name_text = custom_text.Custom_text(self, self.game.width / 2, self.game.height / 2, self.game.font, self.game.debug_text_size, self.mapNames[self.game.currentMap], text_color='white')
 
     def change_map(self, amount: int):
         if 0 <= self.game.currentMap + amount < len(self.mapNames):

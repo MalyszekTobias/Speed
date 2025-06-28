@@ -1,5 +1,9 @@
 import time
 
+
+import ctypes
+user32 = ctypes.windll.user32
+screensize = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
 import pygame
 
 import app.player
@@ -38,12 +42,24 @@ class Game:
         self.timerDigits = 4
         self.delta_time = 0
 
+        self.header_text_size = 120
+        self.timer_text_size = 130
+        self.normal_text_size = 50
+        self.debug_text_size = 50
+
         self.run = True
 
         self.objects = []
-
+        print(self.cfg['fullscreen'])
+        if self.cfg['fullscreen'] == '1':
+            print(self.cfg['fullscreen'])
+            self.width, self.height = screensize
 
         self.screen = pygame.display.set_mode((self.width, self.height))
+
+        if self.cfg['fullscreen'] == '1':
+            pygame.display.toggle_fullscreen()
+
         pygame.display.set_caption(f"{self.title} (v {self.version})")
 
         self.displays = {'template_display': display.basic_display(self), 'map_select_screen': display.map_select_screen(self), 'game_display': display.game_display(self), 'pause_display': display.pause_display(self), 'start_screen': display.start_screen(self), 'settings_screen': display.settings_screen(self), 'win_screen': display.win_screen(self)}
@@ -53,14 +69,14 @@ class Game:
         self.pointing_at = []
 
         self.debug = False
-        self.debug_items = [custom_text.Custom_text(self, 12, 15, self.font, 30, f'Current version: {self.version}', text_color='white', center=False),
-                            custom_text.Custom_text(self, 12, 45, self.font, 30, f'Resolution: {self.width}x{self.height}', text_color='white', center=False),
-                            custom_text.Custom_text(self, 12, 75, self.font, 30, f'FPS cap: {self.fps}', text_color='white', center=False),
-                            custom_text.Custom_text(self, 12, 105, self.font, 30, f'FPS: {self.clock.get_fps()}', text_color='white', center=False),
-                            custom_text.Custom_text(self, 12, 135, self.font, 30, f'Objects in memory: {len(self.current_display.objects)}', text_color='white', center=False),
-                            custom_text.Custom_text(self, 12, 165, self.font, 30, f'Current display: {type(self.current_display)}', text_color='white', center=False),
-                            custom_text.Custom_text(self, 12, 195, self.font, 30, f'Pointing at: {self.pointing_at}', text_color='white', center=False)]
-        self.timerText = custom_text.Custom_text(self, self.width - self.timerDigits * 50, 50, "Assets/digital-7.ttf", 90, self.getTimer(), text_color='white', background_color='black', center=False)
+        self.debug_items = [custom_text.Custom_text(self, 12, 15, self.font, self.debug_text_size, f'Current version: {self.version}', text_color='white', center=False),
+                            custom_text.Custom_text(self, 12, 45, self.font, self.debug_text_size, f'Resolution: {self.width}x{self.height}', text_color='white', center=False),
+                            custom_text.Custom_text(self, 12, 75, self.font, self.debug_text_size, f'FPS cap: {self.fps}', text_color='white', center=False),
+                            custom_text.Custom_text(self, 12, 105, self.font, self.debug_text_size, f'FPS: {self.clock.get_fps()}', text_color='white', center=False),
+                            custom_text.Custom_text(self, 12, 135, self.font, self.debug_text_size, f'Objects in memory: {len(self.current_display.objects)}', text_color='white', center=False),
+                            custom_text.Custom_text(self, 12, 165, self.font, self.debug_text_size, f'Current display: {type(self.current_display)}', text_color='white', center=False),
+                            custom_text.Custom_text(self, 12, 195, self.font, self.debug_text_size, f'Pointing at: {self.pointing_at}', text_color='white', center=False)]
+        self.timerText = custom_text.Custom_text(self, self.width - self.timerDigits * 5/9*self.timer_text_size, 50, "Assets/digital-7.ttf", self.timer_text_size, self.getTimer(), text_color='white', background_color='black', center=False)
         self.countdownText = custom_text.Custom_text(self, self.width / 2, self.height / 3, "Assets/digital-7.ttf", 80, str(self.countdown // 6), text_color='white', background_color='black', center=False)
         self.countdownText.hidden = True
         self.timerText.hidden = True

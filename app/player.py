@@ -7,7 +7,6 @@ from app import particle
 from mapMaker import tileSize, height, screen
 import random as ran
 
-
 class Player:
     def __init__(self, display):
         self.display = display
@@ -55,7 +54,7 @@ class Player:
         self.width = self.display.tileSize + 10
         self.height = self.width
 
-        self.character = 3 # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
+        self.character = 1 # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
 
         self.colors = [[200, 200, 200], [200, 30, 30], [30, 200, 30], [200, 200, 30], [60, 60, 200]]
         self.trailColors = [[90, 90, 90], [90, 20, 20], [20, 90, 20], [90, 90, 20], [30, 30, 90]]

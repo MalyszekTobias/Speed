@@ -22,7 +22,7 @@ class Button:  # A button class
 
         if text != None:  # if there is text it's put on the button
             self.text = custom_text.Custom_text(self.display, self.x + self.width / 2, self.y + self.height / 2, None,
-                                    self.height // 2, text, text_color=text_color)
+                                    int(self.height // 1.7), text, text_color=text_color)
             self.text = text
 
         self.outline_color = outline_color
