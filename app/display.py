@@ -16,6 +16,7 @@ class basic_display():
         self.objects = []
         self.particles = []
         self.width, self.height = game.width, game.height
+        self.character = 3
 
     def render(self):
         self.delta = self.game.delta_time
@@ -51,7 +52,6 @@ class game_display(basic_display):
     def get_map(self):
         self.currentMap = maps.maps[self.game.currentMap]
         self.tileSize = int(self.game.height / len(self.currentMap))
-        print(self.tileSize)
         for i in range(len(self.currentMap)):
             for j in range(len(self.currentMap[i])):
                 if self.currentMap[i][j] == 6:
@@ -93,7 +93,7 @@ class pause_display(basic_display):
                                 text_color='White')
         button.Button(self, 'game_display', self.game.width / 2 - 150, self.game.height * 0.45 + 100, 130, 70,
                       (0, 0, 0), outline_color='white', text='Resume', text_color='white')
-        button.Button(self, 'map_select_screen', self.game.width / 2 + 150, self.game.height * 0.45 + 100, 130, 70,
+        button.Button(self, 'level_select_screen', self.game.width / 2 + 150, self.game.height * 0.45 + 100, 130, 70,
                       (0, 0, 0), outline_color='white', text='Quit', text_color='white')
     def events(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
@@ -117,7 +117,7 @@ class start_screen(basic_display):
         custom_text.Custom_text(self, self.game.width / 2, self.game.height / 3, None, self.game.header_text_size, 'Speed', text_color='Green')
         button.Button(self, 'settings', self.game.width / 2 - 100, self.game.height * 0.75, 200, 75, (0, 0, 0),
                       outline_color='white', text='Settings', text_color='white')
-        button.Button(self, 'map_select_screen', self.game.width / 2 - 100, self.game.height * 0.75 - 100, 200, 75,
+        button.Button(self, 'level_select_screen', self.game.width / 2 - 100, self.game.height * 0.75 - 100, 200, 75,
                       (0, 0, 0), outline_color='white', text='Start', text_color='white')
 
 
@@ -136,7 +136,7 @@ class win_screen(basic_display):
         button.Button(self, 'start_screen_after_win', self.game.width - 200, self.game.height - 100, 200, 75, (0, 0, 0),
                       outline_color='white', text='main menu', text_color='white')
 
-class map_select_screen(basic_display):
+class level_select_screen(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
         button.Button(self, 'game_display', self.game.width / 2 + 50, self.game.height / 2 + 100, 300, 100, (0, 0, 0), outline_color='white',
@@ -151,7 +151,15 @@ class map_select_screen(basic_display):
             self.game.currentMap += amount
             self.name_text.update_text(self.mapNames[self.game.currentMap])
         else:
-            print('no further')
+            print('no more maps')
+
+    def change_character(self, amount):
+        if 0 <= self.game.character + amount <= 4:
+            self.game.character += amount
+            print(self.game.character)
+            # self.game.player.character = self.character
+        else:
+            print('no more characters')
 
     def events(self, event):
         for obj in self.objects:
@@ -161,6 +169,10 @@ class map_select_screen(basic_display):
                 self.change_map(-1)
             elif event.key in (pygame.K_d, pygame.K_RIGHT):
                 self.change_map(1)
+            elif event.key in (pygame.K_w, pygame.K_UP):
+                self.change_character(-1)
+            elif event.key in (pygame.K_s, pygame.K_DOWN):
+                self.change_character(1)
 
     def getMaps(self):
         n, m = [], []

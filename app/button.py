@@ -58,13 +58,11 @@ class Button:  # A button class
                     self.display.game.player = self.display.game.current_display.player
                     a = self.display.game.getTimer()
                     self.display.game.countdownText.hidden = True
-                    print(a)
                     if a != '0:00' and int(a) >= 10 ** (self.display.game.timerDigits - 3):
                         self.display.game.timerDigits += 1
                         self.display.game.timerText.x = self.display.game.width - self.display.game.timerDigits * 45
                     self.display.game.timerText.update_text(str(a))
                     self.display.game.countdownText.update_text(str(self.display.game.countdown // 6))
-                    print('start game')
 
                 elif self.text == 'Resume':
                     self.display.game.pauseSum += self.display.game.currPauseTime
@@ -85,10 +83,10 @@ class Button:  # A button class
                 self.display.game.current_display = self.display.game.displays['start_screen']
                 self.display.game.startTime = time.time_ns() // 1000000
 
-            elif self.action == 'map_select_screen':
+            elif self.action == 'level_select_screen':
                 if self.text == 'Quit':
                     self.display.game.player.delete()
-                self.display.game.current_display = self.display.game.displays['map_select_screen']
+                self.display.game.current_display = self.display.game.displays['level_select_screen']
                 self.display.game.timerText.hidden = True
 
             else:

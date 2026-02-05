@@ -53,8 +53,8 @@ class Player:
 
         self.width = self.display.tileSize + 10
         self.height = self.width
-
-        self.character = 1 # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
+        self.character = self.display.game.character # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
+        print(self.character)
 
         self.colors = [[200, 200, 200], [200, 30, 30], [30, 200, 30], [200, 200, 30], [60, 60, 200]]
         self.trailColors = [[90, 90, 90], [90, 20, 20], [20, 90, 20], [90, 90, 20], [30, 30, 90]]
@@ -97,7 +97,7 @@ class Player:
             self.sprite_rect = self.sprites[s].get_rect()
             self.sprite_rect.x,self.sprite_rect.y = 0, 0
         self.sprite = self.sprites[1]
-        print(self.sprite)
+        # print(self.sprite)
         self.x = self.display.spawnCords[0]
         self.y = self.display.spawnCords[1]
         self.sprite_rect.x, self.sprite_rect.y = self.x, self.y
@@ -185,7 +185,6 @@ class Player:
 
                 elif self.character == 3:
                     bounceMulti = 0
-                    print(None)
             if self.jumpRecoveryFromAllDirectionBounces:
                 self.jumpsLeft = self.jumpAmount
 

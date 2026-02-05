@@ -33,6 +33,7 @@ class Game:
         self.currentMap = None
 
         self.player = None
+        self.character = 1
 
         self.startTime = None
         self.pausedStart = None
@@ -50,9 +51,7 @@ class Game:
         self.run = True
 
         self.objects = []
-        print(self.cfg['fullscreen'])
         if self.cfg['fullscreen'] == '1':
-            print(self.cfg['fullscreen'])
             self.width, self.height = screensize
 
         self.screen = pygame.display.set_mode((self.width, self.height))
@@ -62,9 +61,8 @@ class Game:
 
         pygame.display.set_caption(f"{self.title} (v {self.version})")
 
-        self.displays = {'template_display': display.basic_display(self), 'map_select_screen': display.map_select_screen(self), 'game_display': display.game_display(self), 'pause_display': display.pause_display(self), 'start_screen': display.start_screen(self), 'settings_screen': display.settings_screen(self), 'win_screen': display.win_screen(self)}
+        self.displays = {'template_display': display.basic_display(self), 'level_select_screen': display.level_select_screen(self), 'game_display': display.game_display(self), 'pause_display': display.pause_display(self), 'start_screen': display.start_screen(self), 'settings_screen': display.settings_screen(self), 'win_screen': display.win_screen(self)}
         self.current_display = self.displays['start_screen']
-        print(self.displays['game_display'])
 
         self.pointing_at = []
 
