@@ -138,7 +138,7 @@ class win_screen(basic_display):
 class level_select_screen(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
-        button.Button(self, 'game_display', self.game.width / 2 + 50, self.game.height / 2 + 100, 300, 100, (0, 0, 0), outline_color='white',
+        self.playButton = button.Button(self, 'game_display', self.game.width / 2 + 50, self.game.height / 2 + 100, 300, 100, (0, 0, 0), outline_color='white',
                       text='Play', text_color='white')
         self.mapNames, self.maps = self.getMaps()
         self.game.currentMap = 0
@@ -183,6 +183,8 @@ class level_select_screen(basic_display):
                 self.change_character(-1)
             elif event.key in (pygame.K_s, pygame.K_DOWN):
                 self.change_character(1)
+            elif event.key in (pygame.K_SPACE, 13):
+                self.playButton.click()
 
     def getMaps(self):
         n, m = [], []
@@ -193,6 +195,7 @@ class level_select_screen(basic_display):
 
     def render(self):
         self.delta = self.game.delta_time
+        screen.fill((0, 40, 0))
         for obj in self.particles:
             obj.render()
         for obj in self.objects:
