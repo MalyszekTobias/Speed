@@ -142,9 +142,17 @@ class level_select_screen(basic_display):
                       text='Play', text_color='white')
         self.mapNames, self.maps = self.getMaps()
         self.game.currentMap = 0
-        self.character_img_height = 200
+        self.character_cell_height = 200
+        self.character_select_border = 5
         self.character_colors = [[5, 219, 5], [250,50,50], [249, 249, 20], [65, 242, 255]]
-
+        self.character_sprites = [pygame.image.load("Assets/Sprites/green_right.png"), pygame.image.load("Assets/Sprites/red_right.png"), pygame.image.load("Assets/Sprites/yellow_right.png"), pygame.image.load("Assets/Sprites/teal_right.png")]
+        self.sprite_rects = []
+        img_size = self.character_cell_height - 2 * self.character_select_border
+        for s in range(len(self.character_sprites)):
+            self.character_sprites[s] = pygame.transform.scale(self.character_sprites[s], (img_size, img_size))
+            sprite_rect = self.character_sprites[s].get_rect()
+            sprite_rect.x,sprite_rect.y = self.character_select_border, self.character_select_border + s*self.character_cell_height
+            self.sprite_rects.append(sprite_rect)
         # self.objects = []
         self.name_text = custom_text.Custom_text(self, self.game.width / 2, self.game.height / 2, self.game.font, self.game.debug_text_size, self.mapNames[self.game.currentMap], text_color='white')
 
@@ -189,8 +197,10 @@ class level_select_screen(basic_display):
             obj.render()
         for obj in self.objects:
             obj.render()
+        a = self.game.character
+        x = 0
+        y = a * self.character_cell_height
+        pygame.draw.rect(self.screen, self.character_colors[a],
+                         (x, y, self.character_cell_height, self.character_cell_height))
         for i in range(4):
-            if i == self.game.character:
-                x = 0
-                y = i * self.character_img_height
-                pygame.draw.rect(self.screen, self.character_colors[i], (x, y, self.character_img_height, self.character_img_height))
+            screen.blit(self.character_sprites[i], self.sprite_rects[i])
