@@ -1,10 +1,9 @@
 import time
-from os.path import exists
 
 import pygame
 import maps
 from app import custom_text, custom_images, button, player
-from mapMaker import camera, tileSize
+from mapMaker import camera, tileSize, screen
 
 
 class basic_display():
@@ -143,6 +142,9 @@ class level_select_screen(basic_display):
                       text='Play', text_color='white')
         self.mapNames, self.maps = self.getMaps()
         self.game.currentMap = 0
+        self.character_img_height = 200
+        self.character_colors = [[250,50,50], [5, 219, 5], [249, 249, 20], [65, 242, 255]]
+
         # self.objects = []
         self.name_text = custom_text.Custom_text(self, self.game.width / 2, self.game.height / 2, self.game.font, self.game.debug_text_size, self.mapNames[self.game.currentMap], text_color='white')
 
@@ -180,3 +182,15 @@ class level_select_screen(basic_display):
             n.append(maps.names[i])
             m.append(maps.maps[i])
         return n, m
+
+    def render(self):
+        self.delta = self.game.delta_time
+        for obj in self.particles:
+            obj.render()
+        for obj in self.objects:
+            obj.render()
+        for i in range(4):
+            if i == self.game.character:
+                x = 0
+                y = i * self.character_img_height
+                pygame.draw.rect(self.screen, self.character_colors[i], (x, y, self.character_img_height, self.character_img_height))

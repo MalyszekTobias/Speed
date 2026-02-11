@@ -90,6 +90,8 @@ class Player:
             self.sprites = [pygame.image.load("Assets/Sprites/yellow_left.png"), pygame.image.load("Assets/Sprites/yellow_right.png")]
 
         # magneter will get attracted to the mouse, no jump, no gravity
+        # rocketeer will have a rocket to perform rocketboosts away from the mouse
+
         self.playerColor, self.trailColor = self.colors[self.character], self.trailColors[self.character]
 
         for s in range(len(self.sprites)):
