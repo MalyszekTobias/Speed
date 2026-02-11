@@ -143,7 +143,7 @@ class level_select_screen(basic_display):
         self.mapNames, self.maps = self.getMaps()
         self.game.currentMap = 0
         self.character_img_height = 200
-        self.character_colors = [[250,50,50], [5, 219, 5], [249, 249, 20], [65, 242, 255]]
+        self.character_colors = [[5, 219, 5], [250,50,50], [249, 249, 20], [65, 242, 255]]
 
         # self.objects = []
         self.name_text = custom_text.Custom_text(self, self.game.width / 2, self.game.height / 2, self.game.font, self.game.debug_text_size, self.mapNames[self.game.currentMap], text_color='white')
@@ -156,7 +156,7 @@ class level_select_screen(basic_display):
             print('no more maps')
 
     def change_character(self, amount):
-        if 0 <= self.game.character + amount <= 4:
+        if 0 <= self.game.character + amount <= 3:
             self.game.character += amount
             print(self.game.character)
             # self.game.player.character = self.character

@@ -7,6 +7,9 @@ from app import particle
 from mapMaker import tileSize, height, screen
 import random as ran
 
+from maps import names
+
+
 class Player:
     def __init__(self, display):
         self.display = display
@@ -53,19 +56,17 @@ class Player:
 
         self.width = self.display.tileSize + 10
         self.height = self.width
-        self.character = self.display.game.character # 0 is debugger, 1 is bouncer, 2 is runner, 3 is hooker, 4 is magneter
-        print(self.character)
+        self.character = self.display.game.character # 0 is runner, 1 is bouncer, 2 is hooker, 3 is magneter, 4 is rocketeer, 9 is debugger
 
-        self.colors = [[200, 200, 200], [200, 30, 30], [30, 200, 30], [200, 200, 30], [60, 60, 200]]
-        self.trailColors = [[90, 90, 90], [90, 20, 20], [20, 90, 20], [90, 90, 20], [30, 30, 90]]
+        self.colors = [[30, 200, 30], [200, 30, 30], [200, 200, 30], [60, 60, 200], [200, 150, 50], None, None, None, None, [200, 200, 200]]
+        self.trailColors = [[20, 90, 20], [90, 20, 20], [90, 90, 20], [30, 30, 90], [110, 70, 20], None, None, None, None, [90, 90, 90]]
+        self.names = ['The Runner', 'The Bouncer', 'The Hooker', 'The Magneter', None, None, None, None, 'The Debugger']
+        print(self.names[self.character])
 
         if self.character == 0:
+            # runner can run along the floor and jump twice, pretty normal stuff
             self.bouncyMode = False
-            self.gravity = False
-            self.airAcceleration = 2
-            self.groundAcceleration = 2
-            self.maxSpeed = self.boostedMaxSpeed
-            self.sprites = [pygame.image.load("Assets/Sprites/teal_left.png"), pygame.image.load("Assets/Sprites/teal_right.png")]
+            self.sprites = [pygame.image.load("Assets/Sprites/green_left.png"), pygame.image.load("Assets/Sprites/green_right.png")]
         if self.character == 1:
             # bouncer bounces from every block, has 1 jump in the air after bouncing from a white floor
             self.bouncyMode = True
@@ -76,10 +77,6 @@ class Player:
             self.floorBounce = 5
             self.sprites = [pygame.image.load("Assets/Sprites/red_left.png"), pygame.image.load("Assets/Sprites/red_right.png")]
         if self.character == 2:
-            # runner can run along the floor and jump twice, pretty normal stuff
-            self.bouncyMode = False
-            self.sprites = [pygame.image.load("Assets/Sprites/green_left.png"), pygame.image.load("Assets/Sprites/green_right.png")]
-        if self.character == 3:
             # hooker has 1 small jump and a hook
             self.bouncyMode = True
             self.g = 0.9
@@ -88,7 +85,17 @@ class Player:
             self.jumpSpeedBoost = 0
             self.jumpAmount = 0
             self.sprites = [pygame.image.load("Assets/Sprites/yellow_left.png"), pygame.image.load("Assets/Sprites/yellow_right.png")]
-
+        if self.character == 3:
+            # magneter can be attracted to the cursor, depending on how much you're holding the mouse
+            self.bouncyMode = False
+            self.sprites = [pygame.image.load("Assets/Sprites/teal_left.png"), pygame.image.load("Assets/Sprites/teal_right.png")]
+        if self.character == 9:
+            self.bouncyMode = False
+            self.gravity = False
+            self.airAcceleration = 2
+            self.groundAcceleration = 2
+            self.maxSpeed = self.boostedMaxSpeed
+            self.sprites = [pygame.image.load("Assets/Sprites/teal_left.png"), pygame.image.load("Assets/Sprites/teal_right.png")]
         # magneter will get attracted to the mouse, no jump, no gravity
         # rocketeer will have a rocket to perform rocketboosts away from the mouse
 
@@ -168,7 +175,7 @@ class Player:
     def nudge(self, direction: str, block: list, blockType):
         if self.bouncyMode:
             bounceMulti = 1
-            if self.character == 3:
+            if self.character == 2:
                 bounceMulti = 0
 
             if blockType == 4:
@@ -185,7 +192,7 @@ class Player:
                 if bouncable:
                     bounceMulti = 1.5
 
-                elif self.character == 3:
+                elif self.character == 2:
                     bounceMulti = 0
             if self.jumpRecoveryFromAllDirectionBounces:
                 self.jumpsLeft = self.jumpAmount
@@ -339,7 +346,7 @@ class Player:
                             if self.collision((x, y, w, h), block):
                                 if actOrNot:
                                     if entity == 'p':
-                                        if self.nudge(self.detection(block), block, self.display.currentMap[row][column]) == True and self.character == 2:
+                                        if self.nudge(self.detection(block), block, self.display.currentMap[row][column]) == True and self.character == 0:
                                             self.velUp = self.minBounce * 2
                                             self.jumpsLeft = 1
                                         # pygame.draw.rect(self.display.screen, (200, 0, 0), (block[0] + self.cam,block[1],block[2],block[3]))
@@ -382,7 +389,7 @@ class Player:
                 currentColor.append(int(self.playerColor[i] + 40 * (1-self.jumpsLeft)))
                 self.currentTrailColor.append(int(self.trailColor[i] + 20 * (1-self.jumpsLeft)))
 
-        if self.character == 3:
+        if self.character == 2:
             currentColor, currentTrailColor = self.playerColor, self.trailColor
         if self.x + self.width / 2 > self.display.game.width / 2:
             self.sprite_rect.x, self.sprite_rect.y = (self.display.game.width - self.width) / 2, self.y
@@ -397,7 +404,7 @@ class Player:
 
         if self.display.game.countdown < 1:
             self.movement()
-            if self.character == 3 and self.hookX != None:
+            if self.character == 2 and self.hookX != None:
                 self.hook_movement()
 
 
@@ -426,7 +433,7 @@ class Player:
                         self.velUp = self.jumpLength
                         if self.grounded:
                             self.y -= 1
-                            if self.character == 2:
+                            if self.character == 0:
                                 self.jumpsLeft += 1
                         if self.right and not self.left:
                             self.velLeft -= self.jumpSpeedBoost
@@ -556,7 +563,7 @@ class Player:
                 return
 
         pygame.draw.line(self.display.screen, lineColor, (self.x + self.cam + self.width / 2, self.y + self.width / 2), (self.hookX + self.cam, self.hookY), 4)
-        pygame.draw.circle(self.display.screen, self.playerColor, (self.hookX + self.cam, self.hookY), self.hookSize / 2)
+        pygame.draw.circle(self.display.screen, self.colors[2], (self.hookX + self.cam, self.hookY), self.hookSize / 2)
     def shootHook(self, mousepos):
         if self.hookX == None:
             self.hookX, self.hookY = self.x + self.width / 2, self.y + self.height / 2
@@ -590,7 +597,7 @@ class Player:
             self.velLeft += a * self.delta * self.offset
 
         if self.right:
-            if self.character != 3:
+            if self.character != 2:
                 if self.grounded:
                     self.velLeft -= self.groundAcceleration * self.delta * self.offset
                 else:
@@ -599,7 +606,7 @@ class Player:
                 self.velLeft -= self.airAcceleration * self.delta * self.offset
             self.sprite = self.sprites[1]
         if self.left:
-            if self.character != 3:
+            if self.character != 2:
                 if self.grounded:
                     self.velLeft += self.groundAcceleration * self.delta * self.offset
                 else:
