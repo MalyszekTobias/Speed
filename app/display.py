@@ -143,12 +143,16 @@ class win_screen(basic_display):
 class level_select_screen(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
-        self.playButton = button.Button(self, 'game_display', self.game.width / 2 + 50, self.game.height / 2 + 100, 300, 100, (0, 0, 0), outline_color='white',
-                      text='Play', text_color='white')
-        self.mapNames, self.maps = self.getMaps()
-        self.game.currentMap = 0
         self.character_cell_height = 200
         self.character_select_border = 5
+        self.buttonWidth = 250
+        self.playButton = button.Button(self, 'game_display', (self.game.width - self.character_cell_height) / 2 + 300 - self.buttonWidth/2 + self.character_cell_height, self.game.height / 2 + 100, self.buttonWidth, 90, (0, 0, 0), outline_color='white',
+                      text='Play', text_color='white')
+        self.menuButton = button.Button(self, 'start_screen', (self.game.width - self.character_cell_height) / 2 - 300 - self.buttonWidth/2 + self.character_cell_height, self.game.height / 2 + 100, self.buttonWidth, 90, (0, 0, 0), outline_color='white',
+                      text='Exit', text_color='white')
+        self.mapNames, self.maps = self.getMaps()
+        self.game.currentMap = 0
+
         self.character_colors = [[5, 219, 5], [250,50,50], [249, 249, 20], [65, 242, 255]]
         self.character_sprites = [pygame.image.load("Assets/Sprites/green_right.png"), pygame.image.load("Assets/Sprites/red_right.png"), pygame.image.load("Assets/Sprites/yellow_right.png"), pygame.image.load("Assets/Sprites/teal_right.png")]
         self.sprite_rects = []
@@ -159,7 +163,7 @@ class level_select_screen(basic_display):
             sprite_rect.x,sprite_rect.y = self.character_select_border, self.character_select_border + s*self.character_cell_height
             self.sprite_rects.append(sprite_rect)
         # self.objects = []
-        self.name_text = custom_text.Custom_text(self, self.game.width / 2, self.game.height / 2, self.game.font, self.game.debug_text_size, self.mapNames[self.game.currentMap], text_color='white')
+        self.name_text = custom_text.Custom_text(self, (self.game.width - self.character_cell_height) / 2 + self.character_cell_height, self.game.height / 2, self.game.font, self.game.debug_text_size, self.mapNames[self.game.currentMap], text_color='white')
 
     def change_map(self, amount: int):
         if 0 <= self.game.currentMap + amount < len(self.mapNames):
@@ -201,6 +205,7 @@ class level_select_screen(basic_display):
     def render(self):
         self.delta = self.game.delta_time
         screen.fill((0, 40, 0))
+        pygame.draw.rect(self.screen, (32, 10, 10), (0, 0, self.character_cell_height, self.height))
         for obj in self.particles:
             obj.render()
         for obj in self.objects:
