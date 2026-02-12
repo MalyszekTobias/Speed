@@ -67,12 +67,7 @@ class Button:  # A button class
                 self.display.game.currPauseTime = 0
                 self.display.game.pausedStart = None
         elif self.action == 'restart':
-            self.display.game.current_display = self.display.game.displays['game_display']
-            self.display.game.startTime = time.time_ns() // 1000000
-            self.display.game.current_display.player = player.Player(self.display.game.current_display)
-            self.display.game.player = self.display.game.current_display.player
-            self.display.game.countdownText.hidden = True
-
+            self.restartClicked()
 
         elif self.action == 'start_screen_after_win':
             self.display.game.current_display = self.display.game.displays['start_screen']
@@ -111,4 +106,12 @@ class Button:  # A button class
             self.display.game.timerText.x = self.display.game.width - self.display.game.timerDigits * 45
         self.display.game.timerText.update_text(str(a))
         self.display.game.countdownText.update_text(str(self.display.game.countdown // 6))
+
+    def restartClicked(self):
+        self.display.game.current_display = self.display.game.displays['game_display']
+        self.display.game.startTime = time.time_ns() // 1000000
+        self.display.game.current_display.player = player.Player(self.display.game.current_display)
+        self.display.game.player = self.display.game.current_display.player
+        self.display.game.countdownText.hidden = True
+
 

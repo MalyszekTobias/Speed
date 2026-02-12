@@ -130,10 +130,15 @@ class settings_screen(basic_display):
 class win_screen(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
-        button.Button(self, 'restart', 25, self.game.height - 100, 200, 75, (0, 0, 0), outline_color='white',
+        self.restartButton = button.Button(self, 'restart', 25, self.game.height - 100, 200, 75, (0, 0, 0), outline_color='white',
                       text=' restart', text_color='white')
-        button.Button(self, 'start_screen_after_win', self.game.width - 200, self.game.height - 100, 200, 75, (0, 0, 0),
+        self.menuButton = button.Button(self, 'start_screen_after_win', self.game.width - 200, self.game.height - 100, 200, 75, (0, 0, 0),
                       outline_color='white', text='main menu', text_color='white')
+
+    def events(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                self.restartButton.click()
 
 class level_select_screen(basic_display):
     def __init__(self, game):

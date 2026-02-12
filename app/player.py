@@ -66,6 +66,7 @@ class Player:
         if self.character == 0:
             # runner can run along the floor and jump twice, pretty normal stuff
             self.bouncyMode = False
+            self.maxSpeed, self.regularMaxSpeed = 9,9
             self.sprites = [pygame.image.load("Assets/Sprites/green_left.png"), pygame.image.load("Assets/Sprites/green_right.png")]
         if self.character == 1:
             # bouncer bounces from every block, has 1 jump in the air after bouncing from a white floor
