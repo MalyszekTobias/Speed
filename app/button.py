@@ -3,7 +3,7 @@ import time
 import pygame
 from app import custom_text, player
 
-class Button:  # A button class
+class Button:
     def __init__(self, display, action, x, y, width, height, color, text=None, text_color='black', outline_color=None, outline_width=5):  # Getting all the parameters of the button
 
         self.action = action
@@ -15,6 +15,7 @@ class Button:  # A button class
         self.width = width
         self.height = height
         self.color = color
+        self.game = self.display.game
 
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)  # Creating a rect object
 
@@ -51,33 +52,29 @@ class Button:  # A button class
         del self.text
 
     def click(self):
+        print('click')
         if self.action == 'settings':
-            self.display.game.current_display = self.display.game.displays['settings_screen']
+            self.game.current_display = self.game.displays['settings_screen']
         elif self.action == 'start_screen':
-            self.display.game.current_display = self.display.game.displays['start_screen']
-        elif self.action == 'game_display':
-            self.display.game.current_display = self.display.game.displays['game_display']
-            if self.text == 'Play':
-                self.playClicked()
-            elif self.text == 'Resume':
-                self.display.game.pauseSum += self.display.game.currPauseTime
-                if self.display.game.countdown > 0:
-                    # self.display.game.countdownText.hidden = False
-                    self.display.game.pauseSum = 0
-                self.display.game.currPauseTime = 0
-                self.display.game.pausedStart = None
+            self.game.current_display = self.game.displays['start_screen']
+        elif self.action == 'play':
+            self.playClicked()
+        elif self.action == 'resume':
+            self.resumeClicked()
         elif self.action == 'restart':
             self.restartClicked()
-
+        elif self.action == 'pause':
+            self.pauseClicked()
         elif self.action == 'start_screen_after_win':
-            self.display.game.current_display = self.display.game.displays['start_screen']
-            self.display.game.startTime = time.time_ns() // 1000000
-
+            self.game.current_display = self.game.displays['start_screen']
+            self.game.startTime = time.time_ns() // 1000000
         elif self.action == 'level_select_screen':
             if self.text == 'Quit':
-                self.display.game.player.delete()
-            self.display.game.current_display = self.display.game.displays['level_select_screen']
-            self.display.game.timerText.hidden = True
+                self.game.player.delete()
+            self.game.current_display = self.game.displays['level_select_screen']
+            self.game.timerText.hidden = True
+        elif self.action == 'quit_game':
+            pygame.display.quit()
 
         else:
             print('clicked')
@@ -90,28 +87,42 @@ class Button:  # A button class
             return tuple(color - 30 if color >= 30 else 0 for color in self.color)
 
     def playClicked(self):
-        self.display.game.current_display.get_map()
-        self.display.game.startTime = time.time_ns() // 1000000
-        self.display.game.pauseSum = 0
-        self.display.game.currPauseTime = 0
-        self.display.game.timeNow = self.display.game.startTime
-        self.display.game.countdown = 59
-        self.display.game.pausedStart = None
-        self.display.game.current_display.player = player.Player(self.display.game.current_display)
-        self.display.game.player = self.display.game.current_display.player
-        a = self.display.game.getTimer()
-        self.display.game.countdownText.hidden = True
-        if a != '0:00' and int(a) >= 10 ** (self.display.game.timerDigits - 3):
-            self.display.game.timerDigits += 1
-            self.display.game.timerText.x = self.display.game.width - self.display.game.timerDigits * 45
-        self.display.game.timerText.update_text(str(a))
-        self.display.game.countdownText.update_text(str(self.display.game.countdown // 6))
+        self.game.current_display = self.game.displays['game_display']
+        self.game.current_display.get_map()
+        self.game.startTime = time.time_ns() // 1000000
+        self.game.pauseSum = 0
+        self.game.currPauseTime = 0
+        self.game.timeNow = self.game.startTime
+        self.game.countdown = 59
+        self.game.pausedStart = None
+        self.game.current_display.player = player.Player(self.game.current_display)
+        self.game.player = self.game.current_display.player
+        a = self.game.getTimer()
+        self.game.countdownText.hidden = True
+        if a != '0:00' and int(a) >= 10 ** (self.game.timerDigits - 3):
+            self.game.timerDigits += 1
+            self.game.timerText.x = self.game.width - self.game.timerDigits * 45
+        self.game.timerText.update_text(str(a))
+        self.game.countdownText.update_text(str(self.game.countdown // 6))
 
     def restartClicked(self):
-        self.display.game.current_display = self.display.game.displays['game_display']
-        self.display.game.startTime = time.time_ns() // 1000000
-        self.display.game.current_display.player = player.Player(self.display.game.current_display)
-        self.display.game.player = self.display.game.current_display.player
-        self.display.game.countdownText.hidden = True
+        self.game.current_display = self.game.displays['game_display']
+        self.game.current_display.player.reset(True)
+        print('restart')
+
+    def pauseClicked(self):
+        self.game.current_display = self.game.displays['pause_display']
+        self.game.pausedStart = time.time_ns() // 1000000
+        self.game.countdownText.hidden = True
+
+    def resumeClicked(self):
+        self.game.current_display = self.game.displays['game_display']
+        if self.game.countdown < 0:
+            self.game.pauseSum += self.game.currPauseTime
+        self.game.currPauseTime = 0
+        self.game.pausedStart = None
+        if self.game.countdown > 0:
+            self.game.pauseSum = 0
+            self.game.countdownText.hidden = False
 
 

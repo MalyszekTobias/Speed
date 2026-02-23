@@ -15,6 +15,7 @@ class Player:
         self.display = display
         self.display.objects.append(self)
         self.offset = 60
+        self.cam = self.display.camera
 
         self.g = 0.6
         self.regularMaxSpeed = 8
@@ -127,8 +128,8 @@ class Player:
         self.justStarted = True
         self.won = False
 
-    def restart(self, start):
-        if start:
+    def reset(self, restart): #Resets the parameters of the player to the starting ones, restart means it also restarts the level
+        if restart:
             self.display.game.countdown = 59
             self.display.game.pauseSum = 0
             self.display.game.startTime = czas.time_ns() // 1000000
@@ -151,6 +152,7 @@ class Player:
         self.hookX = None
         self.hookY = None
         self.hooked = False
+        self.sprite = self.sprites[1]
 
         self.won = False
 
@@ -362,7 +364,7 @@ class Player:
                                      self.display.tileSize)
                             if self.collision((x, y, w, h), block) and entity == 'p':
                                 print('Your time: ', self.display.game.getTimer(), self.x)
-                                self.restart(False)
+                                self.reset(False)
                                 self.won = True
                                 break
 
@@ -377,7 +379,7 @@ class Player:
         self.delta = self.display.game.delta_time
         if self.justStarted:
             self.justStarted = False
-            self.restart(True)
+            self.reset(True)
             self.display.game.timerText.hidden = True
         self.cam = self.display.camera
         currentColor = []
@@ -394,8 +396,6 @@ class Player:
             currentColor, currentTrailColor = self.playerColor, self.trailColor
         if self.x + self.width / 2 > self.display.game.width / 2:
             self.sprite_rect.x, self.sprite_rect.y = (self.display.game.width - self.width) / 2, self.y
-
-            # pygame.draw.rect(self.display.screen, currentColor,((self.display.game.width - self.width) / 2 - 1, self.y - 1, self.width + 2, self.height + 2))    # camera work
         else:
             self.sprite_rect.x, self.sprite_rect.y = self.x, self.y
 
@@ -409,6 +409,8 @@ class Player:
                 self.hook_movement()
 
 
+        return
+    def get_cam(self):
         return self.x + self.width / 2 - self.display.game.width / 2
     def events(self, event):
         if event.type == pygame.KEYDOWN:
@@ -440,11 +442,6 @@ class Player:
                             self.velLeft -= self.jumpSpeedBoost
                         elif self.left and not self.right:
                             self.velLeft += self.jumpSpeedBoost
-
-
-
-            if event.key == pygame.K_r:
-                self.restart(True)
 
         if event.type == pygame.KEYUP:
             if event.key in (pygame.K_a, pygame.K_LEFT):

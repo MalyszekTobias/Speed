@@ -2,7 +2,7 @@ import time
 
 import pygame
 import maps
-from app import custom_text, custom_images, button, player
+from app import custom_text, custom_images, button, player, particle
 from mapMaker import camera, tileSize, screen
 
 
@@ -41,6 +41,10 @@ class game_display(basic_display):
         self.winColor = (182, 196, 77)
         self.colors = (self.bgColor, self.tileColor, self.speedColor, self.jumpColor, self.bounceColor, self.winColor)
         self.currentMap = None
+        self.pauseButton = button.Button(self, 'pause', 25, 25, 75, 75, (0, 0, 0), outline_color='white',
+                      text='II', text_color='white')
+        self.restartButton = button.Button(self, 'restart', 105, 25, 75, 75, (0, 0, 0), outline_color='white',
+                      text='r', text_color='white')
 
         pygame.draw.rect(self.screen, self.bgColor, (0, 0, self.game.width, self.game.height))
 
@@ -68,20 +72,23 @@ class game_display(basic_display):
         for obj in self.particles:
             obj.render()
         for obj in self.objects:
-            c = obj.render()
-            if c > 0:
-                self.camera = -c
-            else:
-                self.camera = 0
+            obj.render()
+        c = self.game.player.get_cam()
+        if c > 0:
+            self.camera = -c
+        else:
+            self.camera = 0
+
 
     def events(self, event):
-        if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-            self.game.current_display = self.game.displays['pause_display']
-            self.game.pausedStart = time.time_ns() // 1000000
-            self.game.countdownText.hidden = True
-        else:
-            for obj in self.objects:
-                obj.events(event)
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.pauseButton.click()
+            if event.key == pygame.K_r:
+                self.restartButton.click()
+
+        for obj in self.objects:
+            obj.events(event)
 
 
 class pause_display(basic_display):
@@ -90,19 +97,13 @@ class pause_display(basic_display):
 
         custom_text.Custom_text(self, self.game.width / 2, self.game.height / 3, None, self.game.header_text_size, 'Paused',
                                 text_color='White')
-        button.Button(self, 'game_display', self.game.width / 2 - 150, self.game.height * 0.45 + 100, 130, 70,
+        self.resumeButton = button.Button(self, 'resume', self.game.width / 2 - 150, self.game.height * 0.45 + 100, 130, 70,
                       (0, 0, 0), outline_color='white', text='Resume', text_color='white')
-        button.Button(self, 'level_select_screen', self.game.width / 2 + 150, self.game.height * 0.45 + 100, 130, 70,
+        self.quitButton = button.Button(self, 'level_select_screen', self.game.width / 2 + 150, self.game.height * 0.45 + 100, 130, 70,
                       (0, 0, 0), outline_color='white', text='Quit', text_color='white')
     def events(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-            self.game.current_display = self.game.displays['game_display']
-            self.game.pauseSum += self.game.currPauseTime
-            self.game.currPauseTime = 0
-            self.game.pausedStart = None
-            if self.game.countdown > 0:
-                self.game.pauseSum = 0
-                self.game.countdownText.hidden = False
+            self.resumeButton.click()
 
 
         else:
@@ -114,24 +115,40 @@ class start_screen(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
         custom_text.Custom_text(self, self.game.width / 2, self.game.height / 3, None, self.game.header_text_size, 'Speed', text_color='Green')
-        button.Button(self, 'settings', self.game.width / 2 - 100, self.game.height * 0.75, 200, 75, (0, 0, 0),
+        self.settingsButton = button.Button(self, 'settings', self.game.width / 2 - 100, self.game.height * 0.75, 200, 75, (0, 0, 0),
                       outline_color='white', text='Settings', text_color='white')
-        button.Button(self, 'level_select_screen', self.game.width / 2 - 100, self.game.height * 0.75 - 100, 200, 75,
+        self.lvl_select_Button = button.Button(self, 'level_select_screen', self.game.width / 2 - 100, self.game.height * 0.75 - 100, 200, 75,
                       (0, 0, 0), outline_color='white', text='Start', text_color='white')
+        self.quitButton = button.Button(self, 'quit_game', self.game.width / 2 - 100, self.game.height * 0.75 +100, 200, 75,
+                      (0, 0, 0), outline_color='white', text='Quit', text_color='white')
+    def events(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.quitButton.click()
+            elif event.key == pygame.K_SPACE:
+                self.lvl_select_Button.click()
+        for obj in self.objects:
+            obj.events(event)
 
 
 class settings_screen(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
-        button.Button(self, 'start_screen', 25, self.game.height - 100, 200, 75, (0, 0, 0), outline_color='white',
+        self.quitButton = button.Button(self, 'start_screen', 25, self.game.height - 100, 200, 75, (0, 0, 0), outline_color='white',
                       text=' Save & exit', text_color='white')
+    def events(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.quitButton.click()
+        for obj in self.objects:
+            obj.events(event)
 
 
 class win_screen(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
         self.restartButton = button.Button(self, 'restart', 25, self.game.height - 100, 200, 75, (0, 0, 0), outline_color='white',
-                      text=' restart', text_color='white')
+                      text='restart', text_color='white')
         self.menuButton = button.Button(self, 'start_screen_after_win', self.game.width - 200, self.game.height - 100, 200, 75, (0, 0, 0),
                       outline_color='white', text='main menu', text_color='white')
 
@@ -140,13 +157,16 @@ class win_screen(basic_display):
             if event.key == pygame.K_r:
                 self.restartButton.click()
 
+        for obj in self.objects:
+            obj.events(event)
+
 class level_select_screen(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
         self.character_cell_height = 200
         self.character_select_border = 5
         self.buttonWidth = 250
-        self.playButton = button.Button(self, 'game_display', (self.game.width - self.character_cell_height) / 2 + 300 - self.buttonWidth/2 + self.character_cell_height, self.game.height / 2 + 100, self.buttonWidth, 90, (0, 0, 0), outline_color='white',
+        self.playButton = button.Button(self, 'play', (self.game.width - self.character_cell_height) / 2 + 300 - self.buttonWidth/2 + self.character_cell_height, self.game.height / 2 + 100, self.buttonWidth, 90, (0, 0, 0), outline_color='white',
                       text='Play', text_color='white')
         self.menuButton = button.Button(self, 'start_screen', (self.game.width - self.character_cell_height) / 2 - 300 - self.buttonWidth/2 + self.character_cell_height, self.game.height / 2 + 100, self.buttonWidth, 90, (0, 0, 0), outline_color='white',
                       text='Exit', text_color='white')
@@ -194,6 +214,8 @@ class level_select_screen(basic_display):
                 self.change_character(1)
             elif event.key in (pygame.K_SPACE, 13):
                 self.playButton.click()
+            elif event.key == pygame.K_ESCAPE:
+                self.menuButton.click()
 
     def getMaps(self):
         n, m = [], []

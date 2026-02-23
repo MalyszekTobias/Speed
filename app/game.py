@@ -29,7 +29,7 @@ class Game:
         self.enable_debug = int(self.cfg['enable_debug'])
         self.clock = pygame.time.Clock()
         self.font = None
-        self.countdown = 0
+        self.countdown = -1
         self.currentMap = None
 
         self.player = None
@@ -74,10 +74,10 @@ class Game:
                             custom_text.Custom_text(self, 12, 135, self.font, self.debug_text_size, f'Objects in memory: {len(self.current_display.objects)}', text_color='white', center=False),
                             custom_text.Custom_text(self, 12, 165, self.font, self.debug_text_size, f'Current display: {type(self.current_display)}', text_color='white', center=False),
                             custom_text.Custom_text(self, 12, 195, self.font, self.debug_text_size, f'Pointing at: {self.pointing_at}', text_color='white', center=False)]
-        self.timerText = custom_text.Custom_text(self, self.width - self.timerDigits * 5/9*self.timer_text_size, 50, "Assets/digital-7.ttf", self.timer_text_size, self.getTimer(), text_color='white', background_color='black', center=False)
-        self.countdownText = custom_text.Custom_text(self, self.width / 2, self.height / 3, "Assets/digital-7.ttf", 80, str(self.countdown // 6), text_color='white', background_color='black', center=False)
-        self.countdownText.hidden = True
-        self.timerText.hidden = True
+
+        self.timerText = custom_text.Custom_text(self, self.width - self.timerDigits * 5 / 9 * self.timer_text_size, 50,"Assets/digital-7.ttf", self.timer_text_size, self.getTimer(),text_color='white', background_color='black', center=False)
+        self.countdownText = custom_text.Custom_text(self, self.width / 2, self.height / 3, "Assets/digital-7.ttf", 80,str(self.countdown // 6), text_color='white',background_color='black', center=False)
+
 
 
         for debug_item in self.debug_items:
@@ -90,9 +90,11 @@ class Game:
         try:
             return (self.timeNow - self.startTime - self.pauseSum - self.currPauseTime)/1000
         except:
+            print('fail')
             return '0:00'
 
     def mainloop(self):
+        self.timerText.hidden = True
         while self.run:
             self.events()
             self.render()
@@ -107,7 +109,7 @@ class Game:
                 if self.countdown > 0:
                     self.startTime = time.time_ns() // 1000000
                     self.countdown -= 1
-                    self.timerText.hidden = True
+                    self.countdownText.hidden = True
                 elif self.countdown == 0:
                     self.countdown -= 1
                     self.timerText.hidden = False
@@ -126,7 +128,7 @@ class Game:
                     self.debug = not self.debug
                     for di in self.debug_items:
                         di.hidden = not di.hidden
-                elif event.key == pygame.K_t:
+                elif event.key == pygame.K_t and self.current_display in (self.displays['game_display'], self.displays['pause_display']):
                     if self.timerText.hidden:
                         self.timerText.hidden = False
                     else:
