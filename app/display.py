@@ -147,7 +147,7 @@ class settings_screen(basic_display):
 class win_screen(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
-        self.restartButton = button.Button(self, 'restart', 25, self.game.height - 100, 200, 75, (0, 0, 0), outline_color='white',
+        self.restartButton = button.Button(self, 'play', 25, self.game.height - 100, 200, 75, (0, 0, 0), outline_color='white',
                       text='restart', text_color='white')
         self.menuButton = button.Button(self, 'start_screen_after_win', self.game.width - 200, self.game.height - 100, 200, 75, (0, 0, 0),
                       outline_color='white', text='main menu', text_color='white')

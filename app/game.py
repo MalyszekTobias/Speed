@@ -90,7 +90,6 @@ class Game:
         try:
             return (self.timeNow - self.startTime - self.pauseSum - self.currPauseTime)/1000
         except:
-            print('fail')
             return '0:00'
 
     def mainloop(self):
