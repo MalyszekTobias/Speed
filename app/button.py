@@ -52,7 +52,6 @@ class Button:
         del self.text
 
     def click(self):
-        print('click')
         if self.action == 'settings':
             self.game.current_display = self.game.displays['settings_screen']
         elif self.action == 'start_screen':

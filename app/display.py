@@ -41,13 +41,22 @@ class game_display(basic_display):
         self.winColor = (182, 196, 77)
         self.colors = (self.bgColor, self.tileColor, self.speedColor, self.jumpColor, self.bounceColor, self.winColor)
         self.currentMap = None
-        self.pauseButton = button.Button(self, 'pause', 25, 25, 75, 75, (0, 0, 0), outline_color='white',
+        self.pauseButton = button.Button(self, 'pause', 15, 25, 75, 75, (0, 0, 0), outline_color='white',
                       text='II', text_color='white')
         self.restartButton = button.Button(self, 'restart', 105, 25, 75, 75, (0, 0, 0), outline_color='white',
                       text='r', text_color='white')
-
-        pygame.draw.rect(self.screen, self.bgColor, (0, 0, self.game.width, self.game.height))
-
+        self.pauseIcon = pygame.image.load('Assets/Icons/pause_icon.png')
+        self.pauseIcon_rect = self.pauseIcon.get_rect()
+        self.pauseIcon_rect.x, self.pauseIcon_rect.y = 15, 25
+        self.restartIcon = pygame.image.load('Assets/Icons/restart_icon.png')
+        self.restartIcon_rect = self.restartIcon.get_rect()
+        self.restartIcon_rect.x, self.restartIcon_rect.y = 105, 25
+        self.pauseFade = pygame.image.load('Assets/Icons/pause_fade.png')
+        self.pauseFade_rect = self.pauseFade.get_rect()
+        self.pauseFade_rect.x, self.pauseFade_rect.y = 15, 25
+        self.restartFade = pygame.image.load('Assets/Icons/restart_fade.png')
+        self.restartFade_rect = self.restartFade.get_rect()
+        self.restartFade_rect.x, self.restartFade_rect.y = 105, 25
 
     def mainloop(self):
         pass
@@ -78,6 +87,12 @@ class game_display(basic_display):
             self.camera = -c
         else:
             self.camera = 0
+        self.screen.blit(self.pauseIcon, self.pauseIcon_rect)
+        self.screen.blit(self.restartIcon, self.restartIcon_rect)
+        if self.pauseButton.rect.collidepoint(pygame.mouse.get_pos()):
+            self.screen.blit(self.pauseFade, self.pauseFade_rect)
+        if self.restartButton.rect.collidepoint(pygame.mouse.get_pos()):
+            self.screen.blit(self.restartFade, self.restartFade_rect)
 
 
     def events(self, event):
