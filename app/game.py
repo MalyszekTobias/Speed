@@ -108,7 +108,6 @@ class Game:
                 if self.countdown > 0:
                     self.startTime = time.time_ns() // 1000000
                     self.countdown -= 1
-                    self.countdownText.hidden = True
                 elif self.countdown == 0:
                     self.countdown -= 1
                     self.timerText.hidden = False
