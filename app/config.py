@@ -32,7 +32,8 @@ def generate_default_config_data(version):
         'height': 1000,
         'fps': 10,
         'title': 'Speed',
-        'enable_debug': 1
+        'enable_debug': 1,
+        'fullscreen': 1
     }
 
 def write_config_to_file(config, config_file):

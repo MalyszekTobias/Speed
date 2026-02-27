@@ -52,6 +52,8 @@ class Button:
         del self.text
 
     def click(self):
+        if self.action == 'change_character':
+            self.game.character = int(self.text)
         if self.action == 'settings':
             self.game.current_display = self.game.displays['settings_screen']
         elif self.action == 'start_screen':

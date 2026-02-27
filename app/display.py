@@ -140,7 +140,7 @@ class start_screen(basic_display):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 self.quitButton.click()
-            elif event.key == pygame.K_SPACE:
+            elif event.key in (pygame.K_SPACE, 13):
                 self.lvl_select_Button.click()
         for obj in self.objects:
             obj.events(event)
@@ -181,17 +181,22 @@ class level_select_screen(basic_display):
         self.character_cell_height = 200
         self.character_select_border = 5
         self.buttonWidth = 250
+        img_size = self.character_cell_height - 2 * self.character_select_border
         self.playButton = button.Button(self, 'play', (self.game.width - self.character_cell_height) / 2 + 300 - self.buttonWidth/2 + self.character_cell_height, self.game.height / 2 + 100, self.buttonWidth, 90, (0, 0, 0), outline_color='white',
                       text='Play', text_color='white')
         self.menuButton = button.Button(self, 'start_screen', (self.game.width - self.character_cell_height) / 2 - 300 - self.buttonWidth/2 + self.character_cell_height, self.game.height / 2 + 100, self.buttonWidth, 90, (0, 0, 0), outline_color='white',
                       text='Exit', text_color='white')
+        self.ch0Button = button.Button(self, 'change_character', 0, 0, 10 + img_size, 10 + img_size, (32,10,10), text='0', text_color='white', outline_width=0)
+        self.ch1Button = button.Button(self, 'change_character', 0, self.character_cell_height, 10 + img_size, 10 + img_size, (32,10,10), text='1', text_color='white', outline_width=0)
+        self.ch2Button = button.Button(self, 'change_character', 0, self.character_cell_height*2, 10 + img_size, 10 + img_size, (32,10,10), text='2', text_color='white', outline_width=0)
+        self.ch3Button = button.Button(self, 'change_character', 0, self.character_cell_height*3, 10 + img_size, 10 + img_size, (32,10,10), text='3', text_color='white', outline_width=0)
         self.mapNames, self.maps = self.getMaps()
         self.game.currentMap = 0
 
         self.character_colors = [[5, 219, 5], [250,50,50], [249, 249, 20], [65, 242, 255]]
         self.character_sprites = [pygame.image.load("Assets/Sprites/green_right.png"), pygame.image.load("Assets/Sprites/red_right.png"), pygame.image.load("Assets/Sprites/yellow_right.png"), pygame.image.load("Assets/Sprites/teal_right.png")]
         self.sprite_rects = []
-        img_size = self.character_cell_height - 2 * self.character_select_border
+
         for s in range(len(self.character_sprites)):
             self.character_sprites[s] = pygame.transform.scale(self.character_sprites[s], (img_size, img_size))
             sprite_rect = self.character_sprites[s].get_rect()
