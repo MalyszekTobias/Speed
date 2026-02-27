@@ -52,6 +52,8 @@ class Button:
         del self.text
 
     def click(self):
+        if self.action == 'map_editor':
+            self.game.current_display = self.game.displays['map_editor_list']
         if self.action == 'change_character':
             self.game.character = int(self.text)
         if self.action == 'settings':

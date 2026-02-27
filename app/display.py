@@ -136,6 +136,8 @@ class start_screen(basic_display):
                       (0, 0, 0), outline_color='white', text='Start', text_color='white')
         self.quitButton = button.Button(self, 'quit_game', self.game.width / 2 - 100, self.game.height * 0.75 +100, 200, 75,
                       (0, 0, 0), outline_color='white', text='Quit', text_color='white')
+        self.map_editor_from_start_Button = button.Button(self, 'map_editor', self.game.width - 400, self.game.height * 0.75 +100, 200, 75,
+                      (0, 0, 0), outline_color='white', text='Map editor', text_color='white')
     def events(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
@@ -259,3 +261,9 @@ class level_select_screen(basic_display):
                          (x, y, self.character_cell_height, self.character_cell_height))
         for i in range(4):
             screen.blit(self.character_sprites[i], self.sprite_rects[i])
+
+class map_editor_list(basic_display):
+    def __init__(self, game):
+        basic_display.__init__(self, game)
+        self.game = game
+        self.menuButton = button.Button(self, 'start_screen', 25,25, 75,75, (0, 0, 0), outline_color='white', text='Exit', text_color='white')
