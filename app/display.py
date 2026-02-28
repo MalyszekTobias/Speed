@@ -267,14 +267,18 @@ class map_editor_list(basic_display):
         basic_display.__init__(self, game)
         self.game = game
         self.menuButton = button.Button(self, 'start_screen', 25,25, 75,75, (0, 0, 0), outline_color='white', text='Exit', text_color='white')
-        self.mapLog_start_y = 300
         self.map_height = 150
         self.map_width = 1000
         self.mapLog_x = self.width/2 - self.map_width/2
-        self.visible_maps = 6
+        self.visible_maps = 5
+        self.visible_space = self.visible_maps*(self.map_height+15)
+        self.mapLog_start_y = (self.height - self.visible_space) / 2
         self.current_top_map = 0
         self.current_selected_map = None
-        self.scroll = 0
+        self.scroll_dist = 0
+        self.scroll_due = 0
+        self.scroll_speed = 20
+        self.scroll_curtain_y = self.mapLog_start_y + self.visible_space
         self.mapNames, self.maps = self.getMaps()
         self.map_buttons = []
         self.refresh_buttons()
@@ -288,16 +292,58 @@ class map_editor_list(basic_display):
     def render(self):
         for obj in self.objects:
             obj.render()
+        if self.scroll_due < 0:
+            if self.scroll_due < -self.scroll_speed:
+                self.scroll_due += self.scroll_speed
+                self.scroll_dist -= self.scroll_speed
+            else:
+                self.scroll_dist += self.scroll_due
+                self.scroll_due = 0
+            if self.scroll_dist < -len(self.maps)*(self.map_height + 15) + self.visible_space:
+                self.scroll_dist = -len(self.maps)*(self.map_height + 15) + self.visible_space
+                self.scroll_due = 0
+            self.refresh_buttons()
+        elif self.scroll_due > 0:
+            if self.scroll_due > self.scroll_speed:
+                self.scroll_due -= self.scroll_speed
+                self.scroll_dist += self.scroll_speed
+            else:
+                self.scroll_dist += self.scroll_due
+                self.scroll_due = 0
+            if self.scroll_dist > 0:
+                self.scroll_dist = 0
+                self.scroll_due = 0
+            self.refresh_buttons()
+        pygame.draw.rect(self.screen, 'black', (0, self.scroll_curtain_y, self.width, 1000))
+        pygame.draw.rect(self.screen, 'black', (0, 0, self.width, self.mapLog_start_y))
 
     def refresh_buttons(self):
         if self.map_buttons != []:
             for b in self.map_buttons:
                 b.delete()
-                print(self.map_buttons)
         self.map_buttons = []
         for i in range(len(self.maps)):
             oc = 'white'
             if i == self.current_selected_map:
                 oc = 'yellow'
-            mb = button.Button(self, 'select_map', self.mapLog_x, self.scroll + self.mapLog_start_y + i*(self.map_height+15), self.map_width,self.map_height, (0, 0, 0), outline_color=oc, text=self.mapNames[i], text_color='white')
+            mb = button.Button(self, 'select_map', self.mapLog_x, self.scroll_dist + self.mapLog_start_y + i*(self.map_height+15), self.map_width,self.map_height, (0, 0, 0), outline_color=oc, text=self.mapNames[i], text_color='white')
             self.map_buttons.append(mb)
+
+    def scroll(self, dir):
+        if self.current_top_map <= 0 and dir == 1:
+            return
+        if self.current_top_map >= len(self.maps) - self.visible_maps and dir == -1:
+            return
+        self.scroll_due += dir*(self.map_height+15)
+        self.current_top_map -= dir
+        self.refresh_buttons()
+    def events(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key in (pygame.K_s, pygame.K_DOWN):
+                self.scroll(-1)
+            if event.key in (pygame.K_w, pygame.K_UP):
+                self.scroll(1)
+        if event.type == pygame.MOUSEWHEEL:
+            self.scroll(event.y)
+        for obj in self.objects:
+            obj.events(event)
