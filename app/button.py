@@ -22,7 +22,7 @@ class Button:
         self.display.objects.append(self)  # Adding self to objects of the screen
 
         if text != None:  # if there is text it's put on the button
-            self.text = custom_text.Custom_text(self.display, self.x + self.width / 2, self.y + self.height / 2, None,
+            self.text_entity = custom_text.Custom_text(self.display, self.x + self.width / 2, self.y + self.height / 2, None,
                                     int(self.height // 1.7), text, text_color=text_color)
             self.text = text
 
@@ -45,18 +45,19 @@ class Button:
 
 
     def delete(self):
+        print(self.text)
+        self.text_entity.delete()
         self.display.objects.remove(self)
+        del self.text
         del self
 
-        self.display.objects.remove(self.text)
-        del self.text
 
     def click(self):
         if self.action == 'map_editor':
             self.game.current_display = self.game.displays['map_editor_list']
-        if self.action == 'change_character':
+        elif self.action == 'change_character':
             self.game.character = int(self.text)
-        if self.action == 'settings':
+        elif self.action == 'settings':
             self.game.current_display = self.game.displays['settings_screen']
         elif self.action == 'start_screen':
             self.game.current_display = self.game.displays['start_screen']
@@ -78,6 +79,17 @@ class Button:
             self.game.timerText.hidden = True
         elif self.action == 'quit_game':
             pygame.display.quit()
+        elif self.action == 'select_map':
+            id = self.game.current_display.mapNames.index(self.text)
+            if self.game.current_display.current_selected_map == id:
+                self.game.current_display.current_selected_map = None
+                self.text_entity.text_color = 'white'
+            else:
+                self.game.current_display.current_selected_map = id
+                self.text_entity.text_color = 'yellow'
+            # self.delete()
+            self.game.current_display.refresh_buttons()
+            print(id)
 
         else:
             print('clicked')

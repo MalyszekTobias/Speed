@@ -267,3 +267,37 @@ class map_editor_list(basic_display):
         basic_display.__init__(self, game)
         self.game = game
         self.menuButton = button.Button(self, 'start_screen', 25,25, 75,75, (0, 0, 0), outline_color='white', text='Exit', text_color='white')
+        self.mapLog_start_y = 300
+        self.map_height = 150
+        self.map_width = 1000
+        self.mapLog_x = self.width/2 - self.map_width/2
+        self.visible_maps = 6
+        self.current_top_map = 0
+        self.current_selected_map = None
+        self.scroll = 0
+        self.mapNames, self.maps = self.getMaps()
+        self.map_buttons = []
+        self.refresh_buttons()
+    def getMaps(self):
+        n, m = [], []
+        for i in range(len(maps.names)):
+            n.append(maps.names[i])
+            m.append(maps.maps[i])
+        return n, m
+
+    def render(self):
+        for obj in self.objects:
+            obj.render()
+
+    def refresh_buttons(self):
+        if self.map_buttons != []:
+            for b in self.map_buttons:
+                b.delete()
+                print(self.map_buttons)
+        self.map_buttons = []
+        for i in range(len(self.maps)):
+            oc = 'white'
+            if i == self.current_selected_map:
+                oc = 'yellow'
+            mb = button.Button(self, 'select_map', self.mapLog_x, self.scroll + self.mapLog_start_y + i*(self.map_height+15), self.map_width,self.map_height, (0, 0, 0), outline_color=oc, text=self.mapNames[i], text_color='white')
+            self.map_buttons.append(mb)
