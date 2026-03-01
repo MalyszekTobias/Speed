@@ -9,7 +9,7 @@ import pygame
 import app.player
 import maps
 from app import config, display, custom_text
-from mapMaker import height, width
+import maps
 
 
 class Game:
@@ -53,6 +53,7 @@ class Game:
         self.objects = []
         if self.cfg['fullscreen'] == '1':
             self.width, self.height = screensize
+        maps.starting_map_load()
 
         self.screen = pygame.display.set_mode((self.width, self.height))
 
@@ -114,7 +115,6 @@ class Game:
                 else:
                     self.countdownText.hidden = True
 
-            # print(self.countdown)
 
     def events(self):
         for event in pygame.event.get():

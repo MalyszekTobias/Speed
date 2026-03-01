@@ -45,7 +45,6 @@ class Button:
 
 
     def delete(self):
-        print(self.text)
         self.text_entity.delete()
         self.display.objects.remove(self)
         del self.text
@@ -87,9 +86,7 @@ class Button:
             else:
                 self.game.current_display.current_selected_map = id
                 self.text_entity.text_color = 'yellow'
-            # self.delete()
             self.game.current_display.refresh_buttons()
-            print(id)
 
         else:
             print('clicked')
@@ -123,7 +120,6 @@ class Button:
     def restartClicked(self):
         self.game.current_display = self.game.displays['game_display']
         self.game.current_display.player.reset(True)
-        print('restart')
 
     def pauseClicked(self):
         self.game.current_display = self.game.displays['pause_display']

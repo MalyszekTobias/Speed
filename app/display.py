@@ -218,7 +218,6 @@ class level_select_screen(basic_display):
         if 0 <= self.game.character + amount <= 3:
             self.game.character += amount
             print(self.game.character)
-            # self.game.player.character = self.character
         else:
             print('no more characters')
 

@@ -7,8 +7,6 @@ class Custom_text:  # A class that generates text
 
         self.x = x
         self.y = y
-        # print(int(font_height * (self.display.width + self.display.height) / 1600) / font_height)
-        # self.font_height = int(font_height * (self.display.width + self.display.height) / 1600)
         self.text = text
         self.font_height = font_height
         self.text_color = text_color
