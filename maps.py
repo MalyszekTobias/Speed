@@ -11,15 +11,17 @@ def import_map(name):
     for line in file:
         if line[0] != '[':
             orders.append(int(line.strip()))
-        content.append(line.strip())
+        else:
+            content.append(line.strip())
     maps.append(content)
+
     name = list(name)
     for i in range(4):
         name.pop(-1)
     name = ''.join(name)
     names.append(name)
 
-def starting_map_load():
+def startup_map_load():
     global maps
     global orders
     global names
@@ -31,7 +33,16 @@ def starting_map_load():
         tempmaps[o] = maps[i]
         tempnames[o] = names[i]
     maps, names = tempmaps, tempnames
-
+    for map in range(len(maps)):
+        newmap = []
+        for t in maps[map]:
+            s = t.strip()
+            newline = []
+            for letter in s:
+                if letter in ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'):
+                    newline.append(int(letter))
+            newmap.append(newline)
+        maps[map] = newmap
 def delete(i):
     os.remove(names[i])
     names.pop(i)

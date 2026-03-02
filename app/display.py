@@ -3,7 +3,6 @@ import time
 import pygame
 import maps
 from app import custom_text, custom_images, button, player, particle
-from mapMaker import camera, tileSize, screen
 
 
 class basic_display():
@@ -39,6 +38,7 @@ class game_display(basic_display):
         self.jumpColor = (50, 50, 250)
         self.bounceColor = (250, 50, 50)
         self.winColor = (182, 196, 77)
+        self.spawnCords = [50,50]
         self.colors = (self.bgColor, self.tileColor, self.speedColor, self.jumpColor, self.bounceColor, self.winColor)
         self.currentMap = None
         self.pauseButton = button.Button(self, 'pause', 15, 25, 75, 75, (0, 0, 0), outline_color='white',
@@ -64,16 +64,19 @@ class game_display(basic_display):
     def get_map(self):
         self.currentMap = maps.maps[self.game.currentMap]
         self.tileSize = int(self.game.height / len(self.currentMap))
+        for line in self.currentMap:
+            print(line)
         for i in range(len(self.currentMap)):
             for j in range(len(self.currentMap[i])):
                 if self.currentMap[i][j] == 6:
-                    self.spawnCords = [j * tileSize, i * tileSize]
+                    self.spawnCords = [j * self.tileSize, i * self.tileSize]
     def render(self):
         self.delta = self.game.delta_time
         m, n = len(self.currentMap), len(self.currentMap[0])
         for i in range(m):
             for j in range(n):
                 num = self.currentMap[i][j]
+                print(num)
                 if not num in (0, 6, 7, 8, 9):
                     pygame.draw.rect(self.screen, self.colors[num],
                                      (j * self.tileSize + self.camera, i * self.tileSize, self.tileSize, self.tileSize))
@@ -136,7 +139,7 @@ class start_screen(basic_display):
                       (0, 0, 0), outline_color='white', text='Start', text_color='white')
         self.quitButton = button.Button(self, 'quit_game', self.game.width / 2 - 100, self.game.height * 0.75 +100, 200, 75,
                       (0, 0, 0), outline_color='white', text='Quit', text_color='white')
-        self.map_editor_from_start_Button = button.Button(self, 'map_editor', self.game.width - 400, self.game.height * 0.75 +100, 200, 75,
+        self.map_editor_from_start_Button = button.Button(self, 'map_editor_list', self.game.width - 400, self.game.height * 0.75 +100, 200, 75,
                       (0, 0, 0), outline_color='white', text='Map editor', text_color='white')
     def events(self, event):
         if event.type == pygame.KEYDOWN:
@@ -247,7 +250,7 @@ class level_select_screen(basic_display):
 
     def render(self):
         self.delta = self.game.delta_time
-        screen.fill((0, 40, 0))
+        self.screen.fill((0, 40, 0))
         pygame.draw.rect(self.screen, (32, 10, 10), (0, 0, self.character_cell_height, self.height))
         for obj in self.particles:
             obj.render()
@@ -259,12 +262,13 @@ class level_select_screen(basic_display):
         pygame.draw.rect(self.screen, self.character_colors[a],
                          (x, y, self.character_cell_height, self.character_cell_height))
         for i in range(4):
-            screen.blit(self.character_sprites[i], self.sprite_rects[i])
+            self.screen.blit(self.character_sprites[i], self.sprite_rects[i])
 
 class map_editor_list(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
         self.game = game
+        self.new_map_button = button.Button(self, 'map_editor', 105,25, 75,75, (0, 0, 0), outline_color='white', text='+', text_color='white')
         self.menuButton = button.Button(self, 'start_screen', 25,25, 75,75, (0, 0, 0), outline_color='white', text='Exit', text_color='white')
         self.map_height = 150
         self.map_width = 1000
@@ -289,6 +293,8 @@ class map_editor_list(basic_display):
         return n, m
 
     def render(self):
+        pygame.draw.rect(self.screen, 'black', (0, self.scroll_curtain_y, self.width, 1000))
+        pygame.draw.rect(self.screen, 'black', (0, 0, self.width, self.mapLog_start_y))
         for obj in self.objects:
             obj.render()
         if self.scroll_due < 0:
@@ -313,8 +319,6 @@ class map_editor_list(basic_display):
                 self.scroll_dist = 0
                 self.scroll_due = 0
             self.refresh_buttons()
-        pygame.draw.rect(self.screen, 'black', (0, self.scroll_curtain_y, self.width, 1000))
-        pygame.draw.rect(self.screen, 'black', (0, 0, self.width, self.mapLog_start_y))
 
     def refresh_buttons(self):
         if self.map_buttons != []:
@@ -346,3 +350,117 @@ class map_editor_list(basic_display):
             self.scroll(event.y)
         for obj in self.objects:
             obj.events(event)
+
+class map_editor(basic_display):
+    def __init__(self, game):
+        basic_display.__init__(self, game)
+        self.game = game
+        self.bgColor = (0, 0, 0)
+        self.tileColor = (200, 200, 200)
+        self.speedColor = (50, 230, 50)
+        self.jumpColor = (50, 50, 250)
+        self.bounceColor = (250, 50, 50)
+        self.winColor = (182, 196, 77)
+        self.spawnColor = (200, 100, 0)
+        self.colors = (self.bgColor, self.tileColor, self.speedColor, self.jumpColor, self.bounceColor, self.winColor, self.spawnColor)
+        self.blocks = [0, 1, 2, 3, 4, 5, 6] # 0 is air, 1 is normal, 2 is speed, 3 is jump, 4 is bounce, 5 is win, 6 is spawn
+        self.current_block = 1
+        self.camera = 0
+        self.cam_speed = 10
+        self.movement = 0
+        self.clicked = 0
+        self.map = [[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
+[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
+[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
+        self.mapname = 'New map'
+        self.tileSize = int(self.game.height / len(self.map))
+        self.width_in_tiles, self.height_in_tiles = self.width // self.tileSize, self.height // self.tileSize
+        self.quitButton = button.Button(self, 'map_editor_list', 25,25, 75,75, (0, 0, 0), outline_color='white', text='Exit', text_color='white')
+
+    def introduce_map(self, map, name):
+        self.map = map
+        self.mapName = name
+        self.movement = 0
+        self.camera = 0
+        self.tileSize = int(self.game.height / len(self.map))
+
+    def render(self):
+        self.camera += self.movement
+        if self.camera < 0:
+            self.camera = 0
+        if self.camera // self.tileSize > len(self.map[0]) - self.width_in_tiles -1:
+            for i in range(len(self.map)):
+                if i < self.height_in_tiles - 1:
+                    self.map[i].append(0)
+                else:
+                    self.map[i].append(1)
+        for row in range(self.height_in_tiles):
+            for column in range(self.camera // self.tileSize, len(self.map[0])):
+                color = self.colors[self.map[row][column]]
+                pygame.draw.rect(self.screen, color, (column * self.tileSize - self.camera, row * self.tileSize, self.tileSize - 1, self.tileSize - 1))
+
+        for obj in self.objects:
+            obj.render()
+
+    def events(self, event):
+
+        for obj in self.objects:
+            obj.events(event)
+        if self.game.current_display != self:
+            return
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            self.clicked = event.button
+        elif event.type == pygame.MOUSEBUTTONUP:
+                self.clicked = 0
+        if self.clicked != 0:
+            a = self.current_block
+            if self.clicked == 3:
+                self.current_block = 0
+            pos = pygame.mouse.get_pos()
+            try:
+                self.map[pos[1] // self.tileSize][(pos[0] + self.camera) // self.tileSize] = self.current_block
+            except:
+                print('map editor slight error')
+            self.current_block = a
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_d:
+                self.movement = self.cam_speed
+            if event.key == pygame.K_a:
+                self.movement = -self.cam_speed
+
+            if event.key == pygame.K_0:
+                self.current_block = 0
+            if event.key == pygame.K_1:
+                self.current_block = 1
+            if event.key == pygame.K_2:
+                self.current_block = 2
+            if event.key == pygame.K_3:
+                self.current_block = 3
+            if event.key == pygame.K_4:
+                self.current_block = 4
+            if event.key == pygame.K_5:
+                self.current_block = 5
+            if event.key == pygame.K_6:
+                self.current_block = 6
+
+        elif event.type == pygame.KEYUP:
+            if event.key in [pygame.K_d, pygame.K_a]:
+                self.movement = 0
+

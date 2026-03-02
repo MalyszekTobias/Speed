@@ -53,6 +53,8 @@ class Button:
 
     def click(self):
         if self.action == 'map_editor':
+            self.game.current_display = self.game.displays['map_editor']
+        if self.action == 'map_editor_list':
             self.game.current_display = self.game.displays['map_editor_list']
         elif self.action == 'change_character':
             self.game.character = int(self.text)
@@ -101,6 +103,7 @@ class Button:
     def playClicked(self):
         self.game.current_display = self.game.displays['game_display']
         self.game.current_display.get_map()
+        print(self.game.current_display.currentMap)
         self.game.startTime = time.time_ns() // 1000000
         self.game.pauseSum = 0
         self.game.currPauseTime = 0

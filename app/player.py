@@ -4,7 +4,7 @@ import Assets
 import pygame
 from pygame import *
 from app import particle
-from mapMaker import tileSize, height, screen
+
 import random as ran
 
 from maps import names
