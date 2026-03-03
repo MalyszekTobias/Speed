@@ -1,6 +1,7 @@
 import time
 
 import pygame
+import maps
 from app import custom_text, player
 
 class Button:
@@ -57,8 +58,16 @@ class Button:
 
     def click(self):
         if self.action == 'map_editor':
-            self.game.current_display = self.game.displays['map_editor']
+            if self.text == '+':
+                self.game.current_display = self.game.displays['map_editor']
+                self.game.current_display.reset()
+            else:
+                if self.game.current_display.check_if_visible():
+
+                    self.game.current_display = self.game.displays['map_editor']
         elif self.action == 'map_editor_list':
+            if self.text == 'Save':
+                maps.add(self.game.current_display.mapName, self.game.current_display.map)
             self.game.current_display = self.game.displays['map_editor_list']
         elif self.action == 'change_character':
             self.game.character = int(self.text)

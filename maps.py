@@ -51,9 +51,12 @@ def delete(i):
 
 def add(mapName, map):
     newMap = open('maps/' + mapName + '.txt', 'w')
+    newMap.write(' '.join(str(len(maps))))
+    newMap.write('\n')
+
     for row in map:
         newMap.write(' '.join(str(row)))
         newMap.write('\n')
     names.append(mapName)
-    maps.append(newMap)
-    orders.append(len(maps))
+    maps.append(map)
+    orders.append(len(maps) - 1)
