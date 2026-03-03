@@ -268,10 +268,11 @@ class map_editor_list(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
         self.game = game
-        self.new_map_button = button.Button(self, 'map_editor', 105,25, 75,75, (0, 0, 0), outline_color='white', text='+', text_color='white')
+        self.new_map_button = button.Button(self, 'map_editor', 105,25, 75,75, (0, 0, 0), outline_color='white', text='+', text_color='white', font_size=67)
         self.menuButton = button.Button(self, 'start_screen', 25,25, 75,75, (0, 0, 0), outline_color='white', text='Exit', text_color='white')
         self.map_height = 150
         self.map_width = 1000
+        self.little_button_size = self.map_height - 30
         self.mapLog_x = self.width/2 - self.map_width/2
         self.visible_maps = 5
         self.visible_space = self.visible_maps*(self.map_height+15)
@@ -297,6 +298,10 @@ class map_editor_list(basic_display):
         pygame.draw.rect(self.screen, 'black', (0, 0, self.width, self.mapLog_start_y))
         for obj in self.objects:
             obj.render()
+
+        for b in self.map_buttons:
+            if b.text in ('-', '/'):
+                b.render()
         if self.scroll_due < 0:
             if self.scroll_due < -self.scroll_speed:
                 self.scroll_due += self.scroll_speed
@@ -321,15 +326,19 @@ class map_editor_list(basic_display):
             self.refresh_buttons()
 
     def refresh_buttons(self):
+
         if self.map_buttons != []:
             for b in self.map_buttons:
                 b.delete()
         self.map_buttons = []
         for i in range(len(self.maps)):
             oc = 'white'
+            y = self.scroll_dist + self.mapLog_start_y + i*(self.map_height+15)
             if i == self.current_selected_map:
+                print(i)
                 oc = 'yellow'
-            mb = button.Button(self, 'select_map', self.mapLog_x, self.scroll_dist + self.mapLog_start_y + i*(self.map_height+15), self.map_width,self.map_height, (0, 0, 0), outline_color=oc, text=self.mapNames[i], text_color='white')
+                self.make_buttons(y)
+            mb = button.Button(self, 'select_map', self.mapLog_x, y, self.map_width,self.map_height, (0, 0, 0), outline_color=oc, text=self.mapNames[i], text_color='white')
             self.map_buttons.append(mb)
 
     def scroll(self, dir):
@@ -350,6 +359,16 @@ class map_editor_list(basic_display):
             self.scroll(event.y)
         for obj in self.objects:
             obj.events(event)
+            if self.game.current_display != self:
+                return
+
+    def make_buttons(self, y):
+        lbs = self.little_button_size
+        lil_distance = (self.map_height - lbs) // 2
+        edit_button = button.Button(self, 'map_editor', self.mapLog_x +lil_distance, y + lil_distance, lbs,lbs, (0, 0, 0), outline_color='white', text='/', text_color='white')
+        trash_button = button.Button(self, 'trash_map', self.mapLog_x + self.map_width - lbs - lil_distance, y + lil_distance, lbs,lbs, (0, 0, 0), outline_color='white', text='-', text_color='white')
+        self.map_buttons.append(edit_button)
+        self.map_buttons.append(trash_button)
 
 class map_editor(basic_display):
     def __init__(self, game):
@@ -391,7 +410,7 @@ class map_editor(basic_display):
 [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
         self.mapname = 'New map'
         self.tileSize = int(self.game.height / len(self.map))
-        self.width_in_tiles, self.height_in_tiles = self.width // self.tileSize, self.height // self.tileSize
+        self.width_in_tiles, self.height_in_tiles = self.width // self.tileSize, int(self.height // self.tileSize)
         self.quitButton = button.Button(self, 'map_editor_list', 25,25, 75,75, (0, 0, 0), outline_color='white', text='Exit', text_color='white')
 
     def introduce_map(self, map, name):
