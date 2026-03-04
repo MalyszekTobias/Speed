@@ -283,7 +283,7 @@ class map_editor_list(basic_display):
         self.scroll_due = 0
         self.scroll_speed = 20
         self.scroll_curtain_y = self.mapLog_start_y + self.visible_space
-        self.mapNames, self.maps = self.getMaps()
+        self.getMaps()
         self.map_buttons = []
         self.refresh_buttons()
     def getMaps(self):
@@ -291,7 +291,7 @@ class map_editor_list(basic_display):
         for i in range(len(maps.names)):
             n.append(maps.names[i])
             m.append(maps.maps[i])
-        return n, m
+        self.mapNames, self.maps = n, m
 
     def render(self):
         for obj in self.objects:
@@ -325,19 +325,21 @@ class map_editor_list(basic_display):
                 self.scroll_due = 0
             self.refresh_buttons()
 
-    def refresh_buttons(self):
+    def refresh_buttons(self, trash=None):
 
         if self.map_buttons != []:
             for b in self.map_buttons:
                 b.delete()
         self.map_buttons = []
         for i in range(len(self.maps)):
+            if i == trash:
+                continue
             oc = 'white'
             y = self.scroll_dist + self.mapLog_start_y + i*(self.map_height+15)
             if i == self.current_selected_map:
                 print(i)
                 oc = 'yellow'
-                self.make_buttons(y)
+                self.make_small_buttons(y)
             mb = button.Button(self, 'select_map', self.mapLog_x, y, self.map_width,self.map_height, (0, 0, 0), outline_color=oc, text=self.mapNames[i], text_color='white')
             self.map_buttons.append(mb)
 
@@ -362,14 +364,19 @@ class map_editor_list(basic_display):
             if self.game.current_display != self:
                 return
 
-    def make_buttons(self, y):
+    def make_small_buttons(self, y):
         lbs = self.little_button_size
         lil_distance = (self.map_height - lbs) // 2
         edit_button = button.Button(self, 'map_editor', self.mapLog_x +lil_distance, y + lil_distance, lbs,lbs, (0, 0, 0), outline_color='white', text='/', text_color='white')
         trash_button = button.Button(self, 'trash_map', self.mapLog_x + self.map_width - lbs - lil_distance, y + lil_distance, lbs,lbs, (0, 0, 0), outline_color='white', text='-', text_color='white')
         self.map_buttons.append(edit_button)
         self.map_buttons.append(trash_button)
-
+    def trash(self):
+        self.maps.pop(self.current_selected_map)
+        self.mapNames.pop(self.current_selected_map)
+        maps.delete(self.current_selected_map)
+        self.refresh_buttons(self.current_selected_map)
+        self.current_selected_map = None
     def check_if_visible(self):
         sel = self.current_selected_map
         top = self.current_top_map

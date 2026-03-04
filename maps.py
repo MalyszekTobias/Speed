@@ -27,14 +27,28 @@ def startup_map_load():
     global names
     for file in os.listdir('maps'):
         import_map(file)
-    tempmaps, tempnames = [0 for i in range(len(maps))], [0 for i in range(len(names))]
+    tempmaps, tempnames = [0 for i in range(2*len(maps))], [0 for i in range(2*len(names))]
     for i in range(len(maps)):
         o = orders[i]
-        tempmaps[o] = maps[i]
-        tempnames[o] = names[i]
+        while o < len(tempmaps):
+            if tempmaps[o] == 0:
+                tempmaps[o] = maps[i]
+                tempnames[o] = names[i]
+                break
+            else:
+                o += 1
+
     maps, names = tempmaps, tempnames
+    while maps.__contains__(0):
+        for m in maps:
+            if type(m) != list:
+                maps.remove(m)
+        for n in names:
+            if type(n) != str:
+                names.remove(n)
     for map in range(len(maps)):
         newmap = []
+        print(maps[map])
         for t in maps[map]:
             s = t.strip()
             newline = []
@@ -44,7 +58,7 @@ def startup_map_load():
             newmap.append(newline)
         maps[map] = newmap
 def delete(i):
-    os.remove(names[i])
+    os.remove('maps/' + names[i] + '.txt')
     names.pop(i)
     maps.pop(i)
     orders.pop(i)

@@ -68,7 +68,11 @@ class Button:
         elif self.action == 'map_editor_list':
             if self.text == 'Save':
                 maps.add(self.game.current_display.mapName, self.game.current_display.map)
+                self.game.current_display = self.game.displays['map_editor_list']
+                self.game.current_display.getMaps()
             self.game.current_display = self.game.displays['map_editor_list']
+        elif self.action == 'trash_map':
+            self.game.current_display.trash()
         elif self.action == 'change_character':
             self.game.character = int(self.text)
         elif self.action == 'settings':
@@ -102,7 +106,7 @@ class Button:
             else:
                 self.game.current_display.current_selected_map = id
                 self.text_entity.text_color = 'yellow'
-                self.game.current_display.make_buttons(self.y)
+                self.game.current_display.make_small_buttons(self.y)
             self.game.current_display.refresh_buttons()
 
         else:
