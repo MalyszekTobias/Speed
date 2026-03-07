@@ -5,7 +5,7 @@ import maps
 from app import custom_text, player
 
 class Button:
-    def __init__(self, display, action, x, y, width, height, color, text=None, text_color='black', outline_color=None, outline_width=5, font_size=None, icon=None):  # Getting all the parameters of the button
+    def __init__(self, display, action, x, y, width, height, color=(0,0,0), text=None, text_color='black', outline_color=None, outline_width=5, font_size=None, icon=None):  # Getting all the parameters of the button
 
         self.action = action
         self.text = text
@@ -67,7 +67,10 @@ class Button:
 
 
     def delete(self):
-        self.text_entity.delete()
+        try:
+            self.text_entity.delete()
+        except:
+            pass
         self.display.objects.remove(self)
         del self.text
         del self
@@ -75,10 +78,10 @@ class Button:
 
     def click(self):
         if self.action == 'map_editor':
-            if self.text == '+':
+            if self.text == '+': #new map
                 self.game.current_display = self.game.displays['map_editor']
                 self.game.current_display.reset()
-            else:
+            else: #edit map
                 if self.game.current_display.check_if_visible():
 
                     self.game.current_display = self.game.displays['map_editor']

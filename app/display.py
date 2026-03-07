@@ -15,6 +15,8 @@ class basic_display():
         self.particles = []
         self.width, self.height = game.width, game.height
         self.character = 3
+        self.midx, self.midy = self.width/2, self.height*2/3
+
 
     def render(self):
         self.delta = self.game.delta_time
@@ -42,9 +44,9 @@ class game_display(basic_display):
         self.colors = (self.bgColor, self.tileColor, self.speedColor, self.jumpColor, self.bounceColor, self.winColor)
         self.currentMap = None
         self.pauseButton = button.Button(self, 'pause', 15, 25, 75, 75, (0, 0, 0), outline_color='white',
-                      icon=[pygame.image.load('Assets/Icons/pause_icon.png'),pygame.image.load('Assets/Icons/pause_fade.png')])
+                      icon=[pygame.image.load('Assets/Icons/pause_icon.png'),pygame.image.load('Assets/Icons/pause_hover.png')])
         self.restartButton = button.Button(self, 'restart', 105, 25, 75, 75, (0, 0, 0), outline_color='white',
-                      icon=[pygame.image.load('Assets/Icons/restart_icon.png'), pygame.image.load('Assets/Icons/restart_fade.png')])
+                      icon=[pygame.image.load('Assets/Icons/restart_icon.png'), pygame.image.load('Assets/Icons/restart_hover.png')])
 
 
     def mainloop(self):
@@ -52,7 +54,7 @@ class game_display(basic_display):
 
     def get_map(self):
         self.currentMap = maps.maps[self.game.currentMap]
-        self.tileSize = int(self.game.height / len(self.currentMap))
+        self.tileSize = int(self.height / len(self.currentMap))
         for line in self.currentMap:
             print(line)
         for i in range(len(self.currentMap)):
@@ -96,12 +98,12 @@ class pause_display(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
 
-        custom_text.Custom_text(self, self.game.width / 2, self.game.height / 3, None, self.game.header_text_size, 'Paused',
+        custom_text.Custom_text(self, self.width / 2, self.height / 3, None, self.game.header_text_size, 'Paused',
                                 text_color='White')
-        self.resumeButton = button.Button(self, 'resume', self.game.width / 2 - 150, self.game.height * 0.45 + 100, 130, 70,
-                      (0, 0, 0), outline_color='white', text='Resume', text_color='white')
-        self.quitButton = button.Button(self, 'level_select_screen', self.game.width / 2 + 150, self.game.height * 0.45 + 100, 120, 120,
-                      (0, 0, 0), outline_color='white', text='Quit', text_color='white', icon=[pygame.image.load('Assets/Icons/Back_icon.png'), pygame.image.load('Assets/Icons/Back_icon_hover.png')])
+        self.resumeButton = button.Button(self, 'resume', self.midx - 170, self.midy , 120, 120,
+                      (0, 0, 0), icon=[pygame.image.load('Assets/Icons/play.png'),pygame.image.load('Assets/Icons/play_hover.png')])
+        self.quitButton = button.Button(self, 'level_select_screen', self.midx + 50, self.midy, 120, 120,
+                       text='Quit', icon=[pygame.image.load('Assets/Icons/Exit.png'), pygame.image.load('Assets/Icons/Exit_hover.png')])
     def events(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             self.resumeButton.click()
@@ -115,14 +117,11 @@ class pause_display(basic_display):
 class start_screen(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
-        custom_text.Custom_text(self, self.game.width / 2, self.game.height / 3, None, self.game.header_text_size, 'Speed', text_color='Green')
-        self.settingsButton = button.Button(self, 'settings', self.game.width / 2 - 100, self.game.height * 0.75, 200, 75, (0, 0, 0),
-                      outline_color='white', text='Settings', text_color='white')
-        self.lvl_select_Button = button.Button(self, 'level_select_screen', self.game.width / 2 - 100, self.game.height * 0.75 - 100, 200, 75,
-                      (0, 0, 0), outline_color='white', text='Start', text_color='white')
-        self.quitButton = button.Button(self, 'quit_game', self.game.width / 2 - 100, self.game.height * 0.75 +100, 150, 150,
-                      (0, 0, 0), outline_color='white', icon=[pygame.image.load('Assets/Icons/Back_icon.png'), pygame.image.load('Assets/Icons/Back_icon_hover.png')])
-        self.map_editor_from_start_Button = button.Button(self, 'map_editor_list', self.game.width - 400, self.game.height * 0.75 +100, 200, 75,
+        custom_text.Custom_text(self, self.midx, self.midy - 300, None, self.game.header_text_size, 'Speed', text_color='Green')
+        self.settingsButton = button.Button(self, 'settings', self.midx -170, self.midy + 20, 150, 150, icon=[pygame.image.load('Assets/Icons/settings.png'), pygame.image.load('Assets/Icons/settings_hover.png')])
+        self.lvl_select_Button = button.Button(self, 'level_select_screen', self.midx - 170, self.midy - 170, 150, 150, icon=[pygame.image.load('Assets/Icons/play.png'), pygame.image.load('Assets/Icons/play_hover.png')])
+        self.quitButton = button.Button(self, 'quit_game',self.midx +20, self.midy + 20, 150, 150, icon=[pygame.image.load('Assets/Icons/Exit.png'), pygame.image.load('Assets/Icons/Exit_hover.png')])
+        self.map_editor_from_start_Button = button.Button(self, 'map_editor_list', self.midx + 20, self.midy - 170, 150, 150,
                       (0, 0, 0), outline_color='white', text='Map editor', text_color='white')
     def events(self, event):
         if event.type == pygame.KEYDOWN:
@@ -137,7 +136,7 @@ class start_screen(basic_display):
 class settings_screen(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
-        self.quitButton = button.Button(self, 'start_screen', 25, self.game.height - 100, 200, 75, (0, 0, 0), outline_color='white',
+        self.quitButton = button.Button(self, 'start_screen', 25, self.height - 100, 150, 150, (0, 0, 0), outline_color='white',
                       text=' Save & exit', text_color='white')
     def events(self, event):
         if event.type == pygame.KEYDOWN:
@@ -150,10 +149,10 @@ class settings_screen(basic_display):
 class win_screen(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
-        self.restartButton = button.Button(self, 'play', self.width/2 - 130, self.game.height - 200, 110, 110, (0, 0, 0), outline_color='white',
-                      icon=[pygame.image.load('Assets/Icons/restart_icon.png'), pygame.image.load('Assets/Icons/restart_fade.png')])
-        self.menuButton = button.Button(self, 'start_screen_after_win', self.game.width/2 + 20, self.game.height - 200, 110, 110, (0, 0, 0),
-                      outline_color='white', text='main menu', text_color='white')
+        self.restartButton = button.Button(self, 'play', self.width/2 - 130, self.height - 200, 110, 110,
+                      icon=[pygame.image.load('Assets/Icons/restart_icon.png'), pygame.image.load('Assets/Icons/restart_hover.png')])
+        self.menuButton = button.Button(self, 'start_screen_after_win', self.width/2 + 20, self.height - 200, 110, 110,
+                      icon=[pygame.image.load('Assets/Icons/home.png'),pygame.image.load('Assets/Icons/home_hover.png')])
 
     def events(self, event):
         if event.type == pygame.KEYDOWN:
@@ -168,12 +167,10 @@ class level_select_screen(basic_display):
         basic_display.__init__(self, game)
         self.character_cell_height = 200
         self.character_select_border = 5
-        self.buttonWidth = 250
+        self.buttonWidth = 150
         img_size = self.character_cell_height - 2 * self.character_select_border
-        self.playButton = button.Button(self, 'play', (self.game.width - self.character_cell_height) / 2 + 300 - self.buttonWidth/2 + self.character_cell_height, self.game.height / 2 + 100, self.buttonWidth, 90, (0, 0, 0), outline_color='white',
-                      text='Play', text_color='white')
-        self.menuButton = button.Button(self, 'start_screen', (self.game.width - self.character_cell_height) / 2 - 300 - self.buttonWidth/2 + self.character_cell_height, self.game.height / 2 + 100, self.buttonWidth, 90, (0, 0, 0), outline_color='white',
-                      text='Exit', text_color='white')
+        self.playButton = button.Button(self, 'play', (self.width - self.character_cell_height) / 2 + 300 - self.buttonWidth/2 + self.character_cell_height, self.height / 2 + 100, self.buttonWidth, 150, icon=[pygame.image.load('Assets/Icons/play.png'), pygame.image.load('Assets/Icons/play_hover.png')])
+        self.menuButton = button.Button(self, 'start_screen', (self.width - self.character_cell_height) / 2 - 300 - self.buttonWidth/2 + self.character_cell_height, self.height / 2 + 100, self.buttonWidth, 150, icon=[pygame.image.load('Assets/Icons/home.png'), pygame.image.load('Assets/Icons/home_hover.png')])
         self.ch0Button = button.Button(self, 'change_character', 0, 0, 10 + img_size, 10 + img_size, (32,10,10), text='0', text_color='white', outline_width=0)
         self.ch1Button = button.Button(self, 'change_character', 0, self.character_cell_height, 10 + img_size, 10 + img_size, (32,10,10), text='1', text_color='white', outline_width=0)
         self.ch2Button = button.Button(self, 'change_character', 0, self.character_cell_height*2, 10 + img_size, 10 + img_size, (32,10,10), text='2', text_color='white', outline_width=0)
@@ -191,7 +188,7 @@ class level_select_screen(basic_display):
             sprite_rect.x,sprite_rect.y = self.character_select_border, self.character_select_border + s*self.character_cell_height
             self.sprite_rects.append(sprite_rect)
         # self.objects = []
-        self.name_text = custom_text.Custom_text(self, (self.game.width - self.character_cell_height) / 2 + self.character_cell_height, self.game.height / 2, self.game.font, self.game.debug_text_size, self.mapNames[self.game.currentMap], text_color='white')
+        self.name_text = custom_text.Custom_text(self, (self.width - self.character_cell_height) / 2 + self.character_cell_height, self.height / 2, self.game.font, self.game.debug_text_size, self.mapNames[self.game.currentMap], text_color='white')
 
     def change_map(self, amount: int):
         if 0 <= self.game.currentMap + amount < len(self.mapNames):
@@ -252,7 +249,7 @@ class map_editor_list(basic_display):
         basic_display.__init__(self, game)
         self.game = game
         self.new_map_button = button.Button(self, 'map_editor', 105,25, 75,75, (0, 0, 0), outline_color='white', text='+', text_color='white', font_size=67)
-        self.menuButton = button.Button(self, 'start_screen', 25,25, 75,75, (0, 0, 0), outline_color='white', text='Exit', text_color='white')
+        self.menuButton = button.Button(self, 'start_screen', 25,25, 75,75, icon=[pygame.image.load('Assets/Icons/home.png'), pygame.image.load('Assets/Icons/home_hover.png')])
         self.map_height = 150
         self.map_width = 1000
         self.little_button_size = self.map_height - 30
@@ -351,7 +348,7 @@ class map_editor_list(basic_display):
         lbs = self.little_button_size
         lil_distance = (self.map_height - lbs) // 2
         edit_button = button.Button(self, 'map_editor', self.mapLog_x +lil_distance, y + lil_distance, lbs,lbs, (0, 0, 0), outline_color='white', text='/', text_color='white')
-        trash_button = button.Button(self, 'trash_map', self.mapLog_x + self.map_width - lbs - lil_distance, y + lil_distance, lbs,lbs, (0, 0, 0), outline_color='white', text='-', text_color='white')
+        trash_button = button.Button(self, 'trash_map', self.mapLog_x + self.map_width - lbs - lil_distance, y + lil_distance, lbs,lbs, icon=[pygame.image.load('Assets/Icons/trash.png'), pygame.image.load('Assets/Icons/trash_hover.png')])
         self.map_buttons.append(edit_button)
         self.map_buttons.append(trash_button)
     def trash(self):
@@ -407,9 +404,9 @@ class map_editor(basic_display):
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
 [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
         self.mapName = 'New map'
-        self.tileSize = int(self.game.height / len(self.map))
+        self.tileSize = int(self.height / len(self.map))
         self.width_in_tiles, self.height_in_tiles = self.width // self.tileSize, int(self.height // self.tileSize)
-        self.quitButton = button.Button(self, 'map_editor_list', 25,25, 75,75, (0, 0, 0), outline_color='white', text='Exit', text_color='white')
+        self.quitButton = button.Button(self, 'map_editor_list', 25,25, 75,75, text='Exit', icon=[pygame.image.load('Assets/Icons/trash.png'), pygame.image.load('Assets/Icons/trash_hover.png')])
         self.saveButton = button.Button(self, 'map_editor_list', self.width - 100,25, 75,75, (0, 0, 0), outline_color='white', text='Save', text_color='white')
 
     def introduce_map(self, map, name):
@@ -417,7 +414,7 @@ class map_editor(basic_display):
         self.mapName = name
         self.movement = 0
         self.camera = 0
-        self.tileSize = int(self.game.height / len(self.map))
+        self.tileSize = int(self.height / len(self.map))
 
     def render(self):
         self.camera += self.movement

@@ -43,7 +43,7 @@ class Game:
         self.timerDigits = 4
         self.delta_time = 0
 
-        self.header_text_size = 120
+        self.header_text_size = 150
         self.timer_text_size = 130
         self.normal_text_size = 50
         self.debug_text_size = 50
