@@ -5,7 +5,7 @@ import maps
 from app import custom_text, player
 
 class Button:
-    def __init__(self, display, action, x, y, width, height, color, text=None, text_color='black', outline_color=None, outline_width=5, font_size=None):  # Getting all the parameters of the button
+    def __init__(self, display, action, x, y, width, height, color, text=None, text_color='black', outline_color=None, outline_width=5, font_size=None, icon=None):  # Getting all the parameters of the button
 
         self.action = action
         self.text = text
@@ -19,13 +19,22 @@ class Button:
         self.game = self.display.game
 
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)  # Creating a rect object
-
+        self.iconAmount = 0
+        if icon != None:
+            if type(icon) == list:
+                self.img, self.img_hover = icon[0], icon[1]
+                self.img, self.img_hover = pygame.transform.scale(self.img, (self.width, self.height)), pygame.transform.scale(self.img_hover, (self.width, self.height))
+                self.iconAmount = 2
+            else:
+                self.img = icon
+                self.img = pygame.transform.scale(self.img, (self.width, self.height))
+                self.iconAmount = 1
         self.display.objects.append(self)  # Adding self to objects of the screen
         if font_size == None:
             f = int(self.height // 1.7)
         else:
             f = font_size
-        if text != None:  # if there is text it's put on the button
+        if text != None and self.iconAmount == 0:  # if there is text it's put on the button
             self.text_entity = custom_text.Custom_text(self.display, self.x + self.width / 2, self.y + self.height / 2, None,
                                     f, text, text_color=text_color)
             self.text = text
@@ -35,11 +44,19 @@ class Button:
 
     def render(self):  # Rendering a button on screen
         self.cooldown -= 1
-        if self.rect.collidepoint(pygame.mouse.get_pos()):
-            pygame.draw.rect(self.display.screen, self.get_hover_color(), self.rect, border_radius=10)
-        else:
-            pygame.draw.rect(self.display.screen, self.color, self.rect, border_radius=10)
+        if self.iconAmount == 0:
+            if self.rect.collidepoint(pygame.mouse.get_pos()):
+                pygame.draw.rect(self.display.screen, self.get_hover_color(), self.rect, border_radius=10)
+            else:
+                pygame.draw.rect(self.display.screen, self.color, self.rect, border_radius=10)
 
+        elif self.iconAmount == 1:
+            self.game.screen.blit(self.img, self.rect)
+        else:
+            if self.rect.collidepoint(pygame.mouse.get_pos()):
+                self.game.screen.blit(self.img_hover, self.rect)
+            else:
+                self.game.screen.blit(self.img, self.rect)
 
         if self.outline_color != None:
             pygame.draw.rect(self.display.screen, self.outline_color, self.rect, self.outline_width, border_radius=10)

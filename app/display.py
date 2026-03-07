@@ -42,21 +42,10 @@ class game_display(basic_display):
         self.colors = (self.bgColor, self.tileColor, self.speedColor, self.jumpColor, self.bounceColor, self.winColor)
         self.currentMap = None
         self.pauseButton = button.Button(self, 'pause', 15, 25, 75, 75, (0, 0, 0), outline_color='white',
-                      text='II', text_color='white')
+                      icon=[pygame.image.load('Assets/Icons/pause_icon.png'),pygame.image.load('Assets/Icons/pause_fade.png')])
         self.restartButton = button.Button(self, 'restart', 105, 25, 75, 75, (0, 0, 0), outline_color='white',
-                      text='r', text_color='white')
-        self.pauseIcon = pygame.image.load('Assets/Icons/pause_icon.png')
-        self.pauseIcon_rect = self.pauseIcon.get_rect()
-        self.pauseIcon_rect.x, self.pauseIcon_rect.y = 15, 25
-        self.restartIcon = pygame.image.load('Assets/Icons/restart_icon.png')
-        self.restartIcon_rect = self.restartIcon.get_rect()
-        self.restartIcon_rect.x, self.restartIcon_rect.y = 105, 25
-        self.pauseFade = pygame.image.load('Assets/Icons/pause_fade.png')
-        self.pauseFade_rect = self.pauseFade.get_rect()
-        self.pauseFade_rect.x, self.pauseFade_rect.y = 15, 25
-        self.restartFade = pygame.image.load('Assets/Icons/restart_fade.png')
-        self.restartFade_rect = self.restartFade.get_rect()
-        self.restartFade_rect.x, self.restartFade_rect.y = 105, 25
+                      icon=[pygame.image.load('Assets/Icons/restart_icon.png'), pygame.image.load('Assets/Icons/restart_fade.png')])
+
 
     def mainloop(self):
         pass
@@ -90,12 +79,6 @@ class game_display(basic_display):
             self.camera = -c
         else:
             self.camera = 0
-        self.screen.blit(self.pauseIcon, self.pauseIcon_rect)
-        self.screen.blit(self.restartIcon, self.restartIcon_rect)
-        if self.pauseButton.rect.collidepoint(pygame.mouse.get_pos()):
-            self.screen.blit(self.pauseFade, self.pauseFade_rect)
-        if self.restartButton.rect.collidepoint(pygame.mouse.get_pos()):
-            self.screen.blit(self.restartFade, self.restartFade_rect)
 
 
     def events(self, event):
@@ -117,8 +100,8 @@ class pause_display(basic_display):
                                 text_color='White')
         self.resumeButton = button.Button(self, 'resume', self.game.width / 2 - 150, self.game.height * 0.45 + 100, 130, 70,
                       (0, 0, 0), outline_color='white', text='Resume', text_color='white')
-        self.quitButton = button.Button(self, 'level_select_screen', self.game.width / 2 + 150, self.game.height * 0.45 + 100, 130, 70,
-                      (0, 0, 0), outline_color='white', text='Quit', text_color='white')
+        self.quitButton = button.Button(self, 'level_select_screen', self.game.width / 2 + 150, self.game.height * 0.45 + 100, 120, 120,
+                      (0, 0, 0), outline_color='white', text='Quit', text_color='white', icon=[pygame.image.load('Assets/Icons/Back_icon.png'), pygame.image.load('Assets/Icons/Back_icon_hover.png')])
     def events(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             self.resumeButton.click()
@@ -137,8 +120,8 @@ class start_screen(basic_display):
                       outline_color='white', text='Settings', text_color='white')
         self.lvl_select_Button = button.Button(self, 'level_select_screen', self.game.width / 2 - 100, self.game.height * 0.75 - 100, 200, 75,
                       (0, 0, 0), outline_color='white', text='Start', text_color='white')
-        self.quitButton = button.Button(self, 'quit_game', self.game.width / 2 - 100, self.game.height * 0.75 +100, 200, 75,
-                      (0, 0, 0), outline_color='white', text='Quit', text_color='white')
+        self.quitButton = button.Button(self, 'quit_game', self.game.width / 2 - 100, self.game.height * 0.75 +100, 150, 150,
+                      (0, 0, 0), outline_color='white', icon=[pygame.image.load('Assets/Icons/Back_icon.png'), pygame.image.load('Assets/Icons/Back_icon_hover.png')])
         self.map_editor_from_start_Button = button.Button(self, 'map_editor_list', self.game.width - 400, self.game.height * 0.75 +100, 200, 75,
                       (0, 0, 0), outline_color='white', text='Map editor', text_color='white')
     def events(self, event):
@@ -167,9 +150,9 @@ class settings_screen(basic_display):
 class win_screen(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
-        self.restartButton = button.Button(self, 'play', 25, self.game.height - 100, 200, 75, (0, 0, 0), outline_color='white',
-                      text='restart', text_color='white')
-        self.menuButton = button.Button(self, 'start_screen_after_win', self.game.width - 200, self.game.height - 100, 200, 75, (0, 0, 0),
+        self.restartButton = button.Button(self, 'play', self.width/2 - 130, self.game.height - 200, 110, 110, (0, 0, 0), outline_color='white',
+                      icon=[pygame.image.load('Assets/Icons/restart_icon.png'), pygame.image.load('Assets/Icons/restart_fade.png')])
+        self.menuButton = button.Button(self, 'start_screen_after_win', self.game.width/2 + 20, self.game.height - 200, 110, 110, (0, 0, 0),
                       outline_color='white', text='main menu', text_color='white')
 
     def events(self, event):

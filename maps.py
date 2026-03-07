@@ -40,15 +40,10 @@ def startup_map_load():
 
     maps, names = tempmaps, tempnames
     while maps.__contains__(0):
-        for m in maps:
-            if type(m) != list:
-                maps.remove(m)
-        for n in names:
-            if type(n) != str:
-                names.remove(n)
+        maps.remove(0)
+        names.remove(0)
     for map in range(len(maps)):
         newmap = []
-        print(maps[map])
         for t in maps[map]:
             s = t.strip()
             newline = []
