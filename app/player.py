@@ -62,7 +62,6 @@ class Player:
         self.colors = [[30, 200, 30], [200, 30, 30], [200, 200, 30], [60, 60, 200], [200, 150, 50], None, None, None, None, [200, 200, 200]]
         self.trailColors = [[20, 90, 20], [90, 20, 20], [90, 90, 20], [30, 30, 90], [110, 70, 20], None, None, None, None, [90, 90, 90]]
         self.names = ['The Runner', 'The Bouncer', 'The Hooker', 'The Magneter', None, None, None, None, 'The Debugger']
-        print(self.names[self.character])
 
         if self.character == 0:
             # runner can run along the floor and jump twice, pretty normal stuff
@@ -108,7 +107,6 @@ class Player:
             self.sprite_rect = self.sprites[s].get_rect()
             self.sprite_rect.x,self.sprite_rect.y = 0, 0
         self.sprite = self.sprites[1]
-        # print(self.sprite)
         self.x = self.display.spawnCords[0]
         self.y = self.display.spawnCords[1]
         self.sprite_rect.x, self.sprite_rect.y = self.x, self.y
@@ -363,7 +361,7 @@ class Player:
                             block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize,
                                      self.display.tileSize)
                             if self.collision((x, y, w, h), block) and entity == 'p':
-                                print('Your time: ', self.display.game.getTimer(), self.x)
+                                print('Your time: ', self.display.game.getTimer())
                                 self.reset(False)
                                 self.won = True
                                 break
@@ -697,6 +695,8 @@ class Player:
         self.display.game.timerText.hidden = True
         if self.won:
             self.display.game.current_display = self.display.game.displays['win_screen']
+            self.display.game.current_display.finish_time = self.display.game.getTimer()
+            self.display.game.current_display.actual_time_text.update_text(str(self.display.game.getTimer()))
         self.display.objects.remove(self)
         self.display.particles = []
         del self

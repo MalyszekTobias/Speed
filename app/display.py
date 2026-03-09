@@ -152,7 +152,13 @@ class win_screen(basic_display):
                       icon=[pygame.image.load('Assets/Icons/restart_icon.png'), pygame.image.load('Assets/Icons/restart_hover.png')])
         self.menuButton = button.Button(self, 'start_screen_after_win', self.width/2 + 20, self.height - 200, 110, 110,
                       icon=[pygame.image.load('Assets/Icons/home.png'),pygame.image.load('Assets/Icons/home_hover.png')])
-
+        self.finish_time = '0'
+        self.congrats_text = custom_text.Custom_text(self, self.midx, self.midy - 400, None, 80, 'Congratulations', center=True, text_color='white')
+        self.yourTime_text = custom_text.Custom_text(self, self.midx - 140, self.midy - 150, None, 80, 'Your time:', center=True, text_color='white')
+        self.actual_time_text = custom_text.Custom_text(self, self.midx + 50, self.midy - 190, "Assets/digital-7.ttf", 80, self.finish_time, center=False, text_color='white')
+        self.objects.append(self.congrats_text)
+        self.objects.append(self.yourTime_text)
+        self.objects.append(self.actual_time_text)
     def events(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r:
@@ -160,6 +166,10 @@ class win_screen(basic_display):
 
         for obj in self.objects:
             obj.events(event)
+
+    def render(self):
+        for obj in self.objects:
+            obj.render()
 
 class level_select_screen(basic_display):
     def __init__(self, game):
