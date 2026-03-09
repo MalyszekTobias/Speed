@@ -121,8 +121,7 @@ class start_screen(basic_display):
         self.settingsButton = button.Button(self, 'settings', self.midx -170, self.midy + 20, 150, 150, icon=[pygame.image.load('Assets/Icons/settings.png'), pygame.image.load('Assets/Icons/settings_hover.png')])
         self.lvl_select_Button = button.Button(self, 'level_select_screen', self.midx - 170, self.midy - 170, 150, 150, icon=[pygame.image.load('Assets/Icons/play.png'), pygame.image.load('Assets/Icons/play_hover.png')])
         self.quitButton = button.Button(self, 'quit_game',self.midx +20, self.midy + 20, 150, 150, icon=[pygame.image.load('Assets/Icons/Exit.png'), pygame.image.load('Assets/Icons/Exit_hover.png')])
-        self.map_editor_from_start_Button = button.Button(self, 'map_editor_list', self.midx + 20, self.midy - 170, 150, 150,
-                      (0, 0, 0), outline_color='white', text='Map editor', text_color='white')
+        self.map_editor_from_start_Button = button.Button(self, 'map_editor_list', self.midx + 20, self.midy - 170, 150, 150, icon=[pygame.image.load('Assets/Icons/edit.png'), pygame.image.load('Assets/Icons/edit_hover.png')])
     def events(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
@@ -220,6 +219,8 @@ class level_select_screen(basic_display):
                 self.playButton.click()
             elif event.key == pygame.K_ESCAPE:
                 self.menuButton.click()
+        elif event.type == pygame.MOUSEWHEEL:
+            self.change_map(-event.y)
 
     def getMaps(self):
         n, m = [], []
@@ -278,7 +279,7 @@ class map_editor_list(basic_display):
             obj.render()
 
         for b in self.map_buttons:
-            if b.text in ('-', '/'):
+            if b.text == None:
                 b.render()
         pygame.draw.rect(self.screen, 'black', (self.mapLog_x, self.scroll_curtain_y, self.width, 1000))
         pygame.draw.rect(self.screen, 'black', (self.mapLog_x, 0, self.width, self.mapLog_start_y))
@@ -347,7 +348,7 @@ class map_editor_list(basic_display):
     def make_small_buttons(self, y):
         lbs = self.little_button_size
         lil_distance = (self.map_height - lbs) // 2
-        edit_button = button.Button(self, 'map_editor', self.mapLog_x +lil_distance, y + lil_distance, lbs,lbs, (0, 0, 0), outline_color='white', text='/', text_color='white')
+        edit_button = button.Button(self, 'map_editor', self.mapLog_x +lil_distance, y + lil_distance, lbs,lbs, icon=[pygame.image.load('Assets/Icons/edit.png'), pygame.image.load('Assets/Icons/edit_hover.png')])
         trash_button = button.Button(self, 'trash_map', self.mapLog_x + self.map_width - lbs - lil_distance, y + lil_distance, lbs,lbs, icon=[pygame.image.load('Assets/Icons/trash.png'), pygame.image.load('Assets/Icons/trash_hover.png')])
         self.map_buttons.append(edit_button)
         self.map_buttons.append(trash_button)
@@ -365,6 +366,7 @@ class map_editor_list(basic_display):
         if sel >= top + self.visible_maps:
             return False
         return True
+
 class map_editor(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
