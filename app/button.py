@@ -83,11 +83,16 @@ class Button:
                 self.game.current_display.reset()
             else: #edit map
                 if self.game.current_display.check_if_visible():
-
+                    i = self.game.current_display.current_selected_map
+                    m = maps.maps[i]
+                    n = maps.names[i]
                     self.game.current_display = self.game.displays['map_editor']
+                    self.game.current_display.introduce_map(m,n)
         elif self.action == 'map_editor_list':
             if self.text == 'Save':
-                maps.add(self.game.current_display.mapName, self.game.current_display.map)
+                maps.add(self.game.current_display.mapName, self.game.current_display.map, original=self.game.current_display.original)
+                lsc = self.game.displays['level_select_screen']
+                lsc.mapNames, lsc.maps = lsc.getMaps()
                 self.game.current_display = self.game.displays['map_editor_list']
                 self.game.current_display.getMaps()
             self.game.current_display = self.game.displays['map_editor_list']

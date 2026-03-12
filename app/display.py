@@ -67,7 +67,6 @@ class game_display(basic_display):
         for i in range(m):
             for j in range(n):
                 num = self.currentMap[i][j]
-                print(num)
                 if not num in (0, 6, 7, 8, 9):
                     pygame.draw.rect(self.screen, self.colors[num],
                                      (j * self.tileSize + self.camera, i * self.tileSize, self.tileSize, self.tileSize))
@@ -275,14 +274,15 @@ class map_editor_list(basic_display):
         self.scroll_speed = 20
         self.scroll_curtain_y = self.mapLog_start_y + self.visible_space
         self.getMaps()
-        self.map_buttons = []
-        self.refresh_buttons()
     def getMaps(self):
         n, m = [], []
         for i in range(len(maps.names)):
             n.append(maps.names[i])
             m.append(maps.maps[i])
         self.mapNames, self.maps = n, m
+        print(self.mapNames)
+        self.map_buttons = []
+        self.refresh_buttons()
 
     def render(self):
         for obj in self.objects:
@@ -328,7 +328,6 @@ class map_editor_list(basic_display):
             oc = 'white'
             y = self.scroll_dist + self.mapLog_start_y + i*(self.map_height+15)
             if i == self.current_selected_map:
-                print(i)
                 oc = 'yellow'
                 self.make_small_buttons(y)
             mb = button.Button(self, 'select_map', self.mapLog_x, y, self.map_width,self.map_height, (0, 0, 0), outline_color=oc, text=self.mapNames[i], text_color='white')
@@ -368,6 +367,8 @@ class map_editor_list(basic_display):
         maps.delete(self.current_selected_map)
         self.refresh_buttons(self.current_selected_map)
         self.current_selected_map = None
+        lsc = self.game.displays['level_select_screen']
+        lsc.mapNames, lsc.maps = lsc.getMaps()
     def check_if_visible(self):
         sel = self.current_selected_map
         top = self.current_top_map
@@ -395,6 +396,7 @@ class map_editor(basic_display):
         self.camera = 0
         self.movement = 0
         self.clicked = 0
+        self.original = None
         self.map = [[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
@@ -424,9 +426,11 @@ class map_editor(basic_display):
     def introduce_map(self, map, name):
         self.map = map
         self.mapName = name
+        self.original = name
         self.movement = 0
         self.camera = 0
         self.tileSize = int(self.height / len(self.map))
+
 
     def render(self):
         self.camera += self.movement
@@ -538,3 +542,4 @@ class map_editor(basic_display):
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
         self.mapName = 'New map'
+        self.original = None

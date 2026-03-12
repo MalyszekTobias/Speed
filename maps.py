@@ -58,14 +58,22 @@ def delete(i):
     maps.pop(i)
     orders.pop(i)
 
-def add(mapName, map):
+def add(mapName, map, original=None):
+    order = str(len(maps))
+    if original != None:
+        os.rename('maps/' + original + '.txt', 'maps/' + mapName + '.txt')
+        mapIndex = names.index(original)
+        order = str(orders[mapIndex])
     newMap = open('maps/' + mapName + '.txt', 'w')
-    newMap.write(' '.join(str(len(maps))))
+    newMap.write(' '.join(order))
     newMap.write('\n')
 
     for row in map:
         newMap.write(' '.join(str(row)))
         newMap.write('\n')
-    names.append(mapName)
-    maps.append(map)
-    orders.append(len(maps) - 1)
+    if original == None:
+        names.append(mapName)
+        maps.append(map)
+        orders.append(len(maps) - 1)
+    print(names)
+    print(orders)
