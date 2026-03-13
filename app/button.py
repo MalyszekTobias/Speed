@@ -71,13 +71,14 @@ class Button:
             self.text_entity.delete()
         except:
             pass
+        # if self.action == 'map_editor':
+        #     print('deleted')
         self.display.objects.remove(self)
         del self.text
         del self
 
 
     def click(self):
-        print(self.action)
         if self.action == 'map_editor':
             if self.text == '+': #new map
                 self.game.current_display = self.game.displays['map_editor']
@@ -87,6 +88,8 @@ class Button:
                 if self.game.current_display.check_if_visible():
 
                     i = self.game.current_display.current_selected_map
+                    self.game.current_display.current_selected_map = None
+                    self.game.current_display.refresh_buttons()
                     m = maps.maps[i]
                     n = maps.names[i]
                     self.game.current_display = self.game.displays['map_editor']
@@ -133,11 +136,13 @@ class Button:
             if self.game.current_display.current_selected_map == id:
                 self.game.current_display.current_selected_map = None
                 self.text_entity.text_color = 'white'
+                self.game.current_display.refresh_buttons()
+
             else:
                 self.game.current_display.current_selected_map = id
                 self.text_entity.text_color = 'yellow'
-                self.game.current_display.make_small_buttons(self.y)
-            self.game.current_display.refresh_buttons()
+                self.game.current_display.refresh_buttons()
+
 
         else:
             print(self.text, self.action, 'not implemented')

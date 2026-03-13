@@ -266,9 +266,11 @@ class map_editor_list(basic_display):
         self.mapLog_x = self.width/2 - self.map_width/2
         self.current_top_map = 0
         self.current_selected_map = None
+        self.small_buttons = []
         self.scroll_dist = 0
         self.scroll_due = 0
         self.scroll_speed = 20
+        self.map_buttons = []
         self.getMaps()
     def getMaps(self):
         n, m = [], []
@@ -280,6 +282,11 @@ class map_editor_list(basic_display):
         self.visible_space = self.visible_maps * (self.map_height + 15)
         self.mapLog_start_y = (self.height - self.visible_space) / 2
         self.scroll_curtain_y = self.mapLog_start_y + self.visible_space
+        if self.map_buttons != []:
+            for b in self.map_buttons:
+                if self.small_buttons.__contains__(b):
+                    self.small_buttons.remove(b)
+                b.delete()
         self.map_buttons = []
         self.refresh_buttons()
 
@@ -292,6 +299,10 @@ class map_editor_list(basic_display):
                 b.render()
         pygame.draw.rect(self.screen, 'black', (self.mapLog_x, self.scroll_curtain_y, self.width, 1000))
         pygame.draw.rect(self.screen, 'black', (self.mapLog_x, 0, self.width, self.mapLog_start_y))
+        for obj in self.objects:
+            if isinstance(obj, button.Button):
+                if not self.map_buttons.__contains__(obj):
+                    obj.render()
         if self.scroll_due < 0:
             if self.scroll_due < -self.scroll_speed:
                 self.scroll_due += self.scroll_speed
@@ -315,16 +326,17 @@ class map_editor_list(basic_display):
                 self.scroll_due = 0
             self.refresh_buttons()
 
-    def refresh_buttons(self, trash=None):
+    def refresh_buttons(self, trash=None, y=None):
 
         if self.map_buttons != []:
             for b in self.map_buttons:
+                if self.small_buttons.__contains__(b):
+                    self.small_buttons.remove(b)
                 b.delete()
         self.map_buttons = []
         for i in range(len(self.maps)):
             # print(self.mapNames[i])
             if i == trash:
-                print(i)
                 continue
             oc = 'white'
             y = self.scroll_dist + self.mapLog_start_y + i*(self.map_height+15)
@@ -350,6 +362,12 @@ class map_editor_list(basic_display):
                 self.scroll(1)
         if event.type == pygame.MOUSEWHEEL:
             self.scroll(event.y)
+        for obj in self.small_buttons:
+            obj.events(event)
+
+            if self.game.current_display != self:
+                print('stopped')
+                return
         for obj in self.objects:
             obj.events(event)
             if self.game.current_display != self:
@@ -362,6 +380,8 @@ class map_editor_list(basic_display):
         trash_button = button.Button(self, 'trash_map', self.mapLog_x + self.map_width - lbs - lil_distance, y + lil_distance, lbs,lbs, icon=[pygame.image.load('Assets/Icons/trash.png'), pygame.image.load('Assets/Icons/trash_hover.png')])
         self.map_buttons.append(edit_button)
         self.map_buttons.append(trash_button)
+        self.small_buttons.append(edit_button)
+        self.small_buttons.append(trash_button)
     def trash(self):
         self.maps.pop(self.current_selected_map)
         self.mapNames.pop(self.current_selected_map)
