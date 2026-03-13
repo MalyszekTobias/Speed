@@ -77,12 +77,15 @@ class Button:
 
 
     def click(self):
+        print(self.action)
         if self.action == 'map_editor':
             if self.text == '+': #new map
                 self.game.current_display = self.game.displays['map_editor']
                 self.game.current_display.reset()
             else: #edit map
+                print('edit map clicked')
                 if self.game.current_display.check_if_visible():
+
                     i = self.game.current_display.current_selected_map
                     m = maps.maps[i]
                     n = maps.names[i]

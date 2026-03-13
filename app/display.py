@@ -329,7 +329,6 @@ class map_editor_list(basic_display):
             oc = 'white'
             y = self.scroll_dist + self.mapLog_start_y + i*(self.map_height+15)
             if i == self.current_selected_map:
-                print(self.mapNames[i])
                 oc = 'yellow'
                 self.make_small_buttons(y)
             mb = button.Button(self, 'select_map', self.mapLog_x, y, self.map_width,self.map_height, (0, 0, 0), outline_color=oc, text=self.mapNames[i], text_color='white')
@@ -372,6 +371,8 @@ class map_editor_list(basic_display):
         lsc = self.game.displays['level_select_screen']
         lsc.mapNames, lsc.maps = lsc.getMaps()
     def check_if_visible(self):
+        if len(self.maps) <= self.visible_maps:
+            return True
         sel = self.current_selected_map
         top = self.current_top_map
         if sel < top:
