@@ -88,16 +88,19 @@ class Button:
                     n = maps.names[i]
                     self.game.current_display = self.game.displays['map_editor']
                     self.game.current_display.introduce_map(m,n)
+                else:
+                    print('invisible')
         elif self.action == 'map_editor_list':
             if self.text == 'Save':
                 maps.add(self.game.current_display.mapName, self.game.current_display.map, original=self.game.current_display.original)
                 lsc = self.game.displays['level_select_screen']
                 lsc.mapNames, lsc.maps = lsc.getMaps()
-                self.game.current_display = self.game.displays['map_editor_list']
-                self.game.current_display.getMaps()
+                self.game.displays['map_editor_list'].current_selected_map = None
+                self.game.displays['map_editor_list'].getMaps()
             self.game.current_display = self.game.displays['map_editor_list']
         elif self.action == 'trash_map':
-            self.game.current_display.trash()
+            if self.game.current_display.check_if_visible():
+                self.game.current_display.trash()
         elif self.action == 'change_character':
             self.game.character = int(self.text)
         elif self.action == 'settings':
@@ -123,7 +126,6 @@ class Button:
         elif self.action == 'quit_game':
             pygame.display.quit()
         elif self.action == 'select_map':
-            print('button')
             id = self.game.current_display.mapNames.index(self.text)
             if self.game.current_display.current_selected_map == id:
                 self.game.current_display.current_selected_map = None

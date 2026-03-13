@@ -52,6 +52,7 @@ def startup_map_load():
                     newline.append(int(letter))
             newmap.append(newline)
         maps[map] = newmap
+    orders.sort()
 def delete(i):
     os.remove('maps/' + names[i] + '.txt')
     names.pop(i)
@@ -75,5 +76,3 @@ def add(mapName, map, original=None):
         names.append(mapName)
         maps.append(map)
         orders.append(len(maps) - 1)
-    print(names)
-    print(orders)
