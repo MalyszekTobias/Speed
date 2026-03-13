@@ -102,7 +102,7 @@ class pause_display(basic_display):
         self.resumeButton = button.Button(self, 'resume', self.midx - 170, self.midy , 120, 120,
                       (0, 0, 0), icon=[pygame.image.load('Assets/Icons/play.png'),pygame.image.load('Assets/Icons/play_hover.png')])
         self.quitButton = button.Button(self, 'level_select_screen', self.midx + 50, self.midy, 120, 120,
-                       text='Quit', icon=[pygame.image.load('Assets/Icons/Exit.png'), pygame.image.load('Assets/Icons/Exit_hover.png')])
+                       text='Quit', icon=[pygame.image.load('Assets/Icons/home.png'), pygame.image.load('Assets/Icons/home_hover.png')])
     def events(self, event):
         if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
             self.resumeButton.click()
@@ -258,7 +258,7 @@ class map_editor_list(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
         self.game = game
-        self.new_map_button = button.Button(self, 'map_editor', 105,25, 75,75, (0, 0, 0), outline_color='white', text='+', text_color='white', font_size=67)
+        self.new_map_button = button.Button(self, 'map_editor', 105,25, 75,75, text='+', icon=[pygame.image.load('Assets/Icons/plus.png'), pygame.image.load('Assets/Icons/plus_hover.png')])
         self.menuButton = button.Button(self, 'start_screen', 25,25, 75,75, icon=[pygame.image.load('Assets/Icons/home.png'), pygame.image.load('Assets/Icons/home_hover.png')])
         self.map_height = 150
         self.map_width = 1000
@@ -444,7 +444,7 @@ class map_editor(basic_display):
         self.tileSize = int(self.height / len(self.map))
         self.width_in_tiles, self.height_in_tiles = self.width // self.tileSize, int(self.height // self.tileSize)
         self.quitButton = button.Button(self, 'map_editor_list', 25,25, 75,75, text='Exit', icon=[pygame.image.load('Assets/Icons/trash.png'), pygame.image.load('Assets/Icons/trash_hover.png')])
-        self.saveButton = button.Button(self, 'map_editor_list', self.width - 100,25, 75,75, (0, 0, 0), outline_color='white', text='Save', text_color='white')
+        self.saveButton = button.Button(self, 'map_editor_list', self.width - 100,25, 75,75, text='Save', icon=[pygame.image.load('Assets/Icons/tick.png'), pygame.image.load('Assets/Icons/tick_hover.png')])
 
     def introduce_map(self, map, name):
         self.map = map
