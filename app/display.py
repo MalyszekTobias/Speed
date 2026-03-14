@@ -1,3 +1,4 @@
+import os.path
 import time
 
 import pygame
@@ -476,7 +477,7 @@ class map_editor(basic_display):
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
 [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
-        self.mapName = 'New map'
+        self.mapName = self.get_map_name()
         self.tileSize = int(self.height / len(self.map))
         self.width_in_tiles, self.height_in_tiles = self.width // self.tileSize, int(self.height // self.tileSize)
         self.quitButton = button.Button(self, 'map_editor_list', 25,25, 75,75, text='Exit', icon=[pygame.image.load('Assets/Icons/trash.png'), pygame.image.load('Assets/Icons/trash_hover.png')])
@@ -490,6 +491,12 @@ class map_editor(basic_display):
         self.camera = 0
         self.tileSize = int(self.height / len(self.map))
 
+    def get_map_name(self):
+        for i in range(1, 100):
+            path = 'maps/New map ' + str(i) + '.txt'
+            if not os.path.isfile(path):
+                return 'New map ' + str(i)
+        print('too many maps')
 
     def render(self):
         self.camera += self.movement
@@ -600,5 +607,5 @@ class map_editor(basic_display):
              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
              1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
-        self.mapName = 'New map'
+        self.mapName = self.get_map_name()
         self.original = None
