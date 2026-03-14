@@ -101,12 +101,16 @@ class Button:
                 maps.add(self.game.current_display.mapName, self.game.current_display.map, original=self.game.current_display.original)
                 lsc = self.game.displays['level_select_screen']
                 lsc.mapNames, lsc.maps = lsc.getMaps()
+                lsc.make_previews_and_names()
                 self.game.displays['map_editor_list'].current_selected_map = None
                 self.game.displays['map_editor_list'].getMaps()
             self.game.current_display = self.game.displays['map_editor_list']
         elif self.action == 'trash_map':
             if self.game.current_display.check_if_visible():
                 self.game.current_display.trash()
+                lsc = self.game.displays['level_select_screen']
+                lsc.mapNames, lsc.maps = lsc.getMaps()
+                lsc.make_previews_and_names()
         elif self.action == 'change_character':
             self.game.character = int(self.text)
         elif self.action == 'settings':

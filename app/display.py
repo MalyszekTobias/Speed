@@ -197,16 +197,26 @@ class level_select_screen(basic_display):
             sprite_rect.x,sprite_rect.y = self.character_select_border, self.character_select_border + s*self.character_cell_height
             self.sprite_rects.append(sprite_rect)
 
+        self.bgColor = (0, 0, 0)
+        self.tileColor = (200, 200, 200)
+        self.speedColor = (50, 230, 50)
+        self.jumpColor = (50, 50, 250)
+        self.bounceColor = (250, 50, 50)
+        self.winColor = (182, 196, 77)
+        self.spawnColor = (200, 100, 0)
+        self.colors = (self.bgColor, self.tileColor, self.speedColor, self.jumpColor, self.bounceColor, self.winColor, self.spawnColor)
+
         self.map_width = 300
+        self.map_height =200
         self.map_gap = 100
         self.slide_due = 0
         self.slide_speed = 90
         self.slide_dist = 0
+        self.preview_block_size = self.map_height // len(self.maps[0])
+        self.preview_width_blocks = self.map_width // self.preview_block_size
+
         self.name_texts = []
-        for i in range(len(self.maps)):
-            x = (self.width - self.character_cell_height) / 2 + self.character_cell_height + i*(self.map_width + self.map_gap)
-            text = custom_text.Custom_text(self, x, self.midy - 550, self.game.font, self.game.debug_text_size, self.mapNames[i], text_color='white')
-            self.name_texts.append(text)
+        self.make_previews_and_names()
 
     def change_map(self, amount: int):
         if 0 <= self.game.currentMap + amount < len(self.mapNames) and self.slide_due == 0:
@@ -221,7 +231,6 @@ class level_select_screen(basic_display):
             print(self.game.character)
         else:
             print('no more characters')
-
 
     def events(self, event):
         for obj in self.objects:
@@ -247,6 +256,13 @@ class level_select_screen(basic_display):
         for i in range(len(maps.names)):
             n.append(maps.names[i])
             m.append(maps.maps[i])
+        try:
+            if self.game.currentMap >= len(n) - 1:
+                self.game.currentMap -= 1
+                self.slide_dist += self.map_gap + self.map_width
+
+        except:
+            pass
         return n, m
 
     def slide_maps(self):
@@ -271,7 +287,6 @@ class level_select_screen(basic_display):
     def render(self):
         self.delta = self.game.delta_time
         self.screen.fill((0, 40, 0))
-        pygame.draw.rect(self.screen, (32, 10, 10), (0, 0, self.character_cell_height, self.height))
         for obj in self.particles:
             obj.render()
         for obj in self.objects:
@@ -282,7 +297,10 @@ class level_select_screen(basic_display):
             print(x)
             self.name_texts[i].x = x
             self.name_texts[i].update_pos()
+        for i in range(len(self.previews)):
+            self.render_map(i)
 
+        pygame.draw.rect(self.screen, (32, 10, 10), (0, 0, self.character_cell_height, self.height))
         a = self.game.character
         x = 0
         y = a * self.character_cell_height
@@ -290,6 +308,37 @@ class level_select_screen(basic_display):
                          (x, y, self.character_cell_height, self.character_cell_height))
         for i in range(4):
             self.screen.blit(self.character_sprites[i], self.sprite_rects[i])
+
+    def make_previews_and_names(self):
+        if self.name_texts != []:
+            for name in self.name_texts:
+                name.delete()
+
+        self.name_texts = []
+        for i in range(len(self.maps)):
+            x = (self.width - self.character_cell_height) / 2 + self.character_cell_height + i*(self.map_width + self.map_gap)
+            text = custom_text.Custom_text(self, x, self.midy - 450, self.game.font, self.game.debug_text_size, self.mapNames[i], text_color='white')
+            self.name_texts.append(text)
+
+        self.previews = []
+        for m in self.maps:
+            map = []
+            for row in range(len(m)):
+                map.append([])
+                for block in range(len(m[row])):
+                    if block < self.preview_width_blocks:
+                        map[row].append(m[row][block])
+            self.previews.append(map)
+
+    def render_map(self, i):
+        map = self.previews[i]
+        pbs = self.preview_block_size
+        x0, y0 = self.name_texts[i].x - self.map_width//2, self.name_texts[i].y + 60
+        for row in range(len(map)):
+            for column in range(len(map[row])):
+                x = x0 + column*pbs
+                y = y0 + row*pbs
+                pygame.draw.rect(self.screen, self.colors[map[row][column]], (x, y, pbs, pbs))
 
 class map_editor_list(basic_display):
     def __init__(self, game):
@@ -397,6 +446,8 @@ class map_editor_list(basic_display):
                 self.scroll(-1)
             if event.key in (pygame.K_w, pygame.K_UP):
                 self.scroll(1)
+            if event.key == pygame.K_ESCAPE:
+                self.menuButton.click()
         if event.type == pygame.MOUSEWHEEL:
             self.scroll(event.y)
         for obj in self.small_buttons:
@@ -425,8 +476,6 @@ class map_editor_list(basic_display):
         maps.delete(self.current_selected_map)
         self.refresh_buttons(self.current_selected_map)
         self.current_selected_map = None
-        lsc = self.game.displays['level_select_screen']
-        lsc.mapNames, lsc.maps = lsc.getMaps()
     def check_if_visible(self):
         if len(self.maps) <= self.visible_maps:
             return True
