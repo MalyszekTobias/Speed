@@ -195,13 +195,22 @@ class level_select_screen(basic_display):
             sprite_rect = self.character_sprites[s].get_rect()
             sprite_rect.x,sprite_rect.y = self.character_select_border, self.character_select_border + s*self.character_cell_height
             self.sprite_rects.append(sprite_rect)
-        # self.objects = []
-        self.name_text = custom_text.Custom_text(self, (self.width - self.character_cell_height) / 2 + self.character_cell_height, self.height / 2, self.game.font, self.game.debug_text_size, self.mapNames[self.game.currentMap], text_color='white')
+
+        self.map_width = 300
+        self.map_gap = 100
+        self.slide_due = 0
+        self.slide_speed = 90
+        self.slide_dist = 0
+        self.name_texts = []
+        for i in range(len(self.maps)):
+            x = (self.width - self.character_cell_height) / 2 + self.character_cell_height + i*(self.map_width + self.map_gap)
+            text = custom_text.Custom_text(self, x, self.midy - 550, self.game.font, self.game.debug_text_size, self.mapNames[i], text_color='white')
+            self.name_texts.append(text)
 
     def change_map(self, amount: int):
-        if 0 <= self.game.currentMap + amount < len(self.mapNames):
+        if 0 <= self.game.currentMap + amount < len(self.mapNames) and self.slide_due == 0:
             self.game.currentMap += amount
-            self.name_text.update_text(self.mapNames[self.game.currentMap])
+            self.slide_due = -amount * (self.map_gap + self.map_width)
         else:
             print('no more maps')
 
@@ -211,6 +220,7 @@ class level_select_screen(basic_display):
             print(self.game.character)
         else:
             print('no more characters')
+
 
     def events(self, event):
         for obj in self.objects:
@@ -238,6 +248,25 @@ class level_select_screen(basic_display):
             m.append(maps.maps[i])
         return n, m
 
+    def slide_maps(self):
+        if self.slide_due < 0:
+            if self.slide_due < -self.slide_speed:
+                self.slide_due += self.slide_speed
+                self.slide_dist -= self.slide_speed
+            else:
+                self.slide_dist += self.slide_due
+                self.slide_due = 0
+        elif self.slide_due > 0:
+            if self.slide_due > self.slide_speed:
+                self.slide_due -= self.slide_speed
+                self.slide_dist += self.slide_speed
+            else:
+                self.slide_dist += self.slide_due
+                self.slide_due = 0
+            if self.slide_dist > 0:
+                self.slide_dist = 0
+                self.slide_due = 0
+
     def render(self):
         self.delta = self.game.delta_time
         self.screen.fill((0, 40, 0))
@@ -246,6 +275,13 @@ class level_select_screen(basic_display):
             obj.render()
         for obj in self.objects:
             obj.render()
+        self.slide_maps()
+        for i in range(len(self.name_texts)):
+            x = (self.width - self.character_cell_height) / 2 + self.character_cell_height + i*(self.map_width + self.map_gap) + self.slide_dist
+            print(x)
+            self.name_texts[i].x = x
+            self.name_texts[i].update_pos()
+
         a = self.game.character
         x = 0
         y = a * self.character_cell_height
