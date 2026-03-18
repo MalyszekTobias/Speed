@@ -210,11 +210,15 @@ class Player:
                 return
 
             elif direction == 'up':
+                if block[1] <= -51:
+                    bounceMulti = 0
                 self.y = self.archiveCords[1]
 
                 if self.velUp > self.minBounce * bounceMulti:
+                    print('option1')
                     self.velUp *= -self.energyConservation * bounceMulti
-                elif 0 < self.velUp:
+                elif self.velUp > 0:
+                    print('option2')
                     self.velUp = -self.minBounce * bounceMulti
 
                 self.touchingUp = True

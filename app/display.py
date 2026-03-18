@@ -206,7 +206,7 @@ class level_select_screen(basic_display):
         self.spawnColor = (200, 100, 0)
         self.colors = (self.bgColor, self.tileColor, self.speedColor, self.jumpColor, self.bounceColor, self.winColor, self.spawnColor)
 
-        self.map_width = 300
+        self.map_width = 350
         self.map_height =200
         self.map_gap = 100
         self.slide_due = 0
@@ -285,6 +285,10 @@ class level_select_screen(basic_display):
                 self.slide_due = 0
 
     def render(self):
+        if self.mapNames[self.game.currentMap] == 'Tutorial 1' and self.game.character > 1:
+            self.game.character = 1
+        if self.mapNames[self.game.currentMap] == 'Tutorial 2' and self.game.character < 2:
+            self.game.character = 2
         self.delta = self.game.delta_time
         self.screen.fill((0, 40, 0))
         for obj in self.particles:
@@ -307,6 +311,10 @@ class level_select_screen(basic_display):
         pygame.draw.rect(self.screen, self.character_colors[a],
                          (x, y, self.character_cell_height, self.character_cell_height))
         for i in range(4):
+            if self.mapNames[self.game.currentMap] == 'Tutorial 1' and i > 1:
+                continue
+            if self.mapNames[self.game.currentMap] == 'Tutorial 2' and i <= 1:
+                continue
             self.screen.blit(self.character_sprites[i], self.sprite_rects[i])
 
     def make_previews_and_names(self):
@@ -498,7 +506,7 @@ class map_editor(basic_display):
         self.bounceColor = (250, 50, 50)
         self.winColor = (182, 196, 77)
         self.spawnColor = (200, 100, 0)
-        self.cam_speed = 10
+        self.cam_speed = 15
         self.colors = (self.bgColor, self.tileColor, self.speedColor, self.jumpColor, self.bounceColor, self.winColor, self.spawnColor)
         self.blocks = [0, 1, 2, 3, 4, 5, 6] # 0 is air, 1 is normal, 2 is speed, 3 is jump, 4 is bounce, 5 is win, 6 is spawn
         self.current_block = 1
