@@ -342,6 +342,9 @@ class level_select_screen(basic_display):
         map = self.previews[i]
         pbs = self.preview_block_size
         x0, y0 = self.name_texts[i].x - self.map_width//2, self.name_texts[i].y + 60
+
+        if i == self.game.currentMap:
+            pygame.draw.rect(self.screen, 'yellow', (x0 - 10, y0 - 10, self.map_width+20, self.map_height+20))
         for row in range(len(map)):
             for column in range(len(map[row])):
                 x = x0 + column*pbs
