@@ -33,7 +33,7 @@ class Game:
         self.currentMap = None
 
         self.player = None
-        self.character = 1
+        self.character = 0
 
         self.startTime = None
         self.pausedStart = None
