@@ -185,6 +185,7 @@ class level_select_screen(basic_display):
         self.ch1Button = button.Button(self, 'change_character', 0, self.character_cell_height, 10 + img_size, 10 + img_size, (32,10,10), text='1', text_color='white', outline_width=0)
         self.ch2Button = button.Button(self, 'change_character', 0, self.character_cell_height*2, 10 + img_size, 10 + img_size, (32,10,10), text='2', text_color='white', outline_width=0)
         self.ch3Button = button.Button(self, 'change_character', 0, self.character_cell_height*3, 10 + img_size, 10 + img_size, (32,10,10), text='3', text_color='white', outline_width=0)
+        self.map_buttons = []
         self.mapNames, self.maps, self.allowed_chars = self.getMaps()
         self.game.currentMap = 0
         self.char_choice_storage = self.game.character
@@ -221,12 +222,13 @@ class level_select_screen(basic_display):
         self.preview_width_blocks = self.map_width // self.preview_block_size
 
         self.name_texts = []
-        self.make_previews_and_names()
+        self.make_previews_names_and_buttons()
 
     def change_map(self, amount: int):
         if 0 <= self.game.currentMap + amount < len(self.mapNames) and self.slide_due == 0:
             self.game.currentMap += amount
             self.slide_due = -amount * (self.map_gap + self.map_width)
+            self.manage_map_buttons(-1)
         else:
             print('no more maps')
 
@@ -272,6 +274,7 @@ class level_select_screen(basic_display):
         return n, m, a
 
     def slide_maps(self):
+        copy = self.slide_due
         if self.slide_due < 0:
             if self.slide_due < -self.slide_speed:
                 self.slide_due += self.slide_speed
@@ -289,6 +292,8 @@ class level_select_screen(basic_display):
             if self.slide_dist > 0:
                 self.slide_dist = 0
                 self.slide_due = 0
+        if self.slide_due == 0 and copy != 0:  #spawns buttons if the maps stopped moving
+            self.manage_map_buttons(1, offset=copy)
 
     def render(self):
         if self.mapNames[self.game.currentMap] == 'Tutorial 1' and self.game.character > 1:
@@ -323,8 +328,7 @@ class level_select_screen(basic_display):
             else:
                 self.screen.blit(self.gray_sprites[i], self.sprite_rects[i])
 
-
-    def make_previews_and_names(self):
+    def make_previews_names_and_buttons(self):
         if self.name_texts != []:
             for name in self.name_texts:
                 name.delete()
@@ -344,19 +348,44 @@ class level_select_screen(basic_display):
                     if block < self.preview_width_blocks:
                         map[row].append(m[row][block])
             self.previews.append(map)
+        self.manage_map_buttons(1)
+
 
     def render_map(self, i):
         map = self.previews[i]
         pbs = self.preview_block_size
-        x0, y0 = self.name_texts[i].x - self.map_width//2, self.name_texts[i].y + 60
+
+        actual_width = pbs*len(map[0])
+        current_map_width = min(actual_width, self.map_width)
+        x0, y0 = self.name_texts[i].x - current_map_width//2, self.name_texts[i].y + 60
+
 
         if i == self.game.currentMap:
-            pygame.draw.rect(self.screen, 'yellow', (x0 - 10, y0 - 10, self.map_width+20, self.map_height+20))
+            pygame.draw.rect(self.screen, 'yellow', (x0 - 10, y0 - 10, current_map_width+20, self.map_height+20))
         for row in range(len(map)):
             for column in range(len(map[row])):
                 x = x0 + column*pbs
                 y = y0 + row*pbs
                 pygame.draw.rect(self.screen, self.colors[map[row][column]], (x, y, pbs, pbs))
+
+    def manage_map_buttons(self, mode, offset=0):
+        if mode == 1:
+            for i in range(len(self.maps)):
+                map = self.previews[i]
+                pbs = self.preview_block_size
+
+                actual_width = pbs * len(map[0])
+                current_map_width = min(actual_width, self.map_width)
+                x, y = self.name_texts[i].x - current_map_width//2 + offset, self.name_texts[i].y + 60
+                b = button.Button(self, 'select_map',x, y, current_map_width, self.map_height, text='do not render')
+                self.map_buttons.append(b)
+        if mode == -1:
+            if self.map_buttons == []:
+                return
+            else:
+                for b in self.map_buttons:
+                    b.delete()
+            self.map_buttons = []
 
 class map_editor_list(basic_display):
     def __init__(self, game):

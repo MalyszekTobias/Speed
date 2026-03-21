@@ -18,7 +18,7 @@ class Button:
         self.color = color
         self.game = self.display.game
 
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)  # Creating a rect object
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
         self.iconAmount = 0
         if icon != None:
             if type(icon) == list:
@@ -29,12 +29,15 @@ class Button:
                 self.img = icon
                 self.img = pygame.transform.scale(self.img, (self.width, self.height))
                 self.iconAmount = 1
-        self.display.objects.append(self)  # Adding self to objects of the screen
+        self.display.objects.append(self)
         if font_size == None:
             f = int(self.height // 1.7)
         else:
             f = font_size
-        if text != None and self.iconAmount == 0:  # if there is text it's put on the button
+        if text == 'do not render':
+            self.text = text
+            self.cooldown = 0
+        elif text != None and self.iconAmount == 0:
             self.text_entity = custom_text.Custom_text(self.display, self.x + self.width / 2, self.y + self.height / 2, None,
                                     f, text, text_color=text_color)
             self.text = text
@@ -43,6 +46,8 @@ class Button:
         self.outline_width = outline_width
 
     def render(self):  # Rendering a button on screen
+        if self.text == 'do not render':
+            return
         self.cooldown -= 1
         if self.iconAmount == 0:
             if self.rect.collidepoint(pygame.mouse.get_pos()):
@@ -79,6 +84,7 @@ class Button:
 
 
     def click(self):
+        print(self.action)
         if self.action == 'map_editor':
             if self.text == '+': #new map
                 self.game.current_display = self.game.displays['map_editor']
@@ -101,7 +107,7 @@ class Button:
                 maps.add(self.game.current_display.mapName, self.game.current_display.map, original=self.game.current_display.original)
                 lsc = self.game.displays['level_select_screen']
                 lsc.mapNames, lsc.maps = lsc.getMaps()
-                lsc.make_previews_and_names()
+                lsc.make_previews_names_and_buttons()
                 self.game.displays['map_editor_list'].current_selected_map = None
                 self.game.displays['map_editor_list'].getMaps()
             self.game.current_display = self.game.displays['map_editor_list']
@@ -110,7 +116,7 @@ class Button:
                 self.game.current_display.trash()
                 lsc = self.game.displays['level_select_screen']
                 lsc.mapNames, lsc.maps = lsc.getMaps()
-                lsc.make_previews_and_names()
+                lsc.make_previews_names_and_buttons()
         elif self.action == 'change_character':
             self.game.character = int(self.text)
         elif self.action == 'settings':
@@ -136,16 +142,23 @@ class Button:
         elif self.action == 'quit_game':
             pygame.display.quit()
         elif self.action == 'select_map':
-            id = self.game.current_display.mapNames.index(self.text)
-            if self.game.current_display.current_selected_map == id:
-                self.game.current_display.current_selected_map = None
-                self.text_entity.text_color = 'white'
-                self.game.current_display.refresh_buttons()
-
+            if self.text == 'do not render': #that means it's in the level select screen
+                id = self.game.current_display.map_buttons.index(self)
+                print(id)
+                amount = id - self.game.currentMap
+                if amount != 0:
+                    self.game.current_display.change_map(amount)
             else:
-                self.game.current_display.current_selected_map = id
-                self.text_entity.text_color = 'yellow'
-                self.game.current_display.refresh_buttons()
+                id = self.game.current_display.mapNames.index(self.text)
+                if self.game.current_display.current_selected_map == id:
+                    self.game.current_display.current_selected_map = None
+                    self.text_entity.text_color = 'white'
+                    self.game.current_display.refresh_buttons()
+
+                else:
+                    self.game.current_display.current_selected_map = id
+                    self.text_entity.text_color = 'yellow'
+                    self.game.current_display.refresh_buttons()
 
 
         else:
