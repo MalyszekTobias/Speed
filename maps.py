@@ -4,13 +4,21 @@ import os
 names = []
 maps = []
 orders = []
+allowed_chars = []
 
 def import_map(name):
     file = open('maps/' + name, 'r')
     content = []
     for line in file:
         if line[0] != '[':
-            orders.append(int(line.strip()))
+            l = line.strip()
+            if l[0:10] == 'characters':
+                l = l.split()
+                l.pop(0)
+                a = [int(i) for i in l]
+                allowed_chars.append(a)
+            else:
+                orders.append(int(l))
         else:
             content.append(line.strip())
     maps.append(content)
@@ -25,20 +33,24 @@ def startup_map_load():
     global maps
     global orders
     global names
+    global allowed_chars
     for file in os.listdir('maps'):
         import_map(file)
-    tempmaps, tempnames = [0 for i in range(2*len(maps))], [0 for i in range(2*len(names))]
+        if len(maps)> len(allowed_chars):
+            allowed_chars.append([0,1,2,3])
+    tempmaps, tempnames, tempchars = [0 for i in range(2*len(maps))], [0 for i in range(2*len(names))], [0 for i in range(2*len(allowed_chars))]
     for i in range(len(maps)):
         o = orders[i]
         while o < len(tempmaps):
             if tempmaps[o] == 0:
                 tempmaps[o] = maps[i]
                 tempnames[o] = names[i]
+                tempchars[o] = allowed_chars[i]
                 break
             else:
                 o += 1
 
-    maps, names = tempmaps, tempnames
+    maps, names, allowed_chars = tempmaps, tempnames, tempchars
     while maps.__contains__(0):
         maps.remove(0)
         names.remove(0)
@@ -58,6 +70,7 @@ def delete(i):
     names.pop(i)
     maps.pop(i)
     orders.pop(i)
+    allowed_chars.pop(i)
 
 def add(mapName, map, original=None):
     order = str(len(maps))

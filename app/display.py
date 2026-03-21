@@ -3,6 +3,7 @@ import time
 
 import pygame
 import maps
+from PIL.ImageOps import grayscale
 from app import custom_text, custom_images, button, player, particle
 
 
@@ -184,11 +185,15 @@ class level_select_screen(basic_display):
         self.ch1Button = button.Button(self, 'change_character', 0, self.character_cell_height, 10 + img_size, 10 + img_size, (32,10,10), text='1', text_color='white', outline_width=0)
         self.ch2Button = button.Button(self, 'change_character', 0, self.character_cell_height*2, 10 + img_size, 10 + img_size, (32,10,10), text='2', text_color='white', outline_width=0)
         self.ch3Button = button.Button(self, 'change_character', 0, self.character_cell_height*3, 10 + img_size, 10 + img_size, (32,10,10), text='3', text_color='white', outline_width=0)
-        self.mapNames, self.maps = self.getMaps()
+        self.mapNames, self.maps, self.allowed_chars = self.getMaps()
         self.game.currentMap = 0
+        self.char_choice_storage = self.game.character
 
         self.character_colors = [[5, 219, 5], [250,50,50], [249, 249, 20], [65, 242, 255]]
         self.character_sprites = [pygame.image.load("Assets/Sprites/green_right.png"), pygame.image.load("Assets/Sprites/red_right.png"), pygame.image.load("Assets/Sprites/yellow_right.png"), pygame.image.load("Assets/Sprites/teal_right.png")]
+        self.gray_sprites = [pygame.transform.scale(sprite.copy(), (img_size, img_size)) for sprite in self.character_sprites]
+        for s in self.gray_sprites:
+            s.fill((78, 78, 78), special_flags=pygame.BLEND_RGB_MULT)
         self.sprite_rects = []
 
         for s in range(len(self.character_sprites)):
@@ -206,7 +211,7 @@ class level_select_screen(basic_display):
         self.spawnColor = (200, 100, 0)
         self.colors = (self.bgColor, self.tileColor, self.speedColor, self.jumpColor, self.bounceColor, self.winColor, self.spawnColor)
 
-        self.map_width = 350
+        self.map_width = 400
         self.map_height =200
         self.map_gap = 100
         self.slide_due = 0
@@ -252,10 +257,11 @@ class level_select_screen(basic_display):
             self.change_map(-event.y)
 
     def getMaps(self):
-        n, m = [], []
+        n, m, a = [], [], []
         for i in range(len(maps.names)):
             n.append(maps.names[i])
             m.append(maps.maps[i])
+            a.append(maps.allowed_chars[i])
         try:
             if self.game.currentMap >= len(n) - 1:
                 self.game.currentMap -= 1
@@ -263,7 +269,7 @@ class level_select_screen(basic_display):
 
         except:
             pass
-        return n, m
+        return n, m, a
 
     def slide_maps(self):
         if self.slide_due < 0:
@@ -298,7 +304,6 @@ class level_select_screen(basic_display):
         self.slide_maps()
         for i in range(len(self.name_texts)):
             x = (self.width - self.character_cell_height) / 2 + self.character_cell_height + i*(self.map_width + self.map_gap) + self.slide_dist
-            print(x)
             self.name_texts[i].x = x
             self.name_texts[i].update_pos()
         for i in range(len(self.previews)):
@@ -310,12 +315,14 @@ class level_select_screen(basic_display):
         y = a * self.character_cell_height
         pygame.draw.rect(self.screen, self.character_colors[a],
                          (x, y, self.character_cell_height, self.character_cell_height))
+
+
         for i in range(4):
-            if self.mapNames[self.game.currentMap] == 'Tutorial 1' and i > 1:
-                continue
-            if self.mapNames[self.game.currentMap] == 'Tutorial 2' and i <= 1:
-                continue
-            self.screen.blit(self.character_sprites[i], self.sprite_rects[i])
+            if self.allowed_chars[self.game.currentMap].__contains__(i):
+                self.screen.blit(self.character_sprites[i], self.sprite_rects[i])
+            else:
+                self.screen.blit(self.gray_sprites[i], self.sprite_rects[i])
+
 
     def make_previews_and_names(self):
         if self.name_texts != []:
