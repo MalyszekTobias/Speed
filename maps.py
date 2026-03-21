@@ -17,6 +17,7 @@ def import_map(name):
                 l.pop(0)
                 a = [int(i) for i in l]
                 allowed_chars.append(a)
+                print('a', a)
             else:
                 orders.append(int(l))
         else:
@@ -54,6 +55,7 @@ def startup_map_load():
     while maps.__contains__(0):
         maps.remove(0)
         names.remove(0)
+        allowed_chars.remove(0)
     for map in range(len(maps)):
         newmap = []
         for t in maps[map]:
@@ -89,3 +91,4 @@ def add(mapName, map, original=None):
         names.append(mapName)
         maps.append(map)
         orders.append(len(maps) - 1)
+        allowed_chars.append([0,1,2,3])

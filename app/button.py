@@ -106,7 +106,10 @@ class Button:
             if self.text == 'Save':
                 maps.add(self.game.current_display.mapName, self.game.current_display.map, original=self.game.current_display.original)
                 lsc = self.game.displays['level_select_screen']
-                lsc.mapNames, lsc.maps = lsc.getMaps()
+                self.game.currentMap = 0
+                lsc.slide_dist = 0
+                lsc.mapNames, lsc.maps, lsc.allowed_chars = lsc.getMaps()
+                lsc.manage_map_buttons(-1)
                 lsc.make_previews_names_and_buttons()
                 self.game.displays['map_editor_list'].current_selected_map = None
                 self.game.displays['map_editor_list'].getMaps()
@@ -115,7 +118,10 @@ class Button:
             if self.game.current_display.check_if_visible():
                 self.game.current_display.trash()
                 lsc = self.game.displays['level_select_screen']
-                lsc.mapNames, lsc.maps = lsc.getMaps()
+                self.game.currentMap = 0
+                lsc.slide_dist = 0
+                lsc.mapNames, lsc.maps, lsc.allowed_chars = lsc.getMaps()
+                lsc.manage_map_buttons(-1)
                 lsc.make_previews_names_and_buttons()
         elif self.action == 'change_character':
             self.game.character = int(self.text)

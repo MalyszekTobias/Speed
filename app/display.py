@@ -265,7 +265,7 @@ class level_select_screen(basic_display):
             m.append(maps.maps[i])
             a.append(maps.allowed_chars[i])
         try:
-            if self.game.currentMap >= len(n) - 1:
+            if self.game.currentMap > len(n) - 1:
                 self.game.currentMap -= 1
                 self.slide_dist += self.map_gap + self.map_width
 
