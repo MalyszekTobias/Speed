@@ -409,7 +409,8 @@ class Player:
             self.movement()
             if self.character == 2 and self.hookX != None:
                 self.hook_movement()
-
+        if self.velUp < -5:
+            pygame.draw.rect(self.display.screen, 'red', (900,900, 200, 200))
 
         return
     def get_cam(self):
@@ -580,12 +581,23 @@ class Player:
         return vx, vy
 
     def wall_jump(self, wall):
-        xVel = 10
-        self.velUp = max(5, self.velUp + 15)
+        xVel = 9
+        if self.velUp <= -5:
+            self.velUp = 7
+        else:
+            self.velUp = min(13, self.velUp + 12)
         self.jump = True
         if wall == 'l':
+            if self.left:
+                xVel -= 2
+            else:
+                self.sprite = self.sprites[1]
             self.velLeft -= xVel
         elif wall == 'r':
+            if self.right:
+                xVel -= 2
+            else:
+                self.sprite = self.sprites[0]
             self.velLeft += xVel
 
     def movement(self):

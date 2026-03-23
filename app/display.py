@@ -3,7 +3,6 @@ import time
 
 import pygame
 import maps
-from PIL.ImageOps import grayscale
 from app import custom_text, custom_images, button, player, particle
 
 
