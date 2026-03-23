@@ -224,28 +224,6 @@ class Player:
                 self.touchingUp = True
                 return
 
-            elif direction == 'left':
-                self.x = self.archiveCords[0]
-
-                if self.velLeft > self.minBounce * bounceMulti:
-                    self.velLeft *= -self.energyConservation * bounceMulti
-                elif 0 < self.velLeft:
-                    self.velLeft = -self.minBounce * bounceMulti
-                if self.velUp < 10:
-                    self.velUp += 4.5
-                self.hugLeft = True
-                return
-            elif direction == 'right':
-                self.x = self.archiveCords[0]
-
-                if self.velLeft < -self.minBounce * bounceMulti:
-                    self.velLeft *= self.energyConservation * bounceMulti
-                elif 0 > self.velLeft:
-                    self.velLeft = self.minBounce * bounceMulti
-                if self.velUp < 10:
-                    self.velUp += 4.5
-                self.hugRight = True
-                return
         else:
             if direction == 'down':
                 self.y = block[1] - self.height - 1
@@ -270,14 +248,15 @@ class Player:
                 self.y = block[1] + block[3] + 1
                 self.velUp = 0
                 return
-            elif direction == 'left':
-                self.x = block[0] + block[2] + 1
-                self.velLeft = 0
-                return
-            elif direction == 'right':
-                self.x = block[0] - self.width - 1
-                self.velLeft = 0
-                return
+
+        if direction == 'left':
+            self.x = block[0] + block[2] + 1
+            self.velLeft = 0
+            return
+        elif direction == 'right':
+            self.x = block[0] - self.width - 1
+            self.velLeft = 0
+            return
     def corner(self, block: list):
         mapx, mapy = block[0] // self.display.tileSize, block[1] // self.display.tileSize
 
@@ -409,9 +388,6 @@ class Player:
             self.movement()
             if self.character == 2 and self.hookX != None:
                 self.hook_movement()
-        if self.velUp < -5:
-            pygame.draw.rect(self.display.screen, 'red', (900,900, 200, 200))
-
         return
     def get_cam(self):
         return self.x + self.width / 2 - self.display.game.width / 2
@@ -423,17 +399,17 @@ class Player:
                 self.right = True
             if event.key in (pygame.K_s, pygame.K_DOWN):
                 self.down = True
+                if self.hugsRight() and not self.grounded:
+                    self.wall_jump('r')
+                elif self.hugsLeft() and not self.grounded:
+                    self.wall_jump('l')
             if event.key in (pygame.K_w, pygame.K_UP):
                 self.up = True
             if event.key == pygame.K_LSHIFT and self.display.game.countdown < 1:
                 self.shootHook(pygame.mouse.get_pos())
-            if event.key == pygame.K_SPACE or event.key == K_UP:
+            if event.key in (pygame.K_SPACE,pygame.K_UP):
                 if self.display.game.countdown < 1:
-                    if self.hugsRight() and not self.grounded:
-                        self.wall_jump('r')
-                    elif self.hugsLeft() and not self.grounded:
-                        self.wall_jump('l')
-                    elif self.jumpsLeft > 0:
+                    if self.jumpsLeft > 0:
                         self.jump = True
                         self.jumpsLeft -= 1
                         self.velUp = self.jumpLength
@@ -445,6 +421,10 @@ class Player:
                             self.velLeft -= self.jumpSpeedBoost
                         elif self.left and not self.right:
                             self.velLeft += self.jumpSpeedBoost
+                    elif self.hugsRight() and not self.grounded:
+                        self.wall_jump('r')
+                    elif self.hugsLeft() and not self.grounded:
+                        self.wall_jump('l')
 
         if event.type == pygame.KEYUP:
             if event.key in (pygame.K_a, pygame.K_LEFT):
