@@ -228,13 +228,15 @@ class level_select_screen(basic_display):
             self.game.currentMap += amount
             self.slide_due = -amount * (self.map_gap + self.map_width)
             self.manage_map_buttons(-1)
+            if self.allowed_chars[self.game.currentMap].__contains__(self.char_choice_storage):
+                self.game.character = self.char_choice_storage
         else:
             print('no more maps')
 
     def change_character(self, amount):
         if 0 <= self.game.character + amount <= 3:
             self.game.character += amount
-            print(self.game.character)
+            self.char_choice_storage = self.game.character
         else:
             print('no more characters')
 
