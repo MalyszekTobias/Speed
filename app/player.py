@@ -192,17 +192,16 @@ class Player:
                     bouncable = True
                 if bouncable:
                     bounceMulti = 1.5
-
-                elif self.character == 2:
-                    bounceMulti = 0
             if self.jumpRecoveryFromAllDirectionBounces:
                 self.jumpsLeft = self.jumpAmount
 
             if direction == 'down':
                 self.y = block[1] - self.height
                 if self.velUp < -self.minBounce * bounceMulti:
+                    print(1, bounceMulti)
                     self.velUp *= -self.energyConservation * bounceMulti
                 elif 0 > self.velUp:
+                    print(2, bounceMulti)
                     self.velUp = self.minBounce * bounceMulti
 
                 if bounceMulti == 1:
@@ -210,6 +209,7 @@ class Player:
                 return
 
             elif direction == 'up':
+                print('up')
                 if block[1] <= -51:
                     bounceMulti = 0
                 self.y = self.archiveCords[1]
@@ -227,22 +227,18 @@ class Player:
         else:
             if direction == 'down':
                 self.y = block[1] - self.height - 1
-                self.velUp = 0
                 r,c = block[1] // self.display.tileSize, block[0] // self.display.tileSize
                 bouncable = False
-                if self.x < block[0]:
-                    if self.display.currentMap[r][c - 1] == 4:
-                        bouncable = True
-                elif self.x + self.width > block[0] + block[2]:
-                    if self.display.currentMap[r][c + 1] == 4:
-                        bouncable = True
-                else:
-                    bouncable = True
-
-                if blockType != 4:
-                    return False
-                elif bouncable:
-                    return True
+                if blockType == 4:
+                    if self.x < block[0]:
+                        if self.display.currentMap[r][c - 1] == 4:
+                            bouncable = True
+                    elif self.x + self.width > block[0] + block[2]:
+                        if self.display.currentMap[r][c + 1] == 4:
+                            bouncable = True
+                if bouncable and self.velUp <= -5:
+                    print(self.velUp)
+                    self.velUp *= -self.energyConservation
 
             elif direction == 'up':
                 self.y = block[1] + block[3] + 1
@@ -331,7 +327,7 @@ class Player:
                                 if actOrNot:
                                     if entity == 'p':
                                         if self.nudge(self.detection(block), block, self.display.currentMap[row][column]) == True and self.character == 0:
-                                            self.velUp = self.minBounce * 2
+                                            self.velUp = self.minBounce * 3
                                             self.jumpsLeft = 1
                                         # pygame.draw.rect(self.display.screen, (200, 0, 0), (block[0] + self.cam,block[1],block[2],block[3]))
                                     elif entity == 'h':
@@ -644,6 +640,8 @@ class Player:
                     self.jump = False
             if not self.grounded:
                 self.velUp -= self.g * self.delta * self.offset
+            else:
+                self.velUp = 0
 
             if self.velUp < self.maxFallSpeed:
                 self.velUp = self.maxFallSpeed

@@ -17,7 +17,6 @@ def import_map(name):
                 l.pop(0)
                 a = [int(i) for i in l]
                 allowed_chars.append(a)
-                print('a', a)
             else:
                 orders.append(int(l))
         else:
