@@ -56,8 +56,6 @@ class game_display(basic_display):
     def get_map(self):
         self.currentMap = maps.maps[self.game.currentMap]
         self.tileSize = int(self.height / len(self.currentMap))
-        for line in self.currentMap:
-            print(line)
         for i in range(len(self.currentMap)):
             for j in range(len(self.currentMap[i])):
                 if self.currentMap[i][j] == 6:
@@ -89,6 +87,7 @@ class game_display(basic_display):
                 self.pauseButton.click()
             if event.key == pygame.K_r:
                 self.restartButton.click()
+                print('______________________________________')
 
         for obj in self.objects:
             obj.events(event)

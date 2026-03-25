@@ -112,6 +112,7 @@ class Player:
         self.sprite_rect.x, self.sprite_rect.y = self.x, self.y
         self.velUp = 0
         self.velLeft = 0
+        self.cumulative_velDown = 0
         self.left = False
         self.right = False
         self.up = False
@@ -137,6 +138,7 @@ class Player:
         self.y = self.display.spawnCords[1]
         self.velUp = 0
         self.velLeft = 0
+        self.cumulative_velDown = 0
         self.jump = False
         self.grounded = False
         self.hugLeft = False
@@ -209,16 +211,13 @@ class Player:
                 return
 
             elif direction == 'up':
-                print('up')
                 if block[1] <= -51:
                     bounceMulti = 0
                 self.y = self.archiveCords[1]
 
                 if self.velUp > self.minBounce * bounceMulti:
-                    print('option1')
                     self.velUp *= -self.energyConservation * bounceMulti
                 elif self.velUp > 0:
-                    print('option2')
                     self.velUp = -self.minBounce * bounceMulti
 
                 self.touchingUp = True
@@ -236,13 +235,16 @@ class Player:
                     elif self.x + self.width > block[0] + block[2]:
                         if self.display.currentMap[r][c + 1] == 4:
                             bouncable = True
+                print(self.cumulative_velDown)
                 if bouncable and self.velUp <= -5:
-                    print(self.velUp)
-                    self.velUp *= -self.energyConservation
+                    if self.cumulative_velDown > 1:
+                        self.velUp = self.cumulative_velDown *0.4
+                        self.y = block[1] - 1
 
             elif direction == 'up':
                 self.y = block[1] + block[3] + 1
                 self.velUp = 0
+                print(6)
                 return
 
         if direction == 'left':
@@ -329,6 +331,7 @@ class Player:
                                         if self.nudge(self.detection(block), block, self.display.currentMap[row][column]) == True and self.character == 0:
                                             self.velUp = self.minBounce * 3
                                             self.jumpsLeft = 1
+                                            print('shouldnt')
                                         # pygame.draw.rect(self.display.screen, (200, 0, 0), (block[0] + self.cam,block[1],block[2],block[3]))
                                     elif entity == 'h':
                                         self.hooked = True
@@ -359,6 +362,8 @@ class Player:
             self.reset(True)
             self.display.game.timerText.hidden = True
         self.cam = self.display.camera
+        if self.isFounded(source='render') and not self.bouncyMode:
+            self.velUp = 0
         currentColor = []
         self.currentTrailColor = []
         for i in range(3):
@@ -384,6 +389,10 @@ class Player:
             self.movement()
             if self.character == 2 and self.hookX != None:
                 self.hook_movement()
+            if self.velUp < -5:
+                self.cumulative_velDown -= self.velUp /13
+            else:
+                self.cumulative_velDown = 0
         return
     def get_cam(self):
         return self.x + self.width / 2 - self.display.game.width / 2
@@ -421,6 +430,7 @@ class Player:
                         self.wall_jump('r')
                     elif self.hugsLeft() and not self.grounded:
                         self.wall_jump('l')
+                    self.grounded = False
 
         if event.type == pygame.KEYUP:
             if event.key in (pygame.K_a, pygame.K_LEFT):
@@ -440,11 +450,13 @@ class Player:
             if event.button == 1 and self.display.game.countdown < 1:
                 self.shootHook(pygame.mouse.get_pos())
 
-    def isFounded(self):
+    def isFounded(self, source=None):
+        bounce = False
         for row in range(int(self.y // self.display.tileSize - 1), int(self.y // self.display.tileSize + 3)):
             for column in range(int(self.x // self.display.tileSize - 1), int(self.x // self.display.tileSize + 3)):
                 try:
-                    if not self.display.currentMap[row][column] in (0, 5, 6, 7, 8, 9):
+                    blockType = self.display.currentMap[row][column]
+                    if not blockType in (0, 5, 6, 7, 8, 9):
                         block = (column * self.display.tileSize, row * self.display.tileSize, self.display.tileSize,
                                  self.display.tileSize)
                         # if block[1] == self.y + self.height and block[0]
@@ -458,9 +470,17 @@ class Player:
                                 self.acceleration = self.groundAcceleration * 2
                             if self.display.currentMap[row][column] == 3:
                                 self.jumpLength = self.boostedJump
-                            return True
+                            if blockType != 4 or self.bouncyMode:
+                                return True
+                            else:
+                                bounce = True
                 except:
                     pass
+        if bounce:
+            if source == 'render':
+                return False
+            else:
+                return True
         self.acceleration = self.airAcceleration
         if self.maxSpeed == self.boostedMaxSpeed:
             self.acceleration = self.groundAcceleration
@@ -640,8 +660,6 @@ class Player:
                     self.jump = False
             if not self.grounded:
                 self.velUp -= self.g * self.delta * self.offset
-            else:
-                self.velUp = 0
 
             if self.velUp < self.maxFallSpeed:
                 self.velUp = self.maxFallSpeed
