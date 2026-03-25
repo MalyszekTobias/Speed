@@ -84,13 +84,11 @@ class Button:
 
 
     def click(self):
-        print(self.action)
         if self.action == 'map_editor':
             if self.text == '+': #new map
                 self.game.current_display = self.game.displays['map_editor']
                 self.game.current_display.reset()
             else: #edit map
-                print('edit map clicked')
                 if self.game.current_display.check_if_visible():
 
                     i = self.game.current_display.current_selected_map
@@ -180,7 +178,6 @@ class Button:
     def playClicked(self):
         self.game.current_display = self.game.displays['game_display']
         self.game.current_display.get_map()
-        print(self.game.current_display.currentMap)
         self.game.startTime = time.time_ns() // 1000000
         self.game.pauseSum = 0
         self.game.currPauseTime = 0

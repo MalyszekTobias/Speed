@@ -3,7 +3,6 @@ import time
 
 import pygame
 import maps
-from PIL.ImageOps import grayscale
 from app import custom_text, custom_images, button, player, particle
 
 
@@ -57,8 +56,6 @@ class game_display(basic_display):
     def get_map(self):
         self.currentMap = maps.maps[self.game.currentMap]
         self.tileSize = int(self.height / len(self.currentMap))
-        for line in self.currentMap:
-            print(line)
         for i in range(len(self.currentMap)):
             for j in range(len(self.currentMap[i])):
                 if self.currentMap[i][j] == 6:
@@ -90,6 +87,7 @@ class game_display(basic_display):
                 self.pauseButton.click()
             if event.key == pygame.K_r:
                 self.restartButton.click()
+                print('______________________________________')
 
         for obj in self.objects:
             obj.events(event)
@@ -229,13 +227,15 @@ class level_select_screen(basic_display):
             self.game.currentMap += amount
             self.slide_due = -amount * (self.map_gap + self.map_width)
             self.manage_map_buttons(-1)
+            if self.allowed_chars[self.game.currentMap].__contains__(self.char_choice_storage):
+                self.game.character = self.char_choice_storage
         else:
             print('no more maps')
 
     def change_character(self, amount):
         if 0 <= self.game.character + amount <= 3:
             self.game.character += amount
-            print(self.game.character)
+            self.char_choice_storage = self.game.character
         else:
             print('no more characters')
 
