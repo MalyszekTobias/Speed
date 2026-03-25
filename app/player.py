@@ -200,11 +200,13 @@ class Player:
             if direction == 'down':
                 self.y = block[1] - self.height
                 if self.velUp < -self.minBounce * bounceMulti:
-                    print(1, bounceMulti)
-                    self.velUp *= -self.energyConservation * bounceMulti
-                elif 0 > self.velUp:
-                    print(2, bounceMulti)
+                    self.velUp *= -self.energyConservation
+                    print(self.cumulative_velDown)
+                    if bounceMulti == 1.5:
+                        self.velUp += self.cumulative_velDown/5
+                elif self.velUp < 0:
                     self.velUp = self.minBounce * bounceMulti
+
 
                 if bounceMulti == 1:
                     self.jumpsLeft = self.jumpAmount
@@ -239,7 +241,7 @@ class Player:
                 if bouncable and self.velUp <= -5:
                     if self.cumulative_velDown > 1:
                         self.velUp = self.cumulative_velDown *0.4
-                        self.y = block[1] - 1
+                        self.y = block[1] - self.height - 1
 
             elif direction == 'up':
                 self.y = block[1] + block[3] + 1
