@@ -84,6 +84,10 @@ class Game:
         for debug_item in self.debug_items:
             debug_item.hidden = True
 
+        pygame.mixer.music.load("Assets/Music/Menu music.wav")
+        pygame.mixer.music.play(-1)
+
+
 
         self.mainloop()
 
