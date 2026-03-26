@@ -193,6 +193,11 @@ class Button:
             self.game.timerText.x = self.game.width - self.game.timerDigits * 45
         self.game.timerText.update_text(str(a))
         self.game.countdownText.update_text(str(self.game.countdown // 6))
+        musicTime = pygame.mixer.music.get_pos() * 2/3000
+        print(musicTime)
+        pygame.mixer.music.load("Assets/Music/Fast music.mp3")
+        pygame.mixer.music.play(-1)
+        pygame.mixer.music.set_pos(musicTime)
 
     def restartClicked(self):
         self.game.current_display = self.game.displays['game_display']
