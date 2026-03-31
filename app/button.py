@@ -140,6 +140,10 @@ class Button:
             self.game.startTime = time.time_ns() // 1000000
         elif self.action == 'level_select_screen':
             if self.text == 'Quit':
+                musicTime = pygame.mixer.music.get_pos() * 3 / 2000
+                pygame.mixer.music.load("Assets/Music/Menu music.mp3")
+                pygame.mixer.music.play(-1)
+                pygame.mixer.music.set_pos(musicTime)
                 self.game.player.delete()
             self.game.current_display = self.game.displays['level_select_screen']
             self.game.timerText.hidden = True
@@ -149,6 +153,8 @@ class Button:
             if self.text == 'do not render': #that means it's in the level select screen
                 id = self.game.current_display.map_buttons.index(self)
                 print(id)
+                if self.game.currentMap == id:
+                    self.playClicked()
                 amount = id - self.game.currentMap
                 if amount != 0:
                     self.game.current_display.change_map(amount)
