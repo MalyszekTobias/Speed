@@ -2,6 +2,8 @@ import os.path
 import time
 
 import pygame
+from pygame.examples.sprite_texture import sprite
+
 import maps
 from app import custom_text, custom_images, button, player, particle
 
@@ -443,8 +445,8 @@ class map_editor_list(basic_display):
             else:
                 self.scroll_dist += self.scroll_due
                 self.scroll_due = 0
-            if self.scroll_dist < -len(self.maps)*(self.map_height + 15) + self.visible_space:
-                self.scroll_dist = -len(self.maps)*(self.map_height + 15) + self.visible_space
+            if self.scroll_dist < -(len(self.maps)+1)*(self.map_height + 15) + self.visible_space:
+                self.scroll_dist = -(len(self.maps)+1)*(self.map_height + 15) + self.visible_space
                 self.scroll_due = 0
             self.refresh_buttons()
         elif self.scroll_due > 0:
@@ -467,7 +469,7 @@ class map_editor_list(basic_display):
                     self.small_buttons.remove(b)
                 b.delete()
         self.map_buttons = []
-        for i in range(len(self.maps)):
+        for i in range(len(self.maps) + 1):
             # print(self.mapNames[i])
             if i == trash:
                 continue
@@ -476,7 +478,11 @@ class map_editor_list(basic_display):
             if i == self.current_selected_map:
                 oc = 'yellow'
                 self.make_small_buttons(y)
-            mb = button.Button(self, 'select_map', self.mapLog_x, y, self.map_width,self.map_height, (0, 0, 0), outline_color=oc, text=self.mapNames[i], text_color='white')
+            if i == len(self.maps):
+                print('plus')
+                mb = button.Button(self, 'map_editor', self.mapLog_x, y, self.map_width,self.map_height, (0, 0, 0), outline_color=oc, text='+', text_color='white')
+            else:
+                mb = button.Button(self, 'select_map', self.mapLog_x, y, self.map_width,self.map_height, (0, 0, 0), outline_color=oc, text=self.mapNames[i], text_color='white')
             self.map_buttons.append(mb)
 
     def scroll(self, dir):
@@ -524,7 +530,7 @@ class map_editor_list(basic_display):
         self.refresh_buttons(self.current_selected_map)
         self.current_selected_map = None
     def check_if_visible(self):
-        if len(self.maps) <= self.visible_maps:
+        if len(self.maps)+1 <= self.visible_maps:
             return True
         sel = self.current_selected_map
         top = self.current_top_map

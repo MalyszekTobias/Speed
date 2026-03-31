@@ -38,7 +38,9 @@ class Button:
             self.text = text
             self.cooldown = 0
         elif text != None and self.iconAmount == 0:
-            self.text_entity = custom_text.Custom_text(self.display, self.x + self.width / 2, self.y + self.height / 2, None,
+            print(f, self.height)
+            center = self.y + self.height/2
+            self.text_entity = custom_text.Custom_text(self.display, self.x + self.width / 2, center, None,
                                     f, text, text_color=text_color)
             self.text = text
 
