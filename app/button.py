@@ -38,7 +38,6 @@ class Button:
             self.text = text
             self.cooldown = 0
         elif text != None and self.iconAmount == 0:
-            print(f, self.height)
             center = self.y + self.height/2
             self.text_entity = custom_text.Custom_text(self.display, self.x + self.width / 2, center, None,
                                     f, text, text_color=text_color)
@@ -101,7 +100,7 @@ class Button:
                     self.game.current_display = self.game.displays['map_editor']
                     self.game.current_display.introduce_map(m,n)
                 else:
-                    print('invisible')
+                    print('invisible', self.text)
         elif self.action == 'map_editor_list':
             if self.text == 'Save':
                 maps.add(self.game.current_display.mapName, self.game.current_display.map, original=self.game.current_display.original)
@@ -154,7 +153,6 @@ class Button:
         elif self.action == 'select_map':
             if self.text == 'do not render': #that means it's in the level select screen
                 id = self.game.current_display.map_buttons.index(self)
-                print(id)
                 if self.game.currentMap == id:
                     self.playClicked()
                 amount = id - self.game.currentMap
