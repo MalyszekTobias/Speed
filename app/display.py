@@ -1,5 +1,6 @@
 import os.path
 import time
+from itertools import count
 
 import pygame
 
@@ -116,8 +117,9 @@ class pause_display(basic_display):
 
 class start_screen(basic_display):
     def __init__(self, game):
+        self.count = 0
         basic_display.__init__(self, game)
-        custom_text.Custom_text(self, self.midx, self.midy - 300, None, self.game.header_text_size, 'Speed', text_color='Green')
+        self.title = custom_text.Custom_text(self, -50, self.midy - 300, None, self.game.header_text_size, 'Speed', text_color='Green')
         self.settingsButton = button.Button(self, 'settings', self.midx -170, self.midy + 20, 150, 150, icon=[pygame.image.load('Assets/Icons/settings.png'), pygame.image.load('Assets/Icons/settings_hover.png')])
         self.lvl_select_Button = button.Button(self, 'level_select_screen', self.midx - 170, self.midy - 170, 150, 150, icon=[pygame.image.load('Assets/Icons/play.png'), pygame.image.load('Assets/Icons/play_hover.png')])
         self.quitButton = button.Button(self, 'quit_game',self.midx +20, self.midy + 20, 150, 150, icon=[pygame.image.load('Assets/Icons/Exit.png'), pygame.image.load('Assets/Icons/Exit_hover.png')])
@@ -130,6 +132,20 @@ class start_screen(basic_display):
                 self.lvl_select_Button.click()
         for obj in self.objects:
             obj.events(event)
+
+    def render(self):
+        self.count += 0.7
+        if self.title.x >= self.midx:
+            acc = 0
+            print(1)
+        else:
+            acc = 150/self.count
+            print(2)
+        self.title.x += acc
+        self.title.update_pos()
+
+        for obj in self.objects:
+            obj.render()
 
 
 class settings_screen(basic_display):

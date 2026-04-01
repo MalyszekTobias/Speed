@@ -128,6 +128,8 @@ class Button:
             self.game.current_display = self.game.displays['settings_screen']
         elif self.action == 'start_screen':
             self.game.current_display = self.game.displays['start_screen']
+            self.game.current_display.count = 0
+            self.game.current_display.title.x = -50
         elif self.action == 'play':
             self.playClicked()
         elif self.action == 'resume':
@@ -138,6 +140,8 @@ class Button:
             self.pauseClicked()
         elif self.action == 'start_screen_after_win':
             self.game.current_display = self.game.displays['start_screen']
+            self.game.current_display.count = 0
+            self.game.current_display.title.x = -50
             self.game.startTime = time.time_ns() // 1000000
         elif self.action == 'level_select_screen':
             if self.text == 'Quit':
