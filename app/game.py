@@ -2,6 +2,8 @@ import time
 
 
 import ctypes
+from logging import exception
+
 user32 = ctypes.windll.user32
 screensize = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
 import pygame
@@ -40,7 +42,6 @@ class Game:
         self.pauseSum = 0
         self.currPauseTime = 0
         self.timeNow = None
-        self.timerDigits = 4
         self.delta_time = 0
 
         self.header_text_size = 150
@@ -76,7 +77,7 @@ class Game:
                             custom_text.Custom_text(self, 12, 165, self.font, self.debug_text_size, f'Current display: {type(self.current_display)}', text_color='white', center=False),
                             custom_text.Custom_text(self, 12, 195, self.font, self.debug_text_size, f'Pointing at: {self.pointing_at}', text_color='white', center=False)]
 
-        self.timerText = custom_text.Custom_text(self, self.width - self.timerDigits * 5 / 9 * self.timer_text_size, 50,"Assets/digital-7.ttf", self.timer_text_size, self.getTimer(),text_color='white', background_color='black', center=False)
+        self.timerText = custom_text.Custom_text(self, self.width - self.timer_text_size * 3.1, 50,"Assets/digital-7.ttf", self.timer_text_size, self.getTimer(),text_color='white', background_color='black', center=False)
         self.countdownText = custom_text.Custom_text(self, self.width / 2, self.height / 3, "Assets/digital-7.ttf", 80,str(self.countdown // 6), text_color='white',background_color='black', center=False)
 
 
@@ -91,10 +92,37 @@ class Game:
 
         self.mainloop()
 
-    def getTimer(self):
+    def getTimer(self, update=False):
         try:
-            return (self.timeNow - self.startTime - self.pauseSum - self.currPauseTime)/1000
+            seconds = (self.timeNow - self.startTime - self.pauseSum - self.currPauseTime)/1000
+            minutes = seconds // 60
+            seconds %= 60
+
+            s = int(seconds)
+            ms = seconds % 1
+            ms *= 100
+            ms = int(ms)
+            ms.__round__(0)
+
+            if s <10:
+                s = '0' + str(int(s))
+            if ms <10:
+                ms = '0' + str(int(ms))
+            if minutes <10:
+                minutes = '0' + str(int(minutes))
+            minutes, s, ms = str(minutes), str(s), str(ms)
+            r = ''
+            r+= minutes
+            r+=':'
+            r+= s
+            r+=':'
+            r += ms
+            if update:
+                self.timerText.update_text(r)
+            return
         except:
+            if update:
+                self.timerText.update_text('0:00')
             return '0:00'
 
     def mainloop(self):
@@ -176,11 +204,7 @@ class Game:
         else:
             self.delta_time = self.clock.get_time() / 1000.0
 
-        a = self.getTimer()
-        if a != '0:00' and int(a) >= 10 ** (self.timerDigits - 3):
-            self.timerDigits += 1
-            self.timerText.x = self.width - self.timerDigits * 45
-        self.timerText.update_text(str(a))
+        self.getTimer(update=True)
         self.countdownText.update_text(str(self.countdown // 6))
 
 

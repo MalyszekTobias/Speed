@@ -196,15 +196,10 @@ class Button:
         self.game.pausedStart = None
         self.game.current_display.player = player.Player(self.game.current_display)
         self.game.player = self.game.current_display.player
-        a = self.game.getTimer()
+        self.game.getTimer(update=True)
         self.game.countdownText.hidden = True
-        if a != '0:00' and int(a) >= 10 ** (self.game.timerDigits - 3):
-            self.game.timerDigits += 1
-            self.game.timerText.x = self.game.width - self.game.timerDigits * 45
-        self.game.timerText.update_text(str(a))
         self.game.countdownText.update_text(str(self.game.countdown // 6))
         musicTime = pygame.mixer.music.get_pos() * 2/3000
-        print(musicTime)
         pygame.mixer.music.load("Assets/Music/Fast music.mp3")
         pygame.mixer.music.play(-1)
         pygame.mixer.music.set_pos(musicTime)

@@ -137,10 +137,8 @@ class start_screen(basic_display):
         self.count += 0.7
         if self.title.x >= self.midx:
             acc = 0
-            print(1)
         else:
             acc = 150/self.count
-            print(2)
         self.title.x += acc
         self.title.update_pos()
 

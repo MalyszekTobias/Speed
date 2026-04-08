@@ -246,7 +246,6 @@ class Player:
             elif direction == 'up':
                 self.y = block[1] + block[3] + 1
                 self.velUp = 0
-                print(6)
                 return
 
         if direction == 'left':
