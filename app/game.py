@@ -119,7 +119,7 @@ class Game:
             r += ms
             if update:
                 self.timerText.update_text(r)
-            return
+            return r
         except:
             if update:
                 self.timerText.update_text('0:00')
