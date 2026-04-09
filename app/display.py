@@ -134,11 +134,13 @@ class start_screen(basic_display):
             obj.events(event)
 
     def render(self):
-        self.count += 0.7
+        self.count += 0.0057
         if self.title.x >= self.midx:
             acc = 0
+        elif self.title.x >= self.midx - 20:
+            acc = 1
         else:
-            acc = 150/self.count
+            acc = 1/self.count
         self.title.x += acc
         self.title.update_pos()
 
