@@ -154,10 +154,8 @@ class settings_screen(basic_display):
         self.quitButton = button.Button(self, 'start_screen', self.midx - 75, self.height - 200, 150, 150, icon=[pygame.image.load('Assets/Icons/home.png'),pygame.image.load('Assets/Icons/home_hover.png')])
         self.margin = 500
         self.soundbar_height = 100
-        self.sounds_bar_pos = [self.margin, 300]
-        self.music_bar_pos = [self.margin, 300 + self.soundbar_height]
-        self.sounds_bar = slider.Slider(self, self.sounds_bar_pos[0], self.sounds_bar_pos[1], self.width-2*self.margin - self.soundbar_height, self.soundbar_height, pygame.image.load('Assets/Icons/sound.png'))
-
+        self.sounds_bar = slider.Slider(self, self.margin + self.soundbar_height, 250, self.width-2*self.margin - self.soundbar_height, self.soundbar_height, pygame.image.load('Assets/Icons/sound.png'))
+        self.music_bar = slider.Slider(self, self.margin + self.soundbar_height, 250 + self.soundbar_height + 50, self.width-2*self.margin - self.soundbar_height, self.soundbar_height, pygame.image.load('Assets/Icons/music.png'))
     def events(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
