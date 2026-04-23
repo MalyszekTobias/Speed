@@ -153,7 +153,7 @@ class Button:
             self.game.current_display = self.game.displays['level_select_screen']
             self.game.timerText.hidden = True
         elif self.action == 'quit_game':
-            pygame.display.quit()
+            self.game.run = False
         elif self.action == 'select_map':
             if self.text == 'do not render': #that means it's in the level select screen
                 id = self.game.current_display.map_buttons.index(self)
