@@ -85,6 +85,8 @@ class Button:
 
 
     def click(self):
+        self.game.click_sound.play()
+
         if self.action == 'map_editor':
             if self.text == '+': #new map
                 self.game.current_display = self.game.displays['map_editor']

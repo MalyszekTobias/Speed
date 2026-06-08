@@ -91,8 +91,8 @@ class Game:
         pygame.mixer.music.load("Assets/Music/Menu music.mp3")
         pygame.mixer.music.play(-1)
         pygame.mixer.music.set_volume(self.music_volume/100)
-
-
+        self.click_sound = pygame.mixer.Sound("Assets/Sounds/Click.mp3")
+        self.click_sound.set_volume(self.sound_volume/100)
 
         self.mainloop()
 
@@ -132,10 +132,11 @@ class Game:
     def mainloop(self):
         self.timerText.hidden = True
         while self.run:
-            self.render()
-
+            self.screen.fill('black')
             self.events()
             self.current_display.tick()
+            for object in self.objects:
+                object.tick()
             self.update()
 
             self.clock.tick(self.fps)
@@ -168,11 +169,6 @@ class Game:
                     else:
                         self.timerText.hidden = True
             self.current_display.events(event)
-
-    def render(self):
-        self.screen.fill('black')
-        for object in self.objects:
-            object.tick()
 
     def update(self):
         if self.debug:

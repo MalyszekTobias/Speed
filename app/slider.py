@@ -22,10 +22,11 @@ class Slider:
             config.save_setting(self.action, self.value)
             if self.action == "music_volume":
                 self.display.game.music_volume = self.value
-                pygame.mixer.music.set_volume(self.display.game.music_volume/100)
-
+                pygame.mixer.music.set_volume(self.value/100)
             elif self.action == "sound_volume":
                 self.display.game.sound_volume = self.value
+                self.display.game.click_sound.set_volume(self.value/100)
+
         if self.notch_x <0:
             self.notch_x = 0
         if self.notch_x > self.width:
