@@ -21,12 +21,12 @@ class basic_display():
         self.midx, self.midy = self.width/2, self.height*2/3
 
 
-    def render(self):
+    def tick(self):
         self.delta = self.game.delta_time
         for obj in self.particles:
-            obj.render()
+            obj.tick()
         for obj in self.objects:
-            obj.render()
+            obj.tick()
 
     def events(self, event):
         for obj in self.objects:
@@ -52,8 +52,6 @@ class game_display(basic_display):
                       icon=[pygame.image.load('Assets/Icons/restart_icon.png'), pygame.image.load('Assets/Icons/restart_hover.png')])
 
 
-    def mainloop(self):
-        pass
 
     def get_map(self):
         self.currentMap = maps.maps[self.game.currentMap]
@@ -62,7 +60,7 @@ class game_display(basic_display):
             for j in range(len(self.currentMap[i])):
                 if self.currentMap[i][j] == 6:
                     self.spawnCords = [j * self.tileSize, i * self.tileSize]
-    def render(self):
+    def tick(self):
         self.delta = self.game.delta_time
         m, n = len(self.currentMap), len(self.currentMap[0])
         for i in range(m):
@@ -73,9 +71,9 @@ class game_display(basic_display):
                                      (j * self.tileSize + self.camera, i * self.tileSize, self.tileSize, self.tileSize))
 
         for obj in self.particles:
-            obj.render()
+            obj.tick()
         for obj in self.objects:
-            obj.render()
+            obj.tick()
         c = self.game.player.get_cam()
         if c > 0:
             self.camera = -c
@@ -133,7 +131,7 @@ class start_screen(basic_display):
         for obj in self.objects:
             obj.events(event)
 
-    def render(self):
+    def tick(self):
         self.count += 0.0057
         if self.title.x >= self.midx:
             acc = 0
@@ -145,7 +143,7 @@ class start_screen(basic_display):
         self.title.update_pos()
 
         for obj in self.objects:
-            obj.render()
+            obj.tick()
 
 
 class settings_screen(basic_display):
@@ -154,8 +152,8 @@ class settings_screen(basic_display):
         self.quitButton = button.Button(self, 'start_screen', self.midx - 75, self.height - 200, 150, 150, icon=[pygame.image.load('Assets/Icons/home.png'),pygame.image.load('Assets/Icons/home_hover.png')])
         self.margin = 500
         self.soundbar_height = 100
-        self.sounds_bar = slider.Slider(self, self.margin + self.soundbar_height, 250, self.width-2*self.margin - self.soundbar_height, self.soundbar_height, pygame.image.load('Assets/Icons/sound.png'))
-        self.music_bar = slider.Slider(self, self.margin + self.soundbar_height, 250 + self.soundbar_height + 50, self.width-2*self.margin - self.soundbar_height, self.soundbar_height, pygame.image.load('Assets/Icons/music.png'))
+        self.sounds_bar = slider.Slider(self, self.margin + self.soundbar_height, 250, self.width-2*self.margin - self.soundbar_height, self.soundbar_height, "sound_volume", pygame.image.load('Assets/Icons/sound.png'), value=game.sound_volume)
+        self.music_bar = slider.Slider(self, self.margin + self.soundbar_height, 250 + self.soundbar_height + 50, self.width-2*self.margin - self.soundbar_height, self.soundbar_height, "music_volume", pygame.image.load('Assets/Icons/music.png'), value=game.music_volume)
     def events(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
@@ -186,9 +184,9 @@ class win_screen(basic_display):
         for obj in self.objects:
             obj.events(event)
 
-    def render(self):
+    def tick(self):
         for obj in self.objects:
-            obj.render()
+            obj.tick()
 
 class level_select_screen(basic_display):
     def __init__(self, game):
@@ -315,7 +313,7 @@ class level_select_screen(basic_display):
         if self.slide_due == 0 and copy != 0:  #spawns buttons if the maps stopped moving
             self.manage_map_buttons(1, offset=copy)
 
-    def render(self):
+    def tick(self):
         if self.mapNames[self.game.currentMap] == 'Tutorial 1' and self.game.character > 1:
             self.game.character = 1
         if self.mapNames[self.game.currentMap] == 'Tutorial 2' and self.game.character < 2:
@@ -323,9 +321,9 @@ class level_select_screen(basic_display):
         self.delta = self.game.delta_time
         self.screen.fill((0, 40, 0))
         for obj in self.particles:
-            obj.render()
+            obj.tick()
         for obj in self.objects:
-            obj.render()
+            obj.tick()
         self.slide_maps()
         for i in range(len(self.name_texts)):
             x = (self.width - self.character_cell_height) / 2 + self.character_cell_height + i*(self.map_width + self.map_gap) + self.slide_dist
@@ -443,19 +441,19 @@ class map_editor_list(basic_display):
         self.map_buttons = []
         self.refresh_buttons()
 
-    def render(self):
+    def tick(self):
         for obj in self.objects:
-            obj.render()
+            obj.tick()
 
         for b in self.map_buttons:
             if b.text == None:
-                b.render()
+                b.tick()
         pygame.draw.rect(self.screen, 'black', (self.mapLog_x, self.scroll_curtain_y, self.width, 1000))
         pygame.draw.rect(self.screen, 'black', (self.mapLog_x, 0, self.width, self.mapLog_start_y))
         for obj in self.objects:
             if isinstance(obj, button.Button):
                 if not self.map_buttons.__contains__(obj):
-                    obj.render()
+                    obj.tick()
         if self.scroll_due < 0:
             if self.scroll_due < -self.scroll_speed:
                 self.scroll_due += self.scroll_speed
@@ -618,7 +616,7 @@ class map_editor(basic_display):
                 return 'New map ' + str(i)
         print('too many maps')
 
-    def render(self):
+    def tick(self):
         self.camera += self.movement
         if self.camera < 0:
             self.camera = 0
@@ -634,7 +632,7 @@ class map_editor(basic_display):
                 pygame.draw.rect(self.screen, color, (column * self.tileSize - self.camera, row * self.tileSize, self.tileSize - 1, self.tileSize - 1))
 
         for obj in self.objects:
-            obj.render()
+            obj.tick()
 
     def events(self, event):
 

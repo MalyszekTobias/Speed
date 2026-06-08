@@ -46,7 +46,7 @@ class Button:
         self.outline_color = outline_color
         self.outline_width = outline_width
 
-    def render(self):  # Rendering a button on screen
+    def tick(self):  # Rendering a button on screen
         if self.text == 'do not render':
             return
         self.cooldown -= 1

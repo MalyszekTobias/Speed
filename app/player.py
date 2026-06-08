@@ -356,7 +356,7 @@ class Player:
     def createParticle(self, size, color, x, y, velRight, velUp, g, lifetime, shrink):
         self.particle = particle.Particle(self.display, size / 2, color, x, y, velRight, velUp, g, lifetime, shrink)
         self.display.particles.append(self.particle)
-    def render(self):
+    def tick(self):
         self.delta = self.display.game.delta_time
         if self.justStarted:
             self.justStarted = False

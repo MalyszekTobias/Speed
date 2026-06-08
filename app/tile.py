@@ -11,7 +11,7 @@ class Tile:
         self.height = 50
         self.tileColor = (200, 200, 200)
 
-    def render(self):
+    def tick(self):
         pygame.draw.rect(self.display.screen, self.tileColor, (self.x, self.y, self.width, self.height))
 
     def events(self, event):

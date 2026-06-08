@@ -29,6 +29,9 @@ class Game:
         self.fps = 60
         self.title = self.cfg['title']
         self.enable_debug = int(self.cfg['enable_debug'])
+        self.music_volume = int(self.cfg["music_volume"])
+        self.sound_volume = int(self.cfg["sound_volume"])
+
         self.clock = pygame.time.Clock()
         self.font = None
         self.countdown = -1
@@ -85,8 +88,9 @@ class Game:
         for debug_item in self.debug_items:
             debug_item.hidden = True
 
-        pygame.mixer.music.load("Assets/Music/Menu music.wav")
+        pygame.mixer.music.load("Assets/Music/Menu music.mp3")
         pygame.mixer.music.play(-1)
+        pygame.mixer.music.set_volume(self.music_volume/100)
 
 
 
@@ -128,12 +132,13 @@ class Game:
     def mainloop(self):
         self.timerText.hidden = True
         while self.run:
-            self.events()
             self.render()
+
+            self.events()
+            self.current_display.tick()
             self.update()
+
             self.clock.tick(self.fps)
-            if self.current_display == self.displays['game_display']:
-                self.current_display.mainloop()
             self.timeNow = time.time_ns() // 1000000
             if not self.pausedStart == None:
                 self.currPauseTime = self.timeNow - self.pausedStart
@@ -154,7 +159,6 @@ class Game:
                 self.run = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_BACKSLASH and self.enable_debug:
-                    print(self.startTime)
                     self.debug = not self.debug
                     for di in self.debug_items:
                         di.hidden = not di.hidden
@@ -163,42 +167,17 @@ class Game:
                         self.timerText.hidden = False
                     else:
                         self.timerText.hidden = True
-                else:
-                    self.current_display.events(event)
-            else:
-                self.current_display.events(event)
+            self.current_display.events(event)
 
     def render(self):
         self.screen.fill('black')
-        self.current_display.render()
-
         for object in self.objects:
-            object.render()
+            object.tick()
 
     def update(self):
         if self.debug:
+            self.show_debug()
 
-            for obj in self.current_display.objects:
-                try:
-                    if obj.rect.collidepoint(pygame.mouse.get_pos()):
-                        if obj not in self.pointing_at:
-                            self.pointing_at.append(obj)
-                except:
-                    pass
-
-            i = []
-            for obj in self.pointing_at:
-                if obj.rect.collidepoint(pygame.mouse.get_pos()) == False:
-                    i.append(obj)
-            for obj in i:
-                self.pointing_at.remove(obj)
-            i = []
-
-
-            self.debug_items[3].update_text(f'FPS: {self.clock.get_fps()}')
-            self.debug_items[4].update_text(f'Objects in memory: {len(self.current_display.objects)}')
-            self.debug_items[5].update_text(f'Current display: {type(self.current_display)}')
-            self.debug_items[6].update_text(f'Pointing at: {self.pointing_at}')
         if self.clock.get_time() / 1000.0 > 0.1:
             self.delta_time = 0.1
         else:
@@ -207,6 +186,30 @@ class Game:
         self.getTimer(update=True)
         self.countdownText.update_text(str(self.countdown // 6))
 
-
         pygame.display.update()
         pygame.display.flip()
+
+    def show_debug(self):
+
+        for obj in self.current_display.objects:
+            try:
+                if not obj.rect.collidepoint(pygame.mouse.get_pos()):
+                    continue
+                if obj in self.pointing_at:
+                    continue
+                self.pointing_at.append(obj)
+            except:
+                pass
+
+        i = []
+        for obj in self.pointing_at:
+            if obj.rect.collidepoint(pygame.mouse.get_pos()) == False:
+                i.append(obj)
+        for obj in i:
+            self.pointing_at.remove(obj)
+        i = []
+
+        self.debug_items[3].update_text(f'FPS: {self.clock.get_fps()}')
+        self.debug_items[4].update_text(f'Objects in memory: {len(self.current_display.objects)}')
+        self.debug_items[5].update_text(f'Current display: {type(self.current_display)}')
+        self.debug_items[6].update_text(f'Pointing at: {self.pointing_at}')

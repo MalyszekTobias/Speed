@@ -20,7 +20,7 @@ class Custom_image:  # A class to easier render images
         if append:
             self.display.objects.append(self)
 
-    def render(self):  # rendering the image at self.x , self.y
+    def tick(self):  # rendering the image at self.x , self.y
         self.display.screen.blit(self.image, (self.rect.x, self.rect.y))
 
     def events(self, event):

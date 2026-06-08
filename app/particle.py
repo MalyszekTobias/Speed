@@ -15,7 +15,7 @@ class Particle:
         self.shrink = shrink
 
 
-    def render(self):
+    def tick(self):
         self.move()
         if self.size > 5:
             pygame.draw.circle(self.display.screen, self.color, (self.x + self.display.camera, self.y), self.size)

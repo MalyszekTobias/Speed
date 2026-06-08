@@ -31,9 +31,9 @@ class Custom_text:  # A class that generates text
         if append:
             self.display.objects.append(self)
 
-    def render(self):  # Renders the text
-        if not self.hidden:
-            self.display.screen.blit(self.text_to_render, self.rect)
+    def tick(self):  # Renders the text
+        if self.hidden: return
+        self.display.screen.blit(self.text_to_render, self.rect)
 
     def events(self, event):  # For now just passes when checking events
         pass

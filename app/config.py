@@ -33,7 +33,9 @@ def generate_default_config_data(version):
         'fps': 10,
         'title': 'Speed',
         'enable_debug': 1,
-        'fullscreen': 1
+        'fullscreen': 1,
+        'music_volume': 50,
+        'sound_volume': 50
     }
 
 def write_config_to_file(config, config_file):
@@ -54,3 +56,11 @@ def read_config():
         cfg[key] = value  # Adds configuration to the dict
     return cfg  # Returns the dict
 
+def save_setting(key, value):
+    config = ConfigParser()
+    config.read("config.ini")
+
+    config["CONFIG"][key] = str(value)
+
+    with open("config.ini", "w") as f:
+        config.write(f)
