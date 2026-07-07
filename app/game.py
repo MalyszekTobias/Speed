@@ -17,7 +17,6 @@ import maps
 class Game:
     def __init__(self):
         pygame.init()
-
         config.set_config()
 
         self.cfg = config.read_config()

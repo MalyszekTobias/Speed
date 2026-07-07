@@ -495,7 +495,6 @@ class map_editor_list(basic_display):
                 oc = 'yellow'
                 self.make_small_buttons(y)
             if i == len(self.maps):
-                print('plus')
                 mb = button.Button(self, 'map_editor', self.mapLog_x, y, self.map_width,self.map_height, (0, 0, 0), outline_color=oc, text='+', text_color='white', font_size=int(self.map_height*0.7))
             else:
                 mb = button.Button(self, 'select_map', self.mapLog_x, y, self.map_width,self.map_height, (0, 0, 0), outline_color=oc, text=self.mapNames[i], text_color='white')

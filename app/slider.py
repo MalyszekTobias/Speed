@@ -8,7 +8,6 @@ class Slider:
         self.icon = pygame.transform.scale(icon, (height, height))
         self.icon_rect = pygame.Rect(x - height - 30, y, height, height)
         self.notch_x = (value*width) // 100
-        print(self.notch_x)
         self.notch_size = 50
         self.grabbed = None
     def tick(self):
@@ -47,10 +46,7 @@ class Slider:
         x,y = self.x + self.notch_x - self.notch_size//2, self.y+self.height//2 - self.notch_size//2
         w = self.notch_size
         a,b = pygame.mouse.get_pos()
-        print(x, a, x+w)
-        print(y, b, y+w)
         if x < a < x+w:
             if y < b < y+w:
-                print('grab')
                 return x - (a + self.notch_size//2)
         return None

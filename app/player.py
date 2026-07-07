@@ -237,7 +237,6 @@ class Player:
                     elif self.x + self.width > block[0] + block[2]:
                         if self.display.currentMap[r][c + 1] == 4:
                             bouncable = True
-                print(self.cumulative_velDown)
                 if bouncable and self.velUp <= -5:
                     if self.cumulative_velDown > 1:
                         self.velUp = self.cumulative_velDown *0.4
@@ -332,7 +331,6 @@ class Player:
                                         if self.nudge(self.detection(block), block, self.display.currentMap[row][column]) == True and self.character == 0:
                                             self.velUp = self.minBounce * 3
                                             self.jumpsLeft = 1
-                                            print('shouldnt')
                                         # pygame.draw.rect(self.display.screen, (200, 0, 0), (block[0] + self.cam,block[1],block[2],block[3]))
                                     elif entity == 'h':
                                         self.hooked = True
