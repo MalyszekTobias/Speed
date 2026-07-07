@@ -78,7 +78,7 @@ class Player:
             self.floorBounce = 5
             self.sprites = [pygame.image.load("Assets/Sprites/red_left.png"), pygame.image.load("Assets/Sprites/red_right.png")]
         if self.character == 2:
-            # hooker has 1 small jump and a hook
+            # hooker has a grappling hook
             self.bouncyMode = True
             self.g = 0.9
             self.maxFallSpeed, self.maxSpeed, self.regularMaxSpeed = -15, 15, 15
@@ -201,7 +201,6 @@ class Player:
                 self.y = block[1] - self.height
                 if self.velUp < -self.minBounce * bounceMulti:
                     self.velUp *= -self.energyConservation
-                    print(self.cumulative_velDown)
                     if bounceMulti == 1.5:
                         self.velUp += self.cumulative_velDown/5
                 elif self.velUp < 0:
@@ -355,6 +354,7 @@ class Player:
         self.particle = particle.Particle(self.display, size / 2, color, x, y, velRight, velUp, g, lifetime, shrink)
         self.display.particles.append(self.particle)
     def tick(self):
+        print(self.hookX)
         self.delta = self.display.game.delta_time
         if self.justStarted:
             self.justStarted = False
@@ -410,7 +410,7 @@ class Player:
             if event.key in (pygame.K_w, pygame.K_UP):
                 self.up = True
             if event.key == pygame.K_LSHIFT and self.display.game.countdown < 1:
-                self.shootHook(pygame.mouse.get_pos())
+                self.shootHook(pygame.mouse.get_pos(),2)
             if event.key in (pygame.K_SPACE,pygame.K_UP):
                 if self.display.game.countdown < 1:
                     if self.jumpsLeft > 0:
@@ -448,6 +448,9 @@ class Player:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1 and self.display.game.countdown < 1:
                 self.shootHook(pygame.mouse.get_pos())
+        if event.type == pygame.MOUSEBUTTONUP:
+            if event.button == 1 and self.display.game.countdown < 1:
+                self.shootHook(pygame.mouse.get_pos(), -1)
 
     def isFounded(self, source=None):
         bounce = False
@@ -560,15 +563,25 @@ class Player:
 
         pygame.draw.line(self.display.screen, lineColor, (self.x + self.cam + self.width / 2, self.y + self.width / 2), (self.hookX + self.cam, self.hookY), 4)
         pygame.draw.circle(self.display.screen, self.colors[2], (self.hookX + self.cam, self.hookY), self.hookSize / 2)
-    def shootHook(self, mousepos):
-        if self.hookX == None:
-            self.hookX, self.hookY = self.x + self.width / 2, self.y + self.height / 2
-            x_offset, y_offset = self.x + self.width / 2 + self.cam - mousepos[0], self.y + self.width / 2 - mousepos[1]
-            a, b = self.getHookVels(x_offset, y_offset, self.hookSpeed)
-            self.hookVelLeft, self.hookVelUp = -a, -b
-        else:
+    def shootHook(self, mousepos, mode=1): #mode -1 - reel back; mode 1 - shoot hook; mode 2 - toggle
+        if mode == 2:
+            if self.hookX == None:
+                mode = 1
+            else:
+                mode = -1
+        if mode == -1:
+            if self.hookX == None:
+                return
             self.hooked = False
             self.hookReeling = True
+            return
+        if self.hookX != None:
+            print("there already exists a hook")
+            return
+        self.hookX, self.hookY = self.x + self.width / 2, self.y + self.height / 2
+        x_offset, y_offset = self.x + self.width / 2 + self.cam - mousepos[0], self.y + self.width / 2 - mousepos[1]
+        a, b = self.getHookVels(x_offset, y_offset, self.hookSpeed)
+        self.hookVelLeft, self.hookVelUp = -a, -b
     def getHookVels(self, x_offset, y_offset, speed):
         d = (x_offset ** 2 + y_offset ** 2) ** 0.5
         vx = speed * x_offset / d
