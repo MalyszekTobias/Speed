@@ -53,7 +53,7 @@ class Player:
         self.hookVelUp = 0
         self.hookVelLeft = 0
         self.hookReeling = False
-
+        self.hookBuffer = False
 
         self.width = self.display.tileSize + 10
         self.height = self.width
@@ -451,6 +451,7 @@ class Player:
         if event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1 and self.display.game.countdown < 1:
                 self.shootHook(pygame.mouse.get_pos(), -1)
+                self.hookBuffer = False
 
     def isFounded(self, source=None):
         bounce = False
@@ -559,6 +560,8 @@ class Player:
                 self.hookVelUp = 0
                 self.hookVelLeft = 0
                 self.hooked = False
+                if self.hookBuffer:
+                    self.shootHook(mouse.get_pos())
                 return
 
         pygame.draw.line(self.display.screen, lineColor, (self.x + self.cam + self.width / 2, self.y + self.width / 2), (self.hookX + self.cam, self.hookY), 4)
@@ -577,7 +580,9 @@ class Player:
             return
         if self.hookX != None:
             print("there already exists a hook")
+            self.hookBuffer = True
             return
+        self.hookBuffer = False
         self.hookX, self.hookY = self.x + self.width / 2, self.y + self.height / 2
         x_offset, y_offset = self.x + self.width / 2 + self.cam - mousepos[0], self.y + self.width / 2 - mousepos[1]
         a, b = self.getHookVels(x_offset, y_offset, self.hookSpeed)
