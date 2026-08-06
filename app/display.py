@@ -37,38 +37,38 @@ class game_display(basic_display):
     def __init__(self, game):
         basic_display.__init__(self, game)
         self.camera = 0
-        self.bgColor = (0, 0, 0)
-        self.tileColor = (200, 200, 200)
-        self.speedColor = (50, 230, 50)
-        self.jumpColor = (50, 50, 250)
-        self.bounceColor = (250, 50, 50)
-        self.winColor = (182, 196, 77)
-        self.spawnCords = [50,50]
-        self.colors = (self.bgColor, self.tileColor, self.speedColor, self.jumpColor, self.bounceColor, self.winColor)
-        self.currentMap = None
-        self.pauseButton = button.Button(self, 'pause', 15, 25, 75, 75, (0, 0, 0), outline_color='white',
-                      icon=[pygame.image.load('Assets/Icons/pause_icon.png'),pygame.image.load('Assets/Icons/pause_hover.png')])
-        self.restartButton = button.Button(self, 'restart', 105, 25, 75, 75, (0, 0, 0), outline_color='white',
-                      icon=[pygame.image.load('Assets/Icons/restart_icon.png'), pygame.image.load('Assets/Icons/restart_hover.png')])
+        self.bg_color = (0, 0, 0)
+        self.tile_color = (200, 200, 200)
+        self.speed_color = (50, 230, 50)
+        self.jump_color = (50, 50, 250)
+        self.bounce_color = (250, 50, 50)
+        self.win_color = (182, 196, 77)
+        self.spawn_cords = [50, 50]
+        self.colors = (self.bg_color, self.tile_color, self.speed_color, self.jump_color, self.bounce_color, self.win_color)
+        self.current_map = None
+        self.pause_button = button.Button(self, 'pause', 15, 25, 75, 75, (0, 0, 0), outline_color='white',
+                                          icon=[pygame.image.load('Assets/Icons/pause_icon.png'),pygame.image.load('Assets/Icons/pause_hover.png')])
+        self.restart_button = button.Button(self, 'restart', 105, 25, 75, 75, (0, 0, 0), outline_color='white',
+                                            icon=[pygame.image.load('Assets/Icons/restart_icon.png'), pygame.image.load('Assets/Icons/restart_hover.png')])
 
 
 
     def get_map(self):
-        self.currentMap = maps.maps[self.game.currentMap]
-        self.tileSize = int(self.height / len(self.currentMap))
-        for i in range(len(self.currentMap)):
-            for j in range(len(self.currentMap[i])):
-                if self.currentMap[i][j] == 6:
-                    self.spawnCords = [j * self.tileSize, i * self.tileSize]
+        self.current_map = maps.maps[self.game.current_map]
+        self.tile_size = int(self.height / len(self.current_map))
+        for i in range(len(self.current_map)):
+            for j in range(len(self.current_map[i])):
+                if self.current_map[i][j] == 6:
+                    self.spawn_cords = [j * self.tile_size, i * self.tile_size]
     def tick(self):
         self.delta = self.game.delta_time
-        m, n = len(self.currentMap), len(self.currentMap[0])
+        m, n = len(self.current_map), len(self.current_map[0])
         for i in range(m):
             for j in range(n):
-                num = self.currentMap[i][j]
+                num = self.current_map[i][j]
                 if not num in (0, 6, 7, 8, 9):
                     pygame.draw.rect(self.screen, self.colors[num],
-                                     (j * self.tileSize + self.camera, i * self.tileSize, self.tileSize, self.tileSize))
+                                     (j * self.tile_size + self.camera, i * self.tile_size, self.tile_size, self.tile_size))
 
         for obj in self.particles:
             obj.tick()
@@ -84,9 +84,9 @@ class game_display(basic_display):
     def events(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                self.pauseButton.click()
+                self.pause_button.click()
             if event.key == pygame.K_r:
-                self.restartButton.click()
+                self.restart_button.click()
                 print('______________________________________')
 
         for obj in self.objects:
@@ -202,8 +202,8 @@ class level_select_screen(basic_display):
         self.ch2Button = button.Button(self, 'change_character', 0, self.character_cell_height*2, 10 + img_size, 10 + img_size, (32,10,10), text='2', text_color='white', outline_width=0)
         self.ch3Button = button.Button(self, 'change_character', 0, self.character_cell_height*3, 10 + img_size, 10 + img_size, (32,10,10), text='3', text_color='white', outline_width=0)
         self.map_buttons = []
-        self.mapNames, self.maps, self.allowed_chars = self.getMaps()
-        self.game.currentMap = 0
+        self.map_names, self.maps, self.allowed_chars = self.get_maps()
+        self.game.current_map = 0
         self.char_choice_storage = self.game.character
 
         self.character_colors = [[5, 219, 5], [250,50,50], [249, 249, 20], [65, 242, 255]]
@@ -219,14 +219,14 @@ class level_select_screen(basic_display):
             sprite_rect.x,sprite_rect.y = self.character_select_border, self.character_select_border + s*self.character_cell_height
             self.sprite_rects.append(sprite_rect)
 
-        self.bgColor = (0, 0, 0)
-        self.tileColor = (200, 200, 200)
-        self.speedColor = (50, 230, 50)
-        self.jumpColor = (50, 50, 250)
-        self.bounceColor = (250, 50, 50)
-        self.winColor = (182, 196, 77)
-        self.spawnColor = (200, 100, 0)
-        self.colors = (self.bgColor, self.tileColor, self.speedColor, self.jumpColor, self.bounceColor, self.winColor, self.spawnColor)
+        self.bg_color = (0, 0, 0)
+        self.tile_color = (200, 200, 200)
+        self.speed_color = (50, 230, 50)
+        self.jump_color = (50, 50, 250)
+        self.bounce_color = (250, 50, 50)
+        self.win_color = (182, 196, 77)
+        self.spawn_color = (200, 100, 0)
+        self.colors = (self.bg_color, self.tile_color, self.speed_color, self.jump_color, self.bounce_color, self.win_color, self.spawn_color)
 
         self.map_width = 400
         self.map_height =200
@@ -241,11 +241,11 @@ class level_select_screen(basic_display):
         self.make_previews_names_and_buttons()
 
     def change_map(self, amount: int):
-        if 0 <= self.game.currentMap + amount < len(self.mapNames) and self.slide_due == 0:
-            self.game.currentMap += amount
+        if 0 <= self.game.current_map + amount < len(self.map_names) and self.slide_due == 0:
+            self.game.current_map += amount
             self.slide_due = -amount * (self.map_gap + self.map_width)
             self.manage_map_buttons(-1)
-            if self.allowed_chars[self.game.currentMap].__contains__(self.char_choice_storage):
+            if self.allowed_chars[self.game.current_map].__contains__(self.char_choice_storage):
                 self.game.character = self.char_choice_storage
         else:
             print('no more maps')
@@ -276,15 +276,15 @@ class level_select_screen(basic_display):
         elif event.type == pygame.MOUSEWHEEL:
             self.change_map(-event.y)
 
-    def getMaps(self):
+    def get_maps(self):
         n, m, a = [], [], []
         for i in range(len(maps.names)):
             n.append(maps.names[i])
             m.append(maps.maps[i])
             a.append(maps.allowed_chars[i])
         try:
-            if self.game.currentMap > len(n) - 1:
-                self.game.currentMap -= 1
+            if self.game.current_map > len(n) - 1:
+                self.game.current_map -= 1
                 self.slide_dist += self.map_gap + self.map_width
 
         except:
@@ -314,9 +314,9 @@ class level_select_screen(basic_display):
             self.manage_map_buttons(1, offset=copy)
 
     def tick(self):
-        if self.mapNames[self.game.currentMap] == 'Tutorial 1' and self.game.character > 1:
+        if self.map_names[self.game.current_map] == 'Tutorial 1' and self.game.character > 1:
             self.game.character = 1
-        if self.mapNames[self.game.currentMap] == 'Tutorial 2' and self.game.character < 2:
+        if self.map_names[self.game.current_map] == 'Tutorial 2' and self.game.character < 2:
             self.game.character = 2
         self.delta = self.game.delta_time
         self.screen.fill((0, 40, 0))
@@ -341,7 +341,7 @@ class level_select_screen(basic_display):
 
 
         for i in range(4):
-            if self.allowed_chars[self.game.currentMap].__contains__(i):
+            if self.allowed_chars[self.game.current_map].__contains__(i):
                 self.screen.blit(self.character_sprites[i], self.sprite_rects[i])
             else:
                 self.screen.blit(self.gray_sprites[i], self.sprite_rects[i])
@@ -354,7 +354,7 @@ class level_select_screen(basic_display):
         self.name_texts = []
         for i in range(len(self.maps)):
             x = (self.width - self.character_cell_height) / 2 + self.character_cell_height + i*(self.map_width + self.map_gap)
-            text = custom_text.Custom_text(self, x, self.midy - 450, self.game.font, self.game.debug_text_size, self.mapNames[i], text_color='white')
+            text = custom_text.Custom_text(self, x, self.midy - 450, self.game.font, self.game.debug_text_size, self.map_names[i], text_color='white')
             self.name_texts.append(text)
 
         self.previews = []
@@ -378,7 +378,7 @@ class level_select_screen(basic_display):
         x0, y0 = self.name_texts[i].x - current_map_width//2, self.name_texts[i].y + 60
 
 
-        if i == self.game.currentMap:
+        if i == self.game.current_map:
             pygame.draw.rect(self.screen, 'yellow', (x0 - 10, y0 - 10, current_map_width+20, self.map_height+20))
         for row in range(len(map)):
             for column in range(len(map[row])):
@@ -486,7 +486,7 @@ class map_editor_list(basic_display):
                 b.delete()
         self.map_buttons = []
         for i in range(len(self.maps) + 1):
-            # print(self.mapNames[i])
+            # print(self.map_names[i])
             if i == trash:
                 continue
             oc = 'white'
@@ -595,10 +595,10 @@ class map_editor(basic_display):
 [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] ,
 [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
         self.mapName = self.get_map_name()
-        self.tileSize = int(self.height / len(self.map))
-        self.width_in_tiles, self.height_in_tiles = self.width // self.tileSize, int(self.height // self.tileSize)
+        self.tile_size = int(self.height / len(self.map))
+        self.width_in_tiles, self.height_in_tiles = self.width // self.tile_size, int(self.height // self.tile_size)
         self.quitButton = button.Button(self, 'map_editor_list', 25,25, 75,75, text='Exit', icon=[pygame.image.load('Assets/Icons/trash.png'), pygame.image.load('Assets/Icons/trash_hover.png')])
-        self.saveButton = button.Button(self, 'map_editor_list', self.width - 100,25, 75,75, text='Save', icon=[pygame.image.load('Assets/Icons/tick.png'), pygame.image.load('Assets/Icons/tick_hover.png')])
+        self.save_button = button.Button(self, 'map_editor_list', self.width - 100, 25, 75, 75, text='Save', icon=[pygame.image.load('Assets/Icons/tick.png'), pygame.image.load('Assets/Icons/tick_hover.png')])
 
     def introduce_map(self, map, name):
         self.map = map
@@ -606,7 +606,7 @@ class map_editor(basic_display):
         self.original = name
         self.movement = 0
         self.camera = 0
-        self.tileSize = int(self.height / len(self.map))
+        self.tile_size = int(self.height / len(self.map))
 
     def get_map_name(self):
         for i in range(1, 100):
@@ -619,16 +619,16 @@ class map_editor(basic_display):
         self.camera += self.movement
         if self.camera < 0:
             self.camera = 0
-        if self.camera // self.tileSize > len(self.map[0]) - self.width_in_tiles -1:
+        if self.camera // self.tile_size > len(self.map[0]) - self.width_in_tiles -1:
             for i in range(len(self.map)):
                 if i < self.height_in_tiles - 1:
                     self.map[i].append(0)
                 else:
                     self.map[i].append(1)
         for row in range(self.height_in_tiles):
-            for column in range(self.camera // self.tileSize, len(self.map[0])):
+            for column in range(self.camera // self.tile_size, len(self.map[0])):
                 color = self.colors[self.map[row][column]]
-                pygame.draw.rect(self.screen, color, (column * self.tileSize - self.camera, row * self.tileSize, self.tileSize - 1, self.tileSize - 1))
+                pygame.draw.rect(self.screen, color, (column * self.tile_size - self.camera, row * self.tile_size, self.tile_size - 1, self.tile_size - 1))
 
         for obj in self.objects:
             obj.tick()
@@ -649,7 +649,7 @@ class map_editor(basic_display):
                 self.current_block = 0
             pos = pygame.mouse.get_pos()
             try:
-                self.map[pos[1] // self.tileSize][(pos[0] + self.camera) // self.tileSize] = self.current_block
+                self.map[pos[1] // self.tile_size][(pos[0] + self.camera) // self.tile_size] = self.current_block
             except:
                 print('map editor slight error')
             self.current_block = a

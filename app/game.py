@@ -39,11 +39,11 @@ class Game:
         self.player = None
         self.character = 0
 
-        self.startTime = None
-        self.pausedStart = None
-        self.pauseSum = 0
-        self.currPauseTime = 0
-        self.timeNow = None
+        self.start_time = None
+        self.paused_start = None
+        self.pause_sum = 0
+        self.curr_pause_time = 0
+        self.time_now = None
         self.delta_time = 0
 
         self.header_text_size = 150
@@ -79,8 +79,8 @@ class Game:
                             custom_text.Custom_text(self, 12, 165, self.font, self.debug_text_size, f'Current display: {type(self.current_display)}', text_color='white', center=False),
                             custom_text.Custom_text(self, 12, 195, self.font, self.debug_text_size, f'Pointing at: {self.pointing_at}', text_color='white', center=False)]
 
-        self.timerText = custom_text.Custom_text(self, self.width - self.timer_text_size * 3.1, 50,"Assets/digital-7.ttf", self.timer_text_size, self.getTimer(),text_color='white', background_color='black', center=False)
-        self.countdownText = custom_text.Custom_text(self, self.width / 2, self.height / 3, "Assets/digital-7.ttf", 80,str(self.countdown // 6), text_color='white',background_color='black', center=False)
+        self.timer_text = custom_text.Custom_text(self, self.width - self.timer_text_size * 3.1, 50, "Assets/digital-7.ttf", self.timer_text_size, self.getTimer(), text_color='white', background_color='black', center=False)
+        self.countdown_text = custom_text.Custom_text(self, self.width / 2, self.height / 3, "Assets/digital-7.ttf", 80, str(self.countdown // 6), text_color='white', background_color='black', center=False)
 
 
 
@@ -97,7 +97,7 @@ class Game:
 
     def getTimer(self, update=False):
         try:
-            seconds = (self.timeNow - self.startTime - self.pauseSum - self.currPauseTime)/1000
+            seconds = (self.time_now - self.start_time - self.pause_sum - self.curr_pause_time) / 1000
             minutes = seconds // 60
             seconds %= 60
 
@@ -121,15 +121,15 @@ class Game:
             r+=':'
             r += ms
             if update:
-                self.timerText.update_text(r)
+                self.timer_text.update_text(r)
             return r
         except:
             if update:
-                self.timerText.update_text('0:00')
+                self.timer_text.update_text('0:00')
             return '0:00'
 
     def mainloop(self):
-        self.timerText.hidden = True
+        self.timer_text.hidden = True
         while self.run:
             self.screen.fill('black')
             self.events()
@@ -139,18 +139,18 @@ class Game:
             self.update()
 
             self.clock.tick(self.fps)
-            self.timeNow = time.time_ns() // 1000000
-            if not self.pausedStart == None:
-                self.currPauseTime = self.timeNow - self.pausedStart
-            if self.currPauseTime == 0:
+            self.time_now = time.time_ns() // 1000000
+            if not self.paused_start == None:
+                self.curr_pause_time = self.time_now - self.paused_start
+            if self.curr_pause_time == 0:
                 if self.countdown > 0:
-                    self.startTime = time.time_ns() // 1000000
+                    self.start_time = time.time_ns() // 1000000
                     self.countdown -= 1
                 elif self.countdown == 0:
                     self.countdown -= 1
-                    self.timerText.hidden = False
+                    self.timer_text.hidden = False
                 else:
-                    self.countdownText.hidden = True
+                    self.countdown_text.hidden = True
 
 
     def events(self):
@@ -163,10 +163,10 @@ class Game:
                     for di in self.debug_items:
                         di.hidden = not di.hidden
                 elif event.key == pygame.K_t and self.current_display in (self.displays['game_display'], self.displays['pause_display']):
-                    if self.timerText.hidden:
-                        self.timerText.hidden = False
+                    if self.timer_text.hidden:
+                        self.timer_text.hidden = False
                     else:
-                        self.timerText.hidden = True
+                        self.timer_text.hidden = True
             self.current_display.events(event)
 
     def update(self):
@@ -179,7 +179,7 @@ class Game:
             self.delta_time = self.clock.get_time() / 1000.0
 
         self.getTimer(update=True)
-        self.countdownText.update_text(str(self.countdown // 6))
+        self.countdown_text.update_text(str(self.countdown // 6))
 
         pygame.display.update()
         pygame.display.flip()

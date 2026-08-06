@@ -107,21 +107,21 @@ class Button:
             if self.text == 'Save':
                 maps.add(self.game.current_display.mapName, self.game.current_display.map, original=self.game.current_display.original)
                 lsc = self.game.displays['level_select_screen']
-                self.game.currentMap = 0
+                self.game.current_map = 0
                 lsc.slide_dist = 0
-                lsc.mapNames, lsc.maps, lsc.allowed_chars = lsc.getMaps()
+                lsc.map_names, lsc.maps, lsc.allowed_chars = lsc.get_maps()
                 lsc.manage_map_buttons(-1)
                 lsc.make_previews_names_and_buttons()
                 self.game.displays['map_editor_list'].current_selected_map = None
-                self.game.displays['map_editor_list'].getMaps()
+                self.game.displays['map_editor_list'].get_maps()
             self.game.current_display = self.game.displays['map_editor_list']
         elif self.action == 'trash_map':
             if self.game.current_display.check_if_visible():
                 self.game.current_display.trash()
                 lsc = self.game.displays['level_select_screen']
-                self.game.currentMap = 0
+                self.game.current_map = 0
                 lsc.slide_dist = 0
-                lsc.mapNames, lsc.maps, lsc.allowed_chars = lsc.getMaps()
+                lsc.map_names, lsc.maps, lsc.allowed_chars = lsc.get_maps()
                 lsc.manage_map_buttons(-1)
                 lsc.make_previews_names_and_buttons()
         elif self.action == 'change_character':
@@ -144,7 +144,7 @@ class Button:
             self.game.current_display = self.game.displays['start_screen']
             self.game.current_display.count = 0
             self.game.current_display.title.x = -50
-            self.game.startTime = time.time_ns() // 1000000
+            self.game.start_time = time.time_ns() // 1000000
         elif self.action == 'level_select_screen':
             if self.text == 'Quit':
                 musicTime = pygame.mixer.music.get_pos() * 3 / 2000
@@ -153,19 +153,19 @@ class Button:
                 pygame.mixer.music.set_pos(musicTime)
                 self.game.player.delete()
             self.game.current_display = self.game.displays['level_select_screen']
-            self.game.timerText.hidden = True
+            self.game.timer_text.hidden = True
         elif self.action == 'quit_game':
             self.game.run = False
         elif self.action == 'select_map':
             if self.text == 'do not render': #that means it's in the level select screen
                 id = self.game.current_display.map_buttons.index(self)
-                if self.game.currentMap == id:
+                if self.game.current_map == id:
                     self.playClicked()
-                amount = id - self.game.currentMap
+                amount = id - self.game.current_map
                 if amount != 0:
                     self.game.current_display.change_map(amount)
             else:
-                id = self.game.current_display.mapNames.index(self.text)
+                id = self.game.current_display.map_names.index(self.text)
                 if self.game.current_display.current_selected_map == id:
                     self.game.current_display.current_selected_map = None
                     self.text_entity.text_color = 'white'
@@ -190,17 +190,17 @@ class Button:
     def playClicked(self):
         self.game.current_display = self.game.displays['game_display']
         self.game.current_display.get_map()
-        self.game.startTime = time.time_ns() // 1000000
-        self.game.pauseSum = 0
-        self.game.currPauseTime = 0
-        self.game.timeNow = self.game.startTime
+        self.game.start_time = time.time_ns() // 1000000
+        self.game.pause_sum = 0
+        self.game.curr_pause_time = 0
+        self.game.time_now = self.game.start_time
         self.game.countdown = 59
-        self.game.pausedStart = None
+        self.game.paused_start = None
         self.game.current_display.player = player.Player(self.game.current_display)
         self.game.player = self.game.current_display.player
         self.game.getTimer(update=True)
-        self.game.countdownText.hidden = True
-        self.game.countdownText.update_text(str(self.game.countdown // 6))
+        self.game.countdown_text.hidden = True
+        self.game.countdown_text.update_text(str(self.game.countdown // 6))
         musicTime = pygame.mixer.music.get_pos() * 2/3000
         pygame.mixer.music.load("Assets/Music/Fast music.mp3")
         pygame.mixer.music.play(-1)
@@ -212,17 +212,17 @@ class Button:
 
     def pauseClicked(self):
         self.game.current_display = self.game.displays['pause_display']
-        self.game.pausedStart = time.time_ns() // 1000000
-        self.game.countdownText.hidden = True
+        self.game.paused_start = time.time_ns() // 1000000
+        self.game.countdown_text.hidden = True
 
     def resumeClicked(self):
         self.game.current_display = self.game.displays['game_display']
         if self.game.countdown < 0:
-            self.game.pauseSum += self.game.currPauseTime
-        self.game.currPauseTime = 0
-        self.game.pausedStart = None
+            self.game.pause_sum += self.game.curr_pause_time
+        self.game.curr_pause_time = 0
+        self.game.paused_start = None
         if self.game.countdown > 0:
-            self.game.pauseSum = 0
-            self.game.countdownText.hidden = False
+            self.game.pause_sum = 0
+            self.game.countdown_text.hidden = False
 
 
