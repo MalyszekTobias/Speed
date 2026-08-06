@@ -56,6 +56,7 @@ class Player:
 
         self.magnet_strength = 1
         self.numb_magnet_radius = 100
+
         self.width = self.display.tile_size + 10
         self.height = self.width
         self.character = self.display.game.character # 0 is runner, 1 is bouncer, 2 is hooker, 3 is magneter, 4 is rocketeer, 9 is debugger
@@ -111,7 +112,7 @@ class Player:
         self.x = self.display.spawn_cords[0]
         self.y = self.display.spawn_cords[1]
         self.sprite_rect.x, self.sprite_rect.y = self.x, self.y
-        self.velUp = 0
+        self.vel_up = 0
         self.vel_left = 0
         self.cumulative_vel_down = 0
         self.left = False
@@ -137,7 +138,7 @@ class Player:
         self.display.particles = []
         self.x = self.display.spawn_cords[0]
         self.y = self.display.spawn_cords[1]
-        self.velUp = 0
+        self.vel_up = 0
         self.vel_left = 0
         self.cumulative_vel_down = 0
         self.jump = False
@@ -202,12 +203,12 @@ class Player:
 
             if direction == 'down':
                 self.y = block[1] - self.height
-                if self.velUp < -self.min_bounce * bounceMulti:
-                    self.velUp *= -self.energy_conservation
+                if self.vel_up < -self.min_bounce * bounceMulti:
+                    self.vel_up *= -self.energy_conservation
                     if bounceMulti == 1.5:
-                        self.velUp += self.cumulative_vel_down / 5
-                elif self.velUp < 0:
-                    self.velUp = self.min_bounce * bounceMulti
+                        self.vel_up += self.cumulative_vel_down / 5
+                elif self.vel_up < 0:
+                    self.vel_up = self.min_bounce * bounceMulti
 
 
                 if bounceMulti == 1:
@@ -219,10 +220,10 @@ class Player:
                     bounceMulti = 0
                 self.y = self.archive_cords[1]
 
-                if self.velUp > self.min_bounce * bounceMulti:
-                    self.velUp *= -self.energy_conservation * bounceMulti
-                elif self.velUp > 0:
-                    self.velUp = -self.min_bounce * bounceMulti
+                if self.vel_up > self.min_bounce * bounceMulti:
+                    self.vel_up *= -self.energy_conservation * bounceMulti
+                elif self.vel_up > 0:
+                    self.vel_up = -self.min_bounce * bounceMulti
 
                 self.touching_up = True
                 return
@@ -239,14 +240,14 @@ class Player:
                     elif self.x + self.width > block[0] + block[2]:
                         if self.display.current_map[r][c + 1] == 4:
                             bouncable = True
-                if bouncable and self.velUp <= -5:
+                if bouncable and self.vel_up <= -5:
                     if self.cumulative_vel_down > 1:
-                        self.velUp = self.cumulative_vel_down * 0.4
+                        self.vel_up = self.cumulative_vel_down * 0.4
                         self.y = block[1] - self.height - 1
 
             elif direction == 'up':
                 self.y = block[1] + block[3] + 1
-                self.velUp = 0
+                self.vel_up = 0
                 return
 
         if direction == 'left':
@@ -331,7 +332,7 @@ class Player:
                                 if act_or_not:
                                     if entity == 'p':
                                         if self.nudge(self.detection(block), block, self.display.current_map[row][column]) == True and self.character == 0:
-                                            self.velUp = self.min_bounce * 3
+                                            self.vel_up = self.min_bounce * 3
                                             self.jumps_left = 1
                                         # pygame.draw.rect(self.display.screen, (200, 0, 0), (block[0] + self.cam,block[1],block[2],block[3]))
                                     elif entity == 'h':
@@ -365,7 +366,7 @@ class Player:
             self.display.game.timer_text.hidden = True
         self.cam = self.display.camera
         if self.is_founded(source='render') and not self.bouncy_mode:
-            self.velUp = 0
+            self.vel_up = 0
         current_color = []
         self.current_trail_color = []
         for i in range(3):
@@ -385,14 +386,20 @@ class Player:
 
             # pygame.draw.rect(self.display.screen, current_color, (self.x - 1, self.y - 1, self.width + 2, self.height + 2))
         self.display.screen.blit(self.sprite, self.sprite_rect)
-
+        if self.character == 3:
+            pygame.draw.circle(self.display.screen, (255, 255, 255), (self.display.camera + self.x + self.width / 2, self.y + self.height/2), self.numb_magnet_radius, 3)
+            mousepos = mouse.get_pos()
+            x_offset, y_offset = self.x + self.width / 2 + self.cam - mousepos[0], self.y + self.width / 2 - mousepos[1]
+            distance = (x_offset ** 2 + y_offset ** 2) ** 0.5
+            if distance > self.numb_magnet_radius:
+                self.magnetize(mousepos, distance, x_offset, y_offset, self.magnet_strength)
 
         if self.display.game.countdown < 1:
             self.movement()
             if self.character == 2 and self.hook_x != None:
                 self.hook_movement()
-            if self.velUp < -5:
-                self.cumulative_vel_down -= self.velUp / 13
+            if self.vel_up < -5:
+                self.cumulative_vel_down -= self.vel_up / 13
             else:
                 self.cumulative_vel_down = 0
         return
@@ -419,7 +426,7 @@ class Player:
                     if self.jumps_left > 0:
                         self.jump = True
                         self.jumps_left -= 1
-                        self.velUp = self.jump_length
+                        self.vel_up = self.jump_length
                         if self.grounded:
                             self.y -= 1
                             if self.character == 0:
@@ -445,7 +452,7 @@ class Player:
                 self.up = False
             if event.key == pygame.K_SPACE:
                 if self.jump:
-                    self.velUp /= 2
+                    self.vel_up /= 2
                     self.jump = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -544,13 +551,14 @@ class Player:
         line_color = (100, 200, 100)
 
         if self.hook_reeling:
-            a, b = self.getHookVels(self.hook_x - self.x - self.width / 2, self.hook_y - self.y - self.width / 2, self.hook_speed)
+            a, b = self.get_hook_vels(self.hook_x - self.x - self.width / 2, self.hook_y - self.y - self.width / 2,
+                                      self.hook_speed)
             self.hook_vel_left = -a
             self.hook_vel_up = -b
             line_color = (200, 100, 100)
 
         if not self.hooked:
-            divisor = int(max(abs(self.hook_vel_left), abs(self.velUp))) + 1
+            divisor = int(max(abs(self.hook_vel_left), abs(self.vel_up))) + 1
             for i in range(divisor):
                 self.collision_finder(True, 'h')
                 if not self.hook_reeling:
@@ -595,20 +603,35 @@ class Player:
         self.hook_buffer = False
         self.hook_x, self.hook_y = self.x + self.width / 2, self.y + self.height / 2
         x_offset, y_offset = self.x + self.width / 2 + self.cam - mousepos[0], self.y + self.width / 2 - mousepos[1]
-        a, b = self.getHookVels(x_offset, y_offset, self.hook_speed)
+        a, b = self.get_hook_vels(x_offset, y_offset, self.hook_speed)
         self.hook_vel_left, self.hook_vel_up = -a, -b
-    def getHookVels(self, x_offset, y_offset, speed):
+    def get_hook_vels(self, x_offset, y_offset, speed):
         d = (x_offset ** 2 + y_offset ** 2) ** 0.5
         vx = speed * x_offset / d
         vy = speed * y_offset / d
         return vx, vy
 
+    def magnetize(self, mousepos, distance, ox, oy, polarity):
+        power =  1/distance * self.magnet_strength
+        x_share = ox / (ox + oy)
+        y_share = 1 - x_share
+        dir_x, dir_y = 1,1 #1 is up and right
+        if ox < 0:
+            dir_x *= -1
+        if oy < 0:
+            dir_x *= -1
+        dir_x *= polarity
+        dir_y *= polarity
+
+        self.vel_up += y_share * power
+        self.vel_left += x_share * power
+
     def wall_jump(self, wall):
         xVel = 9
-        if self.velUp <= -5:
-            self.velUp = 7
+        if self.vel_up <= -5:
+            self.vel_up = 7
         else:
-            self.velUp = min(13, self.velUp + 12)
+            self.vel_up = min(13, self.vel_up + 12)
         self.jump = True
         if wall == 'l':
             if self.left:
@@ -627,8 +650,8 @@ class Player:
         self.update_block_statuses()
         if self.hooked:
             x_offset, y_offset = self.x + self.width / 2 - self.hook_x, self.y + self.width / 2 - self.hook_y
-            a, b = self.getHookVels(x_offset, y_offset, self.hook_power)
-            self.velUp += b * self.delta * self.offset
+            a, b = self.get_hook_vels(x_offset, y_offset, self.hook_power)
+            self.vel_up += b * self.delta * self.offset
             self.vel_left += a * self.delta * self.offset
 
         if self.right:
@@ -676,39 +699,38 @@ class Player:
                     self.vel_left = 0
 
         if not self.gravity:
-            if self.velUp < 0:
-                self.velUp += self.air_friction * self.delta * self.offset
-            elif self.velUp > 0:
-                self.velUp -= self.air_friction * self.delta * self.offset
+            if self.vel_up < 0:
+                self.vel_up += self.air_friction * self.delta * self.offset
+            elif self.vel_up > 0:
+                self.vel_up -= self.air_friction * self.delta * self.offset
 
         if self.gravity:
             if self.jump:
-                if self.velUp <= 0:
+                if self.vel_up <= 0:
                     self.jump = False
             if not self.grounded:
-                self.velUp -= self.g * self.delta * self.offset
+                self.vel_up -= self.g * self.delta * self.offset
 
-            if self.velUp < self.max_fall_speed:
-                self.velUp = self.max_fall_speed
-            if self.velUp > self.max_speed and not self.jump:
+            if self.vel_up < self.max_fall_speed:
+                self.vel_up = self.max_fall_speed
+            if self.vel_up > self.max_speed and not self.jump:
                 if self.hooked:
-                    self.velUp = self.max_speed
+                    self.vel_up = self.max_speed
                 pass
         else:
             if self.up:
-                self.velUp += self.air_acceleration * self.delta * self.offset
+                self.vel_up += self.air_acceleration * self.delta * self.offset
             if self.down:
-                self.velUp -= self.air_acceleration * self.delta * self.offset
+                self.vel_up -= self.air_acceleration * self.delta * self.offset
 
-            if self.velUp < -self.max_speed:
-                self.velUp = -self.max_speed
-            if self.velUp > self.max_speed:
-                self.velUp = self.max_speed
+            if self.vel_up < -self.max_speed:
+                self.vel_up = -self.max_speed
+            if self.vel_up > self.max_speed:
+                self.vel_up = self.max_speed
 
-
-        self.pixelMove()
-    def pixelMove(self):
-        divisor = int(max(abs(self.vel_left), abs(self.velUp))) + 1
+        self.pixel_move()
+    def pixel_move(self):
+        divisor = int(max(abs(self.vel_left), abs(self.vel_up))) + 1
         for i in range(divisor):
             if not self.collision_finder(False, 'p'):
                 if self.max_speed == self.boosted_max_speed:
@@ -719,7 +741,7 @@ class Player:
                                          self.y + self.height / 2, 0, 0, 0, 10, 4.5)
                 self.archive_cords = [self.x, self.y]
             self.x -= self.vel_left * self.delta * self.offset / divisor
-            self.y -= self.velUp * self.delta * self.offset / divisor
+            self.y -= self.vel_up * self.delta * self.offset / divisor
             self.update_block_statuses()
             self.collision_finder(True, 'p')
             if self.won:
