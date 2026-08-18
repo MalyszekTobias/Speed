@@ -422,14 +422,14 @@ class map_editor_list(basic_display):
         self.scroll_due = 0
         self.scroll_speed = 20
         self.map_buttons = []
-        self.getMaps()
-    def getMaps(self):
+        self.get_maps()
+    def get_maps(self):
         n, m = [], []
         for i in range(len(maps.names)):
             n.append(maps.names[i])
             m.append(maps.maps[i])
-        self.mapNames, self.maps = n, m
-        self.visible_maps = min(len(self.mapNames), 5)
+        self.map_names, self.maps = n, m
+        self.visible_maps = min(len(self.map_names), 5)
         self.visible_space = self.visible_maps * (self.map_height + 15)
         self.mapLog_start_y = (self.height - self.visible_space) / 2
         self.scroll_curtain_y = self.mapLog_start_y + self.visible_space
@@ -497,7 +497,7 @@ class map_editor_list(basic_display):
             if i == len(self.maps):
                 mb = button.Button(self, 'map_editor', self.mapLog_x, y, self.map_width,self.map_height, (0, 0, 0), outline_color=oc, text='+', text_color='white', font_size=int(self.map_height*0.7))
             else:
-                mb = button.Button(self, 'select_map', self.mapLog_x, y, self.map_width,self.map_height, (0, 0, 0), outline_color=oc, text=self.mapNames[i], text_color='white')
+                mb = button.Button(self, 'select_map', self.mapLog_x, y, self.map_width, self.map_height, (0, 0, 0), outline_color=oc, text=self.map_names[i], text_color='white')
             self.map_buttons.append(mb)
 
     def scroll(self, dir):
@@ -540,7 +540,7 @@ class map_editor_list(basic_display):
         self.small_buttons.append(trash_button)
     def trash(self):
         self.maps.pop(self.current_selected_map)
-        self.mapNames.pop(self.current_selected_map)
+        self.map_names.pop(self.current_selected_map)
         maps.delete(self.current_selected_map)
         self.refresh_buttons(self.current_selected_map)
         self.current_selected_map = None

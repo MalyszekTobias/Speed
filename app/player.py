@@ -54,7 +54,8 @@ class Player:
         self.hook_reeling = False
         self.hook_buffer = False
 
-        self.magnet_strength = 1
+        self.magnet_strength = 30
+        self.magnet_polarity = 0
         self.numb_magnet_radius = 100
 
         self.width = self.display.tile_size + 10
@@ -64,7 +65,6 @@ class Player:
         self.colors = [[30, 200, 30], [200, 30, 30], [200, 200, 30], [60, 60, 200], [200, 150, 50], None, None, None, None, [200, 200, 200]]
         self.trail_colors = [[20, 90, 20], [90, 20, 20], [90, 90, 20], [30, 30, 90], [110, 70, 20], None, None, None, None, [90, 90, 90]]
         self.names = ['The Runner', 'The Bouncer', 'The Hooker', 'The Magneter', None, None, None, None, 'The Debugger']
-
         if self.character == 0:
             # runner can run along the floor and jump twice, pretty normal stuff
             self.bouncy_mode = False
@@ -89,7 +89,7 @@ class Player:
             self.jump_amount = 0
             self.sprites = [pygame.image.load("Assets/Sprites/yellow_left.png"), pygame.image.load("Assets/Sprites/yellow_right.png")]
         if self.character == 3:
-            # magneter can be attracted to the cursor, depending on how much you're holding the mouse
+            # magneter can be attracted or repelled from the cursor
             self.bouncy_mode = False
             self.sprites = [pygame.image.load("Assets/Sprites/teal_left.png"), pygame.image.load("Assets/Sprites/teal_right.png")]
         if self.character == 9:
@@ -358,7 +358,6 @@ class Player:
         self.particle = particle.Particle(self.display, size / 2, color, x, y, velRight, velUp, g, lifetime, shrink)
         self.display.particles.append(self.particle)
     def tick(self):
-        print(self.magnet_strength)
         self.delta = self.display.game.delta_time
         if self.just_started:
             self.just_started = False
@@ -391,8 +390,8 @@ class Player:
             mousepos = mouse.get_pos()
             x_offset, y_offset = self.x + self.width / 2 + self.cam - mousepos[0], self.y + self.width / 2 - mousepos[1]
             distance = (x_offset ** 2 + y_offset ** 2) ** 0.5
-            if distance > self.numb_magnet_radius:
-                self.magnetize(mousepos, distance, x_offset, y_offset, self.magnet_strength)
+            if distance > self.numb_magnet_radius and self.magnet_polarity != 0 and self.character == 3:
+                self.magnetize(mousepos, distance, x_offset, y_offset)
 
         if self.display.game.countdown < 1:
             self.movement()
@@ -456,15 +455,19 @@ class Player:
                     self.jump = False
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button in (1,2,3):
-                self.magnet_strength += 1
+            if event.button == 1:
+                self.magnet_polarity = 1
+            elif event.button == 3:
+                self.magnet_polarity = -1
             if event.button == 1 and self.display.game.countdown < 1:
                 self.shoot_hook(pygame.mouse.get_pos())
 
 
         if event.type == pygame.MOUSEBUTTONUP:
-            if event.button in (1,2,3):
-                self.magnet_strength -= 1
+            if event.button == 1 and self.magnet_polarity == 1:
+                self.magnet_polarity = 0
+            elif event.button == 3 and self.magnet_polarity == -1:
+                self.magnet_polarity = 0
             if event.button == 1 and self.display.game.countdown < 1:
                 self.shoot_hook(pygame.mouse.get_pos(), -1)
                 self.hook_buffer = False
@@ -611,18 +614,22 @@ class Player:
         vy = speed * y_offset / d
         return vx, vy
 
-    def magnetize(self, mousepos, distance, ox, oy, polarity):
-        power =  1/distance * self.magnet_strength
-        x_share = ox / (ox + oy)
+    def magnetize(self, mousepos, distance, ox, oy):
+        if self.magnet_polarity == 1:
+            power =  1/distance * self.magnet_strength + 0.6
+        elif self.magnet_polarity == -1:
+            power =  3/distance * self.magnet_strength + 0.6
+        x_share = abs(ox) / (abs(ox) + abs(oy))
         y_share = 1 - x_share
         dir_x, dir_y = 1,1 #1 is up and right
         if ox < 0:
             dir_x *= -1
         if oy < 0:
-            dir_x *= -1
-        dir_x *= polarity
-        dir_y *= polarity
-
+            dir_y *= -1
+        dir_x *= self.magnet_polarity
+        dir_y *= self.magnet_polarity
+        x_share *= dir_x
+        y_share *= dir_y
         self.vel_up += y_share * power
         self.vel_left += x_share * power
 
