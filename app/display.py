@@ -74,7 +74,7 @@ class game_display(basic_display):
             obj.tick()
         for obj in self.objects:
             obj.tick()
-        c = self.game.player.get_cam()
+        c = self.game.player.get_cam(self.delta)
         if c > 0:
             self.camera = -c
         else:

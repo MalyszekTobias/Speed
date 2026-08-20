@@ -402,8 +402,15 @@ class Player:
             else:
                 self.cumulative_vel_down = 0
         return
-    def get_cam(self):
-        return self.x + self.width / 2 - self.display.game.width / 2
+    def get_cam(self, delta):
+        relative_p_x = self.x - self.display.camera
+        max_x_deviation = 50
+        actual_deviation_x = relative_p_x - self.width / 2;
+        if actual_deviation_x < -max_x_deviation:
+            relative_p_x += delta / 3 - actual_deviation_x * 0.02
+        if actual_deviation_x > max_x_deviation:
+            relative_p_x -= delta / 3 + actual_deviation_x * 0.02
+        return self.x - relative_p_x;
     def events(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key in (pygame.K_a, pygame.K_LEFT):
@@ -770,3 +777,6 @@ class Player:
         self.display.objects.remove(self)
         self.display.particles = []
         del self
+
+
+
