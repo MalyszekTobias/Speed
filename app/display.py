@@ -193,10 +193,10 @@ class level_select_screen(basic_display):
         basic_display.__init__(self, game)
         self.character_cell_height = 200
         self.character_select_border = 5
-        self.buttonWidth = 150
+        self.button_width = 150
         img_size = self.character_cell_height - 2 * self.character_select_border
-        self.playButton = button.Button(self, 'play', (self.width - self.character_cell_height) / 2 + 300 - self.buttonWidth/2 + self.character_cell_height, self.height / 2 + 100, self.buttonWidth, 150, icon=[pygame.image.load('Assets/Icons/play.png'), pygame.image.load('Assets/Icons/play_hover.png')])
-        self.menuButton = button.Button(self, 'start_screen', (self.width - self.character_cell_height) / 2 - 300 - self.buttonWidth/2 + self.character_cell_height, self.height / 2 + 100, self.buttonWidth, 150, icon=[pygame.image.load('Assets/Icons/home.png'), pygame.image.load('Assets/Icons/home_hover.png')])
+        self.playButton = button.Button(self, 'play', (self.width - self.character_cell_height) / 2 + 300 - self.button_width / 2 + self.character_cell_height, self.height / 2 + 100, self.button_width, 150, icon=[pygame.image.load('Assets/Icons/play.png'), pygame.image.load('Assets/Icons/play_hover.png')])
+        self.menuButton = button.Button(self, 'start_screen', (self.width - self.character_cell_height) / 2 - 300 - self.button_width / 2 + self.character_cell_height, self.height / 2 + 100, self.button_width, 150, icon=[pygame.image.load('Assets/Icons/home.png'), pygame.image.load('Assets/Icons/home_hover.png')])
         self.ch0Button = button.Button(self, 'change_character', 0, 0, 10 + img_size, 10 + img_size, (32,10,10), text='0', text_color='white', outline_width=0)
         self.ch1Button = button.Button(self, 'change_character', 0, self.character_cell_height, 10 + img_size, 10 + img_size, (32,10,10), text='1', text_color='white', outline_width=0)
         self.ch2Button = button.Button(self, 'change_character', 0, self.character_cell_height*2, 10 + img_size, 10 + img_size, (32,10,10), text='2', text_color='white', outline_width=0)
@@ -343,6 +343,7 @@ class level_select_screen(basic_display):
         for i in range(4):
             if self.allowed_chars[self.game.current_map].__contains__(i):
                 self.screen.blit(self.character_sprites[i], self.sprite_rects[i])
+                print(i)
             else:
                 self.screen.blit(self.gray_sprites[i], self.sprite_rects[i])
 
