@@ -378,10 +378,8 @@ class Player:
 
         if self.character == 2:
             current_color, self.current_trail_color = self.player_color, self.trail_color
-        if self.x + self.width / 2 > self.display.game.width / 2:
-            self.sprite_rect.x, self.sprite_rect.y = (self.display.game.width - self.width) / 2, self.y
-        else:
-            self.sprite_rect.x, self.sprite_rect.y = self.x, self.y
+        self.sprite_rect.y = self.y
+        self.sprite_rect.x = self.display.camera + self.x
 
             # pygame.draw.rect(self.display.screen, current_color, (self.x - 1, self.y - 1, self.width + 2, self.height + 2))
         self.display.screen.blit(self.sprite, self.sprite_rect)
@@ -402,15 +400,14 @@ class Player:
             else:
                 self.cumulative_vel_down = 0
         return
-    def get_cam(self, delta):
-        relative_p_x = self.x - self.display.camera
-        max_x_deviation = 50
-        actual_deviation_x = relative_p_x - self.width / 2;
-        if actual_deviation_x < -max_x_deviation:
-            relative_p_x += delta / 3 - actual_deviation_x * 0.02
-        if actual_deviation_x > max_x_deviation:
-            relative_p_x -= delta / 3 + actual_deviation_x * 0.02
-        return self.x - relative_p_x;
+    def get_cam(self):
+        cam = -self.display.camera
+        max_x_deviation = 40
+        if (cam + self.display.game.width / 2) < self.x - max_x_deviation:
+            return self.x - max_x_deviation - self.display.game.width
+        if (cam + self.display.game.width / 2) > self.x + max_x_deviation:
+            return self.x + max_x_deviation - self.display.game.width
+        return cam - self.display.game.width
     def events(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key in (pygame.K_a, pygame.K_LEFT):

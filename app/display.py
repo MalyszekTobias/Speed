@@ -61,6 +61,7 @@ class game_display(basic_display):
                 if self.current_map[i][j] == 6:
                     self.spawn_cords = [j * self.tile_size, i * self.tile_size]
     def tick(self):
+        print (self.camera)
         self.delta = self.game.delta_time
         m, n = len(self.current_map), len(self.current_map[0])
         for i in range(m):
@@ -74,7 +75,7 @@ class game_display(basic_display):
             obj.tick()
         for obj in self.objects:
             obj.tick()
-        c = self.game.player.get_cam(self.delta)
+        c = self.game.player.get_cam()
         if c > 0:
             self.camera = -c
         else:
@@ -343,7 +344,6 @@ class level_select_screen(basic_display):
         for i in range(4):
             if self.allowed_chars[self.game.current_map].__contains__(i):
                 self.screen.blit(self.character_sprites[i], self.sprite_rects[i])
-                print(i)
             else:
                 self.screen.blit(self.gray_sprites[i], self.sprite_rects[i])
 
@@ -487,7 +487,6 @@ class map_editor_list(basic_display):
                 b.delete()
         self.map_buttons = []
         for i in range(len(self.maps) + 1):
-            # print(self.map_names[i])
             if i == trash:
                 continue
             oc = 'white'
