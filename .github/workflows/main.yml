@@ -23,8 +23,7 @@ jobs:
       
       - name: Build EXE
         run: |
-            pyinstaller --onefile --windowed main.py --add-data "Assets;Assets" --add-data "config.ini;."
-
+          pyinstaller --onefile --windowed main.py --add-data "app;app" --add-data "Assets;Assets" --add-data "maps;maps" --add-data "config.ini;."
       - name: Build EXE
         run: |
           pyinstaller --onefile --windowed main.py
