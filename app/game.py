@@ -59,6 +59,8 @@ class Game:
         maps.startup_map_load()
 
         self.screen = pygame.display.set_mode((self.width, self.height))
+        icon = pygame.image.load("Assets/game_icon.ico")
+        pygame.display.set_icon(icon)
 
         if self.cfg['fullscreen'] == '1':
             pygame.display.toggle_fullscreen()
