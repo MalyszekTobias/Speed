@@ -242,7 +242,7 @@ class Player:
                             bouncable = True
                 if bouncable and self.vel_up <= -5:
                     if self.cumulative_vel_down > 1:
-                        self.vel_up = self.cumulative_vel_down * 0.5
+                        self.vel_up = self.cumulative_vel_down * 0.4
                         self.y = block[1] - self.height - 1
 
             elif direction == 'up':
