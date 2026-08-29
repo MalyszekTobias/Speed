@@ -242,7 +242,7 @@ class Player:
                             bouncable = True
                 if bouncable and self.vel_up <= -5:
                     if self.cumulative_vel_down > 1:
-                        self.vel_up = self.cumulative_vel_down * 0.4
+                        self.vel_up = self.cumulative_vel_down * 0.5
                         self.y = block[1] - self.height - 1
 
             elif direction == 'up':
@@ -404,10 +404,10 @@ class Player:
         cam = -self.display.camera
         max_x_deviation = 40
         if (cam + self.display.game.width / 2) < self.x - max_x_deviation:
-            return self.x - max_x_deviation - self.display.game.width
+            return self.x - max_x_deviation - self.display.game.width /2
         if (cam + self.display.game.width / 2) > self.x + max_x_deviation:
-            return self.x + max_x_deviation - self.display.game.width
-        return cam - self.display.game.width
+            return self.x + max_x_deviation - self.display.game.width /2
+        return cam
     def events(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key in (pygame.K_a, pygame.K_LEFT):

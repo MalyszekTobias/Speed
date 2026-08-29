@@ -46,6 +46,7 @@ class game_display(basic_display):
         self.spawn_cords = [50, 50]
         self.colors = (self.bg_color, self.tile_color, self.speed_color, self.jump_color, self.bounce_color, self.win_color)
         self.current_map = None
+        self.current_map_end = None
         self.pause_button = button.Button(self, 'pause', 15, 25, 75, 75, (0, 0, 0), outline_color='white',
                                           icon=[pygame.image.load('Assets/Icons/pause_icon.png'),pygame.image.load('Assets/Icons/pause_hover.png')])
         self.restart_button = button.Button(self, 'restart', 105, 25, 75, 75, (0, 0, 0), outline_color='white',
@@ -60,8 +61,9 @@ class game_display(basic_display):
             for j in range(len(self.current_map[i])):
                 if self.current_map[i][j] == 6:
                     self.spawn_cords = [j * self.tile_size, i * self.tile_size]
+                if self.current_map[i][j] == 5:
+                    self.current_map_end = j*self.tile_size
     def tick(self):
-        print (self.camera)
         self.delta = self.game.delta_time
         m, n = len(self.current_map), len(self.current_map[0])
         for i in range(m):
@@ -76,10 +78,12 @@ class game_display(basic_display):
         for obj in self.objects:
             obj.tick()
         c = self.game.player.get_cam()
-        if c > 0:
-            self.camera = -c
-        else:
+        if c <= 0:
             self.camera = 0
+        elif c + self.width - 2*self.tile_size > self.current_map_end:
+            self.camera = -self.current_map_end + self.width - 2*self.tile_size
+        else:
+            self.camera = -c
 
 
     def events(self, event):
