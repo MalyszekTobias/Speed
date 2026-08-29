@@ -4,7 +4,7 @@ from itertools import count
 
 import pygame
 
-import maps
+import map_handler
 from app import custom_text, custom_images, button, player, particle, slider
 
 
@@ -55,7 +55,7 @@ class game_display(basic_display):
 
 
     def get_map(self):
-        self.current_map = maps.maps[self.game.current_map]
+        self.current_map = map_handler.maps[self.game.current_map]
         self.tile_size = int(self.height / len(self.current_map))
         for i in range(len(self.current_map)):
             for j in range(len(self.current_map[i])):
@@ -283,10 +283,10 @@ class level_select_screen(basic_display):
 
     def get_maps(self):
         n, m, a = [], [], []
-        for i in range(len(maps.names)):
-            n.append(maps.names[i])
-            m.append(maps.maps[i])
-            a.append(maps.allowed_chars[i])
+        for i in range(len(map_handler.names)):
+            n.append(map_handler.names[i])
+            m.append(map_handler.maps[i])
+            a.append(map_handler.allowed_chars[i])
         try:
             if self.game.current_map > len(n) - 1:
                 self.game.current_map -= 1
@@ -430,9 +430,9 @@ class map_editor_list(basic_display):
         self.get_maps()
     def get_maps(self):
         n, m = [], []
-        for i in range(len(maps.names)):
-            n.append(maps.names[i])
-            m.append(maps.maps[i])
+        for i in range(len(map_handler.names)):
+            n.append(map_handler.names[i])
+            m.append(map_handler.maps[i])
         self.map_names, self.maps = n, m
         self.visible_maps = min(len(self.map_names), 5)
         self.visible_space = self.visible_maps * (self.map_height + 15)
@@ -545,7 +545,7 @@ class map_editor_list(basic_display):
     def trash(self):
         self.maps.pop(self.current_selected_map)
         self.map_names.pop(self.current_selected_map)
-        maps.delete(self.current_selected_map)
+        map_handler.delete(self.current_selected_map)
         self.refresh_buttons(self.current_selected_map)
         self.current_selected_map = None
     def check_if_visible(self):

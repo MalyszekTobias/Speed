@@ -1,7 +1,7 @@
 import time
 
 import pygame
-import maps
+import map_handler
 from app import custom_text, player
 
 class Button:
@@ -97,15 +97,15 @@ class Button:
                     i = self.game.current_display.current_selected_map
                     self.game.current_display.current_selected_map = None
                     self.game.current_display.refresh_buttons()
-                    m = maps.maps[i]
-                    n = maps.names[i]
+                    m = map_handler.maps[i]
+                    n = map_handler.names[i]
                     self.game.current_display = self.game.displays['map_editor']
                     self.game.current_display.introduce_map(m,n)
                 else:
                     print('invisible', self.text)
         elif self.action == 'map_editor_list':
             if self.text == 'Save':
-                maps.add(self.game.current_display.mapName, self.game.current_display.map, original=self.game.current_display.original)
+                map_handler.add(self.game.current_display.mapName, self.game.current_display.map, original=self.game.current_display.original)
                 lsc = self.game.displays['level_select_screen']
                 self.game.current_map = 0
                 lsc.slide_dist = 0

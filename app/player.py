@@ -7,7 +7,7 @@ from app import particle
 
 import random as ran
 
-from maps import names
+from map_handler import names
 
 
 class Player:
