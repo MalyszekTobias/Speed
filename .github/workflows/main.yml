@@ -1,0 +1,35 @@
+name: Build EXE
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller pygame
+      
+      - name: Build EXE
+        run: |
+          pyinstaller --onefile --windowed main.py --add-data "app;app" --add-data "Assets;Assets" --add-data "maps;maps" --add-data "config.ini;."
+      - name: Build EXE
+        run: |
+          pyinstaller --onefile --windowed main.py
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyProgram
+          path: dist/main.exe

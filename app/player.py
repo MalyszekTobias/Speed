@@ -7,7 +7,7 @@ from app import particle
 
 import random as ran
 
-from maps import names
+from map_handler import names
 
 
 class Player:
@@ -245,7 +245,7 @@ class Player:
                             bouncable = True
                 if bouncable and self.vel_up <= -5:
                     if self.cumulative_vel_down > 1:
-                        self.vel_up = self.cumulative_vel_down * 0.5
+                        self.vel_up = self.cumulative_vel_down * 0.4
                         self.y = block[1] - self.height - 1
 
             elif direction == 'up':

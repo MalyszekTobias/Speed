@@ -9,9 +9,9 @@ screensize = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
 import pygame
 
 import app.player
-import maps
+import map_handler
 from app import config, display, custom_text
-import maps
+import map_handler
 
 
 class Game:
@@ -56,7 +56,7 @@ class Game:
         self.objects = []
         if self.cfg['fullscreen'] == '1':
             self.width, self.height = screensize
-        maps.startup_map_load()
+        map_handler.startup_map_load()
 
         self.screen = pygame.display.set_mode((self.width, self.height))
         icon = pygame.image.load("Assets/game_icon.ico")
