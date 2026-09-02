@@ -16,6 +16,7 @@ class Player:
         self.display.objects.append(self)
         self.offset = 60
         self.cam = self.display.camera
+        self.current_stretch = 0 #positive means it's wider and shorter; negative means it's taller and thinner
 
         self.g = 0.6
         self.regular_max_speed = 8
@@ -125,6 +126,7 @@ class Player:
         self.hug_right = False
         self.touching_up = False
         self.archive_cords = [self.x, self.y]
+        self.archive_vels = [self.vel_left, self.vel_up]
         self.jumps_left = self.jump_amount
         self.just_started = True
         self.won = False
@@ -147,6 +149,7 @@ class Player:
         self.hug_right = False
         self.touching_up = False
         self.archive_cords = [self.x, self.y]
+        self.archive_vels = [self.vel_left, self.vel_up]
         self.jumps_left = self.jump_amount
         self.hook_vel_up = 0
         self.hook_vel_left = 0
@@ -658,6 +661,7 @@ class Player:
             self.vel_left += xVel
 
     def movement(self):
+        self.archive_vels = [self.vel_left, self.vel_up]
         self.update_block_statuses()
         if self.hooked:
             x_offset, y_offset = self.x + self.width / 2 - self.hook_x, self.y + self.width / 2 - self.hook_y
@@ -765,6 +769,10 @@ class Player:
                 self.jumps_left = self.jump_amount
         except:
             pass
+    def calculate_squash_stretch(self):
+        pass
+    def apply_squash_stretch(self):
+        pass
     def delete(self):
         self.display.game.timer_text.hidden = True
         if self.won:
