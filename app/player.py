@@ -17,6 +17,11 @@ class Player:
         self.offset = 60
         self.cam = self.display.camera
         self.current_stretch = 0 #positive means it's wider and shorter; negative means it's taller and thinner
+        self.target_stretch = 0
+        self.max_stretch = 14
+        self.min_stretch = -self.max_stretch
+        self.stretch_delta = 2
+        self.current_sprite_direction = 1
 
         self.g = 0.6
         self.regular_max_speed = 8
@@ -382,9 +387,10 @@ class Player:
         if self.character == 2:
             current_color, self.current_trail_color = self.player_color, self.trail_color
         self.sprite_rect.y = self.y
-        self.sprite_rect.x = self.display.camera + self.x
+        self.sprite_rect.x = self.display.camera + self.x - self.current_stretch/2
 
             # pygame.draw.rect(self.display.screen, current_color, (self.x - 1, self.y - 1, self.width + 2, self.height + 2))
+
         self.display.screen.blit(self.sprite, self.sprite_rect)
         if self.character == 3:
             pygame.draw.circle(self.display.screen, (255, 255, 255), (self.display.camera + self.x + self.width / 2, self.y + self.height/2), self.numb_magnet_radius, 3)
@@ -433,6 +439,7 @@ class Player:
                         self.jump = True
                         self.jumps_left -= 1
                         self.vel_up = self.jump_length
+                        self.target_stretch = self.min_stretch
                         if self.grounded:
                             self.y -= 1
                             if self.character == 0:
@@ -460,6 +467,7 @@ class Player:
                 if self.jump:
                     self.vel_up /= 2
                     self.jump = False
+                    self.target_stretch = 0
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
@@ -652,12 +660,14 @@ class Player:
                 xVel -= 2
             else:
                 self.sprite = self.sprites[1]
+                self.current_sprite_direction = 1
             self.vel_left -= xVel
         elif wall == 'r':
             if self.right:
                 xVel -= 2
             else:
                 self.sprite = self.sprites[0]
+                self.current_sprite_direction = 0
             self.vel_left += xVel
 
     def movement(self):
@@ -678,6 +688,7 @@ class Player:
             elif self.hooked:
                 self.vel_left -= self.air_acceleration * self.delta * self.offset
             self.sprite = self.sprites[1]
+            self.current_sprite_direction = 1
         if self.left:
             if self.character != 2:
                 if self.grounded:
@@ -688,8 +699,7 @@ class Player:
             elif self.hooked:
                 self.vel_left += self.air_acceleration * self.delta * self.offset
             self.sprite = self.sprites[0]
-
-
+            self.current_sprite_direction = 0
         for i in range(self.speed_correction):
             if self.vel_left < -self.max_speed:
                 self.vel_left += self.delta * self.offset
@@ -743,6 +753,7 @@ class Player:
             if self.vel_up > self.max_speed:
                 self.vel_up = self.max_speed
 
+        self.apply_squash_stretch()
         self.pixel_move()
     def pixel_move(self):
         divisor = int(max(abs(self.vel_left), abs(self.vel_up))) + 1
@@ -769,10 +780,17 @@ class Player:
                 self.jumps_left = self.jump_amount
         except:
             pass
-    def calculate_squash_stretch(self):
-        pass
+
     def apply_squash_stretch(self):
-        pass
+        if self.current_stretch == self.min_stretch and self.vel_up < 10:
+            self.target_stretch = self.min_stretch/2
+        if 2 > self.vel_up > -2:
+            self.target_stretch = 0
+        if self.target_stretch < self.current_stretch:
+            self.current_stretch -= self.stretch_delta
+        if self.target_stretch > self.current_stretch:
+            self.current_stretch += self.stretch_delta
+        self.sprite = pygame.transform.scale(self.sprites[self.current_sprite_direction], (self.width + self.current_stretch, self.height - self.current_stretch))
     def delete(self):
         self.display.game.timer_text.hidden = True
         if self.won:
