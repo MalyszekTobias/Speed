@@ -238,6 +238,8 @@ class Player:
 
         else:
             if direction == 'down':
+                self.target_stretch = self.max_stretch
+                self.current_stretch = self.max_stretch / 2
                 self.y = block[1] - self.height - 1
                 r,c = block[1] // self.display.tile_size, block[0] // self.display.tile_size
                 bouncable = False
@@ -386,7 +388,7 @@ class Player:
 
         if self.character == 2:
             current_color, self.current_trail_color = self.player_color, self.trail_color
-        self.sprite_rect.y = self.y
+        self.sprite_rect.y = self.y + self.current_stretch
         self.sprite_rect.x = self.display.camera + self.x - self.current_stretch/2
 
             # pygame.draw.rect(self.display.screen, current_color, (self.x - 1, self.y - 1, self.width + 2, self.height + 2))
@@ -784,8 +786,9 @@ class Player:
     def apply_squash_stretch(self):
         if self.current_stretch == self.min_stretch and self.vel_up < 10:
             self.target_stretch = self.min_stretch/2
-        if 2 > self.vel_up > -2:
-            self.target_stretch = 0
+        if self.target_stretch < 0:
+            if 2 > self.vel_up > -2:
+                self.target_stretch = 0
         if self.target_stretch < self.current_stretch:
             self.current_stretch -= self.stretch_delta
         if self.target_stretch > self.current_stretch:
