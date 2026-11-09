@@ -4,6 +4,9 @@ import time
 import ctypes
 from logging import exception
 
+from pygame import Surface
+from pygame.cursors import Cursor
+
 user32 = ctypes.windll.user32
 screensize = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
 import pygame
@@ -18,9 +21,11 @@ class Game:
     def __init__(self):
         pygame.init()
         config.set_config()
+        cursor_surf = pygame.image.load("Assets/Cursors/cursor.png")
+        custom_cursor = Cursor((0,0), cursor_surf)
+        pygame.mouse.set_cursor(custom_cursor)
 
         self.cfg = config.read_config()
-
         self.version = self.cfg['version']
         self.width = float(self.cfg['width'])
         self.height = float(self.cfg['height'])
@@ -182,7 +187,6 @@ class Game:
 
         self.getTimer(update=True)
         self.countdown_text.update_text(str(self.countdown // 6))
-
         pygame.display.update()
         pygame.display.flip()
 
