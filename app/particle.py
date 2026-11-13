@@ -13,6 +13,7 @@ class Particle:
         self.g = g
         self.lifetime = lifetime
         self.shrink = shrink
+        display.particles.append(self)
 
 
     def tick(self):

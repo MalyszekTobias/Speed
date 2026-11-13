@@ -147,10 +147,6 @@ class Button:
             self.game.start_time = time.time_ns() // 1000000
         elif self.action == 'level_select_screen':
             if self.text == 'Quit':
-                musicTime = pygame.mixer.music.get_pos() * 3 / 2000
-                pygame.mixer.music.load("Assets/Music/Menu music.mp3")
-                pygame.mixer.music.play(-1)
-                pygame.mixer.music.set_pos(musicTime)
                 self.game.player.delete()
             self.game.current_display = self.game.displays['level_select_screen']
             self.game.timer_text.hidden = True
@@ -201,6 +197,7 @@ class Button:
         self.game.getTimer(update=True)
         self.game.countdown_text.hidden = True
         self.game.countdown_text.update_text(str(self.game.countdown // 6))
+        self.game.player.set_correct_cursor()
         musicTime = pygame.mixer.music.get_pos() * 2/3000
         pygame.mixer.music.load("Assets/Music/Fast music.mp3")
         pygame.mixer.music.play(-1)
@@ -211,12 +208,14 @@ class Button:
         self.game.current_display.player.reset(True)
 
     def pauseClicked(self):
+        pygame.mouse.set_cursor(self.game.cursors['standard'])
         self.game.current_display = self.game.displays['pause_display']
         self.game.paused_start = time.time_ns() // 1000000
         self.game.countdown_text.hidden = True
 
     def resumeClicked(self):
         self.game.current_display = self.game.displays['game_display']
+        self.game.player.set_correct_cursor()
         if self.game.countdown < 0:
             self.game.pause_sum += self.game.curr_pause_time
         self.game.curr_pause_time = 0
@@ -224,5 +223,6 @@ class Button:
         if self.game.countdown > 0:
             self.game.pause_sum = 0
             self.game.countdown_text.hidden = False
+
 
 

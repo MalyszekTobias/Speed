@@ -21,9 +21,12 @@ class Game:
     def __init__(self):
         pygame.init()
         config.set_config()
-        cursor_surf = pygame.image.load("Assets/Cursors/cursor.png")
-        custom_cursor = Cursor((0,0), cursor_surf)
-        pygame.mouse.set_cursor(custom_cursor)
+        self.cursors = {'standard' : Cursor((0,0),pygame.image.load("Assets/Cursors/cursor.png")),
+                   'grappling' : Cursor((0,0),pygame.image.load("Assets/Cursors/grappling.png")),
+                   'grappling_crossed' : Cursor((0,0),pygame.image.load("Assets/Cursors/grappling_crossed.png")),
+                   'magnet' : Cursor((0,0),pygame.image.load("Assets/Cursors/magnet.png")),
+                   'magnet_crossed' : Cursor((0,0),pygame.image.load("Assets/Cursors/magnet_crossed.png"))}
+        pygame.mouse.set_cursor(self.cursors['standard'])
 
         self.cfg = config.read_config()
         self.version = self.cfg['version']
@@ -35,6 +38,7 @@ class Game:
         self.enable_debug = int(self.cfg['enable_debug'])
         self.music_volume = int(self.cfg["music_volume"])
         self.sound_volume = int(self.cfg["sound_volume"])
+        self.custom_cursors = True
 
         self.clock = pygame.time.Clock()
         self.font = None

@@ -365,9 +365,9 @@ class Player:
         return False
 
     def create_particle(self, size, color, x, y, velRight, velUp, g, lifetime, shrink):
-        self.particle = particle.Particle(self.display, size / 2, color, x, y, velRight, velUp, g, lifetime, shrink)
-        self.display.particles.append(self.particle)
+        particle.Particle(self.display, size / 2, color, x, y, velRight, velUp, g, lifetime, shrink)
     def tick(self):
+        self.set_correct_cursor()
         self.delta = self.display.game.delta_time
         if self.just_started:
             self.just_started = False
@@ -488,8 +488,25 @@ class Player:
             if event.button == 1 and self.display.game.countdown < 1:
                 self.shoot_hook(pygame.mouse.get_pos(), -1)
                 self.hook_buffer = False
-
-
+    def set_correct_cursor(self):
+        if not self.display.game.custom_cursors: return
+        if self.character in [0, 1]:
+            return
+        if self.character == 2:
+            pygame.mouse.set_cursor(self.display.game.cursors['grappling'])
+        x_1, y_1 = self.x + self.width / 2 + self.cam, self.y + self.width / 2
+        d = lambda pos: ((pos[0] - x_1) ** 2 + (pos[1] - y_1) ** 2) ** 0.5
+        if self.character == 3:
+            if d(pygame.mouse.get_pos()) < self.numb_magnet_radius:
+                pygame.mouse.set_cursor(self.display.game.cursors['magnet_crossed'])
+            else:
+                pygame.mouse.set_cursor(self.display.game.cursors['magnet'])
+        #The following also shows crossed grappling but its a bit confusing
+        # if self.character == 2:
+        #     if d(pygame.mouse.get_pos()) > self.hook_length:
+        #         pygame.mouse.set_cursor(self.display.game.cursors['grappling_crossed'])
+        #     else:
+        #         pygame.mouse.set_cursor(self.display.game.cursors['grappling'])
     def is_founded(self, source=None):
         bounce = False
         for row in range(int(self.y // self.display.tile_size - 1), int(self.y // self.display.tile_size + 3)):
@@ -762,11 +779,11 @@ class Player:
         for i in range(divisor):
             if not self.collision_finder(False, 'p'):
                 if self.max_speed == self.boosted_max_speed:
-                    self.create_particle(self.width - 10, self.display.speed_color, self.x + self.width / 2,
-                                         self.y + self.height / 2 + 4, 0, 0, 0, 10, 4.5)
+                    particle.Particle(self.display, (self.width - 10) / 2, self.display.speed_color,self.x + self.width / 2,
+                                      self.y + self.height / 2 + 4, 0, 0, 0, 10, 4.5)
                 else:
-                    self.create_particle(self.width - 10, self.current_trail_color, self.x + self.width / 2,
-                                         self.y + self.height / 2, 0, 0, 0, 10, 4.5)
+                    particle.Particle(self.display, (self.width - 10) / 2, self.current_trail_color, self.x + self.width / 2,
+                                      self.y + self.height / 2 + 4, 0, 0, 0, 10, 4.5)
                 self.archive_cords = [self.x, self.y]
             self.x -= self.vel_left * self.delta * self.offset / divisor
             self.y -= self.vel_up * self.delta * self.offset / divisor
@@ -795,7 +812,12 @@ class Player:
             self.current_stretch += self.stretch_delta
         self.sprite = pygame.transform.scale(self.sprites[self.current_sprite_direction], (self.width + self.current_stretch, self.height - self.current_stretch))
     def delete(self):
+        pygame.mouse.set_cursor(self.display.game.cursors['standard'])
         self.display.game.timer_text.hidden = True
+        musicTime = pygame.mixer.music.get_pos() * 3 / 2000
+        pygame.mixer.music.load("Assets/Music/Menu music.mp3")
+        pygame.mixer.music.play(-1)
+        pygame.mixer.music.set_pos(musicTime)
         if self.won:
             self.display.game.current_display = self.display.game.displays['win_screen']
             self.display.game.current_display.finish_time = self.display.game.getTimer()
@@ -803,6 +825,3 @@ class Player:
         self.display.objects.remove(self)
         self.display.particles = []
         del self
-
-
-

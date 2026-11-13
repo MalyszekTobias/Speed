@@ -172,8 +172,8 @@ class win_screen(basic_display):
         basic_display.__init__(self, game)
         self.restartButton = button.Button(self, 'play', self.width/2 - 130, self.height - 200, 110, 110,
                       icon=[pygame.image.load('Assets/Icons/restart_icon.png'), pygame.image.load('Assets/Icons/restart_hover.png')])
-        self.menuButton = button.Button(self, 'start_screen_after_win', self.width/2 + 20, self.height - 200, 110, 110,
-                      icon=[pygame.image.load('Assets/Icons/home.png'),pygame.image.load('Assets/Icons/home_hover.png')])
+        self.lscButton = button.Button(self, 'level_select_screen', self.width / 2 + 20, self.height - 200, 110, 110,
+                                       icon=[pygame.image.load('Assets/Icons/home.png'),pygame.image.load('Assets/Icons/home_hover.png')])
         self.finish_time = '0'
         self.congrats_text = custom_text.Custom_text(self, self.midx, self.midy - 400, None, 80, 'Congratulations', center=True, text_color='white')
         self.yourTime_text = custom_text.Custom_text(self, self.midx - 140, self.midy - 150, None, 80, 'Your time:', center=True, text_color='white')
