@@ -43,7 +43,7 @@ class game_display(basic_display):
         self.jump_color = (50, 50, 250)
         self.bounce_color = (250, 50, 50)
         self.win_color = (182, 196, 77)
-        self.spawn_cords = [50, 50]
+        self.spawn_cords = [150, 300]
         self.colors = (self.bg_color, self.tile_color, self.speed_color, self.jump_color, self.bounce_color, self.win_color)
         self.current_map = None
         self.current_map_end = None
@@ -92,7 +92,6 @@ class game_display(basic_display):
                 self.pause_button.click()
             if event.key == pygame.K_r:
                 self.restart_button.click()
-                print('______________________________________')
 
         for obj in self.objects:
             obj.events(event)
@@ -653,7 +652,16 @@ class map_editor(basic_display):
                 self.current_block = 0
             pos = pygame.mouse.get_pos()
             try:
-                self.map[pos[1] // self.tile_size][(pos[0] + self.camera) // self.tile_size] = self.current_block
+                y = pos[1] // self.tile_size
+                x = (pos[0] + self.camera) // self.tile_size
+                self.map[y][x] = self.current_block
+                if self.current_block == 6:
+                    for row in range(len(self.map)):
+                        for column in range(len(self.map[row])):
+                            if row == y and column == x:
+                                continue
+                            if self.map[row][column] == self.current_block:
+                                self.map[row][column] = 0
             except:
                 print('map editor slight error')
             self.current_block = a

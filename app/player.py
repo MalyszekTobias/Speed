@@ -471,21 +471,20 @@ class Player:
                     self.jump = False
                     self.target_stretch = 0
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.MOUSEBUTTONDOWN and self.display.game.countdown < 1:
             if event.button == 1:
-                self.magnet_polarity = 1
-            elif event.button == 3:
                 self.magnet_polarity = -1
-            if event.button == 1 and self.display.game.countdown < 1:
                 self.shoot_hook(pygame.mouse.get_pos())
+            elif event.button == 3:
+                self.magnet_polarity = 1
 
 
-        if event.type == pygame.MOUSEBUTTONUP:
-            if event.button == 1 and self.magnet_polarity == 1:
+        if event.type == pygame.MOUSEBUTTONUP and self.display.game.countdown < 1:
+            if event.button == 1 and self.magnet_polarity == -1:
                 self.magnet_polarity = 0
-            elif event.button == 3 and self.magnet_polarity == -1:
+            elif event.button == 3 and self.magnet_polarity == 1:
                 self.magnet_polarity = 0
-            if event.button == 1 and self.display.game.countdown < 1:
+            if event.button == 1:
                 self.shoot_hook(pygame.mouse.get_pos(), -1)
                 self.hook_buffer = False
     def set_correct_cursor(self):
