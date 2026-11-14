@@ -11,9 +11,9 @@ user32 = ctypes.windll.user32
 screensize = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
 import pygame
 
-import app.player
+import App.player
 import map_handler
-from app import config, display, custom_text
+from App import config, display, custom_text
 import map_handler
 
 

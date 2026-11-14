@@ -2,7 +2,7 @@ import time
 
 import pygame
 import map_handler
-from app import custom_text, player
+from App import custom_text, player
 
 class Button:
     def __init__(self, display, action, x, y, width, height, color=(0,0,0), text=None, text_color='black', outline_color=None, outline_width=5, font_size=None, icon=None):  # Getting all the parameters of the button

@@ -3,7 +3,7 @@ from random import random
 import Assets
 import pygame
 from pygame import *
-from app import particle
+from App import particle
 
 import random as ran
 
@@ -16,6 +16,7 @@ class Player:
         self.display.objects.append(self)
         self.offset = 60
         self.cam = self.display.camera
+
         self.current_stretch = 0 #positive means it's wider and shorter; negative means it's taller and thinner
         self.target_stretch = 0
         self.max_stretch = 14
@@ -26,7 +27,7 @@ class Player:
         self.g = 0.6
         self.regular_max_speed = 8
         self.boosted_max_speed = 16
-        self.max_speed = self.regular_max_speed
+        self.max_speed = self.regular_max_speed #current max speed
         self.max_fall_speed = -20
         self.regular_jump = 16
         self.boosted_jump = 23
@@ -48,94 +49,42 @@ class Player:
         self.jump_speed_boost = 4
         self.speed_correction = 1
 
-        self.hook_x = None
-        self.hook_y = None
-        self.hook_size = 20
-        self.hooked = False
-        self.hook_speed = 40
-        self.hook_power = 3
-        self.hook_length = 520
-        self.hook_vel_up = 0
-        self.hook_vel_left = 0
-        self.hook_reeling = False
-        self.hook_buffer = False
 
-        self.magnet_strength = 30
-        self.magnet_polarity = 0
-        self.numb_magnet_radius = 100
 
         self.width = self.display.tile_size + 10
         self.height = self.width
         self.character = self.display.game.character # 0 is runner, 1 is bouncer, 2 is hooker, 3 is magneter, 4 is rocketeer, 9 is debugger
 
-        self.colors = [[30, 200, 30], [200, 30, 30], [200, 200, 30], [60, 60, 200], [200, 150, 50], None, None, None, None, [200, 200, 200]]
-        self.trail_colors = [[20, 90, 20], [90, 20, 20], [90, 90, 20], [30, 30, 90], [110, 70, 20], None, None, None, None, [90, 90, 90]]
-        self.names = ['The Runner', 'The Bouncer', 'The Hooker', 'The Magneter', None, None, None, None, 'The Debugger']
-        if self.character == 0:
-            # runner can run along the floor and jump twice, pretty normal stuff
-            self.bouncy_mode = False
-            self.max_speed, self.regular_max_speed = 9,9
-            self.sprites = [pygame.image.load("Assets/Sprites/green_left.png"), pygame.image.load("Assets/Sprites/green_right.png")]
-        if self.character == 1:
-            # bouncer bounces from every block, has 1 jump in the air after bouncing from a white floor
-            self.bouncy_mode = True
-            self.gravity = True
-            self.g = 0.6
-            self.min_bounce = 5
-            self.wall_and_ceiling_bounce = 5
-            self.floor_bounce = 5
-            self.sprites = [pygame.image.load("Assets/Sprites/red_left.png"), pygame.image.load("Assets/Sprites/red_right.png")]
-        if self.character == 2:
-            # hooker has a grappling hook
-            self.bouncy_mode = True
-            self.g = 0.9
-            self.max_fall_speed, self.max_speed, self.regular_max_speed = -15, 15, 15
-            self.speed_correction = 10
-            self.jump_speed_boost = 0
-            self.jump_amount = 0
-            self.sprites = [pygame.image.load("Assets/Sprites/yellow_left.png"), pygame.image.load("Assets/Sprites/yellow_right.png")]
-        if self.character == 3:
-            # magneter can be attracted or repelled from the cursor
-            self.bouncy_mode = False
-            self.sprites = [pygame.image.load("Assets/Sprites/teal_left.png"), pygame.image.load("Assets/Sprites/teal_right.png")]
-        if self.character == 9:
-            self.bouncy_mode = False
-            self.gravity = False
-            self.air_acceleration = 2
-            self.ground_acceleration = 2
-            self.max_speed = self.boosted_max_speed
-            self.sprites = [pygame.image.load("Assets/Sprites/teal_left.png"), pygame.image.load("Assets/Sprites/teal_right.png")]
-        # magneter will get attracted to the mouse, no jump, no gravity
+        # rocketeer_color = [200, 150, 50]
+        # rocketeer_trail_color = [110, 70, 20]
         # rocketeer will have a rocket to perform rocketboosts away from the mouse
 
-        self.player_color, self.trail_color = self.colors[self.character], self.trail_colors[self.character]
-
+    def init_phase_2(self):
         for s in range(len(self.sprites)):
             self.sprites[s] = pygame.transform.scale(self.sprites[s], (self.width, self.height))
             self.sprite_rect = self.sprites[s].get_rect()
             self.sprite_rect.x,self.sprite_rect.y = 0, 0
+            self.x = self.display.spawn_cords[0]
+            self.y = self.display.spawn_cords[1]
+            self.sprite_rect.x, self.sprite_rect.y = self.x, self.y
+            self.vel_up = 0
+            self.vel_left = 0
+            self.cumulative_vel_down = 0
+            self.left = False
+            self.right = False
+            self.up = False
+            self.down = False
+            self.jump = False
+            self.grounded = False
+            self.hug_left = False
+            self.hug_right = False
+            self.touching_up = False
+            self.archive_cords = [self.x, self.y]
+            self.archive_vels = [self.vel_left, self.vel_up]
+            self.jumps_left = self.jump_amount
+            self.just_started = True
+            self.won = False
         self.sprite = self.sprites[1]
-        self.x = self.display.spawn_cords[0]
-        self.y = self.display.spawn_cords[1]
-        self.sprite_rect.x, self.sprite_rect.y = self.x, self.y
-        self.vel_up = 0
-        self.vel_left = 0
-        self.cumulative_vel_down = 0
-        self.left = False
-        self.right = False
-        self.up = False
-        self.down = False
-        self.jump = False
-        self.grounded = False
-        self.hug_left = False
-        self.hug_right = False
-        self.touching_up = False
-        self.archive_cords = [self.x, self.y]
-        self.archive_vels = [self.vel_left, self.vel_up]
-        self.jumps_left = self.jump_amount
-        self.just_started = True
-        self.won = False
-
     def reset(self, restart): #Resets the parameters of the player to the starting ones, restart means it also restarts the level
         if restart:
             self.display.game.countdown = 59
@@ -156,12 +105,6 @@ class Player:
         self.archive_cords = [self.x, self.y]
         self.archive_vels = [self.vel_left, self.vel_up]
         self.jumps_left = self.jump_amount
-        self.hook_vel_up = 0
-        self.hook_vel_left = 0
-        self.hook_reeling = False
-        self.hook_x = None
-        self.hook_y = None
-        self.hooked = False
         self.sprite = self.sprites[1]
 
         self.won = False
@@ -188,78 +131,6 @@ class Player:
             return False
         return True
     def nudge(self, direction: str, block: list, blockType):
-        if self.bouncy_mode:
-            bounceMulti = 1
-            if self.character == 2:
-                bounceMulti = 0
-
-            if blockType == 4:
-                r, c = block[1] // self.display.tile_size, block[0] // self.display.tile_size
-                bouncable = False
-                if self.x < block[0]:
-                    if self.display.current_map[r][c - 1] == 4:
-                        bouncable = True
-                elif self.x + self.width > block[0] + block[2]:
-                    if self.display.current_map[r][c + 1] == 4:
-                        bouncable = True
-                else:
-                    bouncable = True
-                if bouncable:
-                    bounceMulti = 1.5
-            if self.jump_recovery_from_all_direction_bounces:
-                self.jumps_left = self.jump_amount
-
-            if direction == 'down':
-                self.y = block[1] - self.height
-                if self.vel_up < -self.min_bounce * bounceMulti:
-                    self.vel_up *= -self.energy_conservation
-                    if bounceMulti == 1.5:
-                        self.vel_up += self.cumulative_vel_down / 5
-                elif self.vel_up < 0:
-                    self.vel_up = self.min_bounce * bounceMulti
-
-
-                if bounceMulti == 1:
-                    self.jumps_left = self.jump_amount
-                return
-
-            elif direction == 'up':
-                if block[1] <= -51:
-                    bounceMulti = 0
-                self.y = self.archive_cords[1]
-
-                if self.vel_up > self.min_bounce * bounceMulti:
-                    self.vel_up *= -self.energy_conservation * bounceMulti
-                elif self.vel_up > 0:
-                    self.vel_up = -self.min_bounce * bounceMulti
-
-                self.touching_up = True
-                return
-
-        else:
-            if direction == 'down':
-                self.target_stretch = self.max_stretch
-                self.current_stretch = self.max_stretch / 2
-                self.y = block[1] - self.height - 1
-                r,c = block[1] // self.display.tile_size, block[0] // self.display.tile_size
-                bouncable = False
-                if blockType == 4:
-                    if self.x < block[0]:
-                        if self.display.current_map[r][c - 1] == 4:
-                            bouncable = True
-                    elif self.x + self.width > block[0] + block[2]:
-                        if self.display.current_map[r][c + 1] == 4:
-                            bouncable = True
-                if bouncable and self.vel_up <= -5:
-                    if self.cumulative_vel_down > 1:
-                        self.vel_up = self.cumulative_vel_down * 0.4
-                        self.y = block[1] - self.height - 1
-
-            elif direction == 'up':
-                self.y = block[1] + block[3] + 1
-                self.vel_up = 0
-                return
-
         if direction == 'left':
             self.x = block[0] + block[2] + 1
             self.vel_left = 0
@@ -304,7 +175,7 @@ class Player:
         except:
             pass
     def detection(self, block: list):
-        # keep track of whether the player is on the ground or in the ait
+        # keep track of whether the player is on the ground or in the air
         if self.horizontal_collision(self.archive_cords[0], self.width, block[0], block[2]):
             if self.archive_cords[1] + self.height < block[1]:
                 return 'down'  # going down
@@ -317,6 +188,7 @@ class Player:
                 return 'left'
         else:
             return self.corner(block)
+    #collision finder might need to be separated for hooker but for now its inherited
     def collision_finder(self, act_or_not: bool, entity):
         if entity == 'p':
             y = self.y
@@ -332,40 +204,39 @@ class Player:
                 return
 
         for row in range(int(y // self.display.tile_size - 1), int(y // self.display.tile_size + 3)):
-            if not self.won:
-                for column in range(int(x // self.display.tile_size - 1), int(x // self.display.tile_size + 3)):
-                    try:
-                        if not self.display.current_map[row][column] in (0, 5, 6, 7, 8, 9):
-                            block = (column * self.display.tile_size, row * self.display.tile_size, self.display.tile_size,
-                                     self.display.tile_size)
-                            if self.collision((x, y, w, h), block):
-                                if act_or_not:
-                                    if entity == 'p':
-                                        if self.nudge(self.detection(block), block, self.display.current_map[row][column]) == True and self.character == 0:
-                                            self.vel_up = self.min_bounce * 3
-                                            self.jumps_left = 1
-                                        # pygame.draw.rect(self.display.screen, (200, 0, 0), (block[0] + self.cam,block[1],block[2],block[3]))
-                                    elif entity == 'h':
-                                        self.hooked = True
-                                        self.hook_vel_left, self.hook_vel_up = 0, 0
-                                        pygame.draw.rect(self.display.screen, (200, 100, 200), (block[0] + self.cam, block[1], block[2], block[3]))
-                                else:
-                                    return True
-                        elif self.display.current_map[row][column] == 5:
-                            block = (column * self.display.tile_size, row * self.display.tile_size, self.display.tile_size,
-                                     self.display.tile_size)
-                            if self.collision((x, y, w, h), block) and entity == 'p':
-                                print('Your time: ', self.display.game.getTimer())
-                                self.reset(False)
-                                self.won = True
-                                break
+            if self.won: return False
+            for column in range(int(x // self.display.tile_size - 1), int(x // self.display.tile_size + 3)):
+                block_type = self.display.current_map[row][column]
+                try:
+                    if block_type == 5:
+                        block = (column * self.display.tile_size, row * self.display.tile_size, self.display.tile_size,
+                                 self.display.tile_size)
+                        if self.collision((x, y, w, h), block) and entity == 'p':
+                            print('Your time: ', self.display.game.getTimer())
+                            self.reset(False)
+                            self.won = True
+                            break
+                    if block_type not in (1, 2, 3, 4): continue
 
-                    except:
-                        pass
+                    block = (column * self.display.tile_size, row * self.display.tile_size, self.display.tile_size,
+                             self.display.tile_size)
+                    if not self.collision((x, y, w, h), block): continue
+                    if not act_or_not: return True
+
+                    if entity == 'p':
+                        if self.nudge(self.detection(block), block, self.display.current_map[row][column]) == True and self.character == 0:
+                            self.vel_up = self.min_bounce * 3
+                            self.jumps_left = 1
+                        # pygame.draw.rect(self.display.screen, (200, 0, 0), (block[0] + self.cam,block[1],block[2],block[3]))
+                    elif entity == 'h':
+                        self.hooked = True
+                        self.hook_vel_left, self.hook_vel_up = 0, 0
+                        pygame.draw.rect(self.display.screen, (200, 100, 200), (block[0] + self.cam, block[1], block[2], block[3]))
+
+                except:
+                    pass
         return False
 
-    def create_particle(self, size, color, x, y, velRight, velUp, g, lifetime, shrink):
-        particle.Particle(self.display, size / 2, color, x, y, velRight, velUp, g, lifetime, shrink)
     def tick(self):
         self.set_correct_cursor()
         self.delta = self.display.game.delta_time
@@ -374,7 +245,7 @@ class Player:
             self.reset(True)
             self.display.game.timer_text.hidden = True
         self.cam = self.display.camera
-        if self.is_founded(source='render') and not self.bouncy_mode:
+        if self.is_founded(source='tick') and not self.bouncy_mode:
             self.vel_up = 0
         current_color = []
         self.current_trail_color = []
@@ -533,7 +404,7 @@ class Player:
                 except:
                     pass
         if bounce:
-            if source == 'render':
+            if source == 'tick':
                 return False
             else:
                 return True

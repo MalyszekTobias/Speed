@@ -1,6 +1,6 @@
 import pygame
-import app
-from app import config
+import App
+from App import config
 class Slider:
     def __init__(self, display, x, y, width, height, action, icon=None, value=50):
         self.display, self.x, self.y, self.width, self.height, self.action, self.icon , self.value = display, x, y, width, height, action, icon, value
