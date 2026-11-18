@@ -1,11 +1,9 @@
 import os.path
-import time
-from itertools import count
 
 import pygame
 
 import map_handler
-from App import custom_text, custom_images, button, player, particle, slider
+from App import custom_text, button, slider
 
 
 class basic_display():

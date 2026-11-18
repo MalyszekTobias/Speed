@@ -2,17 +2,13 @@ import time
 
 
 import ctypes
-from logging import exception
 
-from pygame import Surface
 from pygame.cursors import Cursor
 
 user32 = ctypes.windll.user32
 screensize = user32.GetSystemMetrics(0), user32.GetSystemMetrics(1)
 import pygame
 
-import App.player
-import map_handler
 from App import config, display, custom_text
 import map_handler
 

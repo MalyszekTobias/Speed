@@ -1,10 +1,11 @@
-import App.player as player
+import Characters.player as player
 import pygame
 class Debugger(player.Player):
     def __init__(self, display):
         player.Player.__init__(self, display)
 
         self.name = 'Debugger'
+        self.id = 4
         self.player_color, self.trail_color = [200, 200, 200], [90, 90, 90]
 
         self.bouncy_mode = False
@@ -41,3 +42,9 @@ class Debugger(player.Player):
             return
 
         player.Player.nudge(self, direction, block, blockType)
+
+    def tick(self):
+        player.Player.tick(self)
+
+
+

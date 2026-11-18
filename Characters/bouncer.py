@@ -1,4 +1,4 @@
-import App.player as player
+import Characters.player as player
 import pygame
 
 # bouncer bounces from every block, has 1 jump in the air after bouncing from a white / non-red floor
@@ -8,6 +8,7 @@ class Bouncer(player.Player):
         player.Player.__init__(self, display)
 
         self.name = 'Bouncer'
+        self.id = 1
         self.player_color, self.trail_color = [200, 30, 30], [90, 20, 20]
 
         self.jump_recovery_from_all_direction_bounces = True
@@ -65,3 +66,58 @@ class Bouncer(player.Player):
             self.touching_up = True
             return
         player.Player.nudge(self, direction, block, blockType)
+
+    def events(self, event):
+        player.Player.events(self, event)
+        if event.type == pygame.KEYDOWN:
+            if event.key in (pygame.K_s, pygame.K_DOWN):
+                self.down = True
+                if self.hugs_right() and not self.grounded:
+                    self.wall_jump('r')
+                elif self.hugs_left() and not self.grounded:
+                    self.wall_jump('l')
+            if event.key in (pygame.K_SPACE, pygame.K_UP) and self.display.game.countdown < 1:
+                if self.jumps_left > 0:
+                    self.jump = True
+                    self.jumps_left -= 1
+                    self.vel_up = self.jump_length
+                    self.target_stretch = self.min_stretch
+                    if self.grounded:
+                        self.y -= 1
+                    if self.right and not self.left:
+                        self.vel_left -= self.jump_speed_boost
+                    elif self.left and not self.right:
+                        self.vel_left += self.jump_speed_boost
+                elif self.hugs_right() and not self.grounded:
+                    self.wall_jump('r')
+                elif self.hugs_left() and not self.grounded:
+                    self.wall_jump('l')
+                self.grounded = False
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_SPACE:
+                if self.jump:
+                    self.vel_up /= 2
+                    self.jump = False
+                    self.target_stretch = 0
+
+    def wall_jump(self, wall):
+        xVel = 9
+        if self.vel_up <= -5:
+            self.vel_up = 7
+        else:
+            self.vel_up = min(13, self.vel_up + 12)
+        self.jump = True
+        if wall == 'l':
+            if self.left:
+                xVel -= 2
+            else:
+                self.sprite = self.sprites[1]
+                self.current_sprite_direction = 1
+            self.vel_left -= xVel
+        elif wall == 'r':
+            if self.right:
+                xVel -= 2
+            else:
+                self.sprite = self.sprites[0]
+                self.current_sprite_direction = 0
+            self.vel_left += xVel
