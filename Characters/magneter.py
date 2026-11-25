@@ -1,6 +1,8 @@
+import random
+
 import Characters.player as player
 import pygame
-
+import App.particle as particle
 # magneter can be attracted or repelled from the cursor
 
 class Magneter(player.Player):
@@ -80,10 +82,23 @@ class Magneter(player.Player):
         if not self.display.game.custom_cursors: return
 
     def magnetize(self, distance, ox, oy):
+        particle_amount = 2
+        m_x, m_y = pygame.mouse.get_pos()
+        vel = 3
+        particle_lifetime = 20 + random.randint(-5, 5)
         if self.magnet_polarity == 1:
             power =  1/distance * self.magnet_strength + 0.6
+            for i in range(particle_amount):
+                vel_x, vel_y = random.randint(-vel, vel), random.randint(-vel, vel)
+                x, y = m_x - particle_lifetime*vel_x, m_y + particle_lifetime*vel_y
+                particle.Particle(self.display, 2, (self.player_color), x - self.cam, y, vel_x, vel_y, 0,
+                                  particle_lifetime, 0, 1)
+
         elif self.magnet_polarity == -1:
             power =  3/distance * self.magnet_strength + 0.6
+            for i in range(particle_amount):
+                vel_x, vel_y = random.randint(-vel, vel), random.randint(-vel, vel)
+                particle.Particle(self.display, 3, (self.player_color), m_x - self.cam, m_y, vel_x, vel_y, 0, particle_lifetime, 0.15, 1)
         x_share = abs(ox) / (abs(ox) + abs(oy))
         y_share = 1 - x_share
         dir_x, dir_y = 1,1 #1 is up and right

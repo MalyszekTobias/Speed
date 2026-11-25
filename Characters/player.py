@@ -196,7 +196,6 @@ class Player:
         for row in range(int(y // self.display.tile_size - 1), int(y // self.display.tile_size + 3)):
             if self.won: return False
             for column in range(int(x // self.display.tile_size - 1), int(x // self.display.tile_size + 3)):
-                print(row, column)
                 try:
                     block_type = self.display.current_map[row][column]
                     if block_type == 5:

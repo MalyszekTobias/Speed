@@ -2,7 +2,7 @@ import pygame.draw
 
 
 class Particle:
-    def __init__(self, display, size, color, x, y, velRight, velUp, g, lifetime, shrink):
+    def __init__(self, display, size, color, x, y, velRight, velUp, g, lifetime, shrink, cutoff_size=5):
         self.display = display
         self.size = size
         self.color = color
@@ -13,12 +13,13 @@ class Particle:
         self.g = g
         self.lifetime = lifetime
         self.shrink = shrink
+        self.cutoff_size = cutoff_size
         display.particles.append(self)
 
 
     def tick(self):
         self.move()
-        if self.size > 5:
+        if self.size > self.cutoff_size:
             pygame.draw.circle(self.display.screen, self.color, (self.x + self.display.camera, self.y), self.size)
         self.lifetime -= 1
         self.size -= self.shrink / 2
