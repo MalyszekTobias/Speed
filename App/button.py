@@ -2,7 +2,9 @@ import time
 
 import pygame
 import map_handler
-from app import custom_text, player
+from App import custom_text
+from Characters import player, runner, bouncer, hooker, magneter, debugger
+
 
 class Button:
     def __init__(self, display, action, x, y, width, height, color=(0,0,0), text=None, text_color='black', outline_color=None, outline_width=5, font_size=None, icon=None):  # Getting all the parameters of the button
@@ -135,11 +137,11 @@ class Button:
         elif self.action == 'play':
             self.playClicked()
         elif self.action == 'resume':
-            self.resumeClicked()
+            self.resume_clicked()
         elif self.action == 'restart':
-            self.restartClicked()
+            self.restart_clicked()
         elif self.action == 'pause':
-            self.pauseClicked()
+            self.pause_clicked()
         elif self.action == 'start_screen_after_win':
             self.game.current_display = self.game.displays['start_screen']
             self.game.current_display.count = 0
@@ -192,28 +194,28 @@ class Button:
         self.game.time_now = self.game.start_time
         self.game.countdown = 59
         self.game.paused_start = None
-        self.game.current_display.player = player.Player(self.game.current_display)
+        self.game.current_display.player = self.create_player(self.game.character)
         self.game.player = self.game.current_display.player
         self.game.getTimer(update=True)
         self.game.countdown_text.hidden = True
         self.game.countdown_text.update_text(str(self.game.countdown // 6))
-        self.game.player.set_correct_cursor()
+        if self.game.player.id in (2,3): self.game.player.set_correct_cursor()
         musicTime = pygame.mixer.music.get_pos() * 2/3000
         pygame.mixer.music.load("Assets/Music/Fast music.mp3")
         pygame.mixer.music.play(-1)
         pygame.mixer.music.set_pos(musicTime)
 
-    def restartClicked(self):
+    def restart_clicked(self):
         self.game.current_display = self.game.displays['game_display']
         self.game.current_display.player.reset(True)
 
-    def pauseClicked(self):
+    def pause_clicked(self):
         pygame.mouse.set_cursor(self.game.cursors['standard'])
         self.game.current_display = self.game.displays['pause_display']
         self.game.paused_start = time.time_ns() // 1000000
         self.game.countdown_text.hidden = True
 
-    def resumeClicked(self):
+    def resume_clicked(self):
         self.game.current_display = self.game.displays['game_display']
         self.game.player.set_correct_cursor()
         if self.game.countdown < 0:
@@ -224,5 +226,14 @@ class Button:
             self.game.pause_sum = 0
             self.game.countdown_text.hidden = False
 
-
-
+    def create_player(self, id):
+        if id == 0:
+            return runner.Runner(self.game.current_display)
+        if id == 1:
+            return bouncer.Bouncer(self.game.current_display)
+        if id == 2:
+            return hooker.Hooker(self.game.current_display)
+        if id == 3:
+            return magneter.Magneter(self.game.current_display)
+        if id == 4:
+            return debugger.Debugger(self.game.current_display)

@@ -1,4 +1,4 @@
-import maps as map_dir
+import Maps as map_dir
 import os
 
 names = []
@@ -7,7 +7,7 @@ orders = []
 allowed_chars = []
 
 def import_map(name):
-    file = open('maps/' + name, 'r')
+    file = open('Maps/' + name, 'r')
     content = []
     for line in file:
         if line[0] != '[':
@@ -34,7 +34,7 @@ def startup_map_load():
     global orders
     global names
     global allowed_chars
-    for file in os.listdir('maps'):
+    for file in os.listdir('Maps'):
         import_map(file)
         if len(maps)> len(allowed_chars):
             allowed_chars.append([0,1,2,3])
@@ -67,7 +67,7 @@ def startup_map_load():
         maps[map] = newmap
     orders.sort()
 def delete(i):
-    os.remove('maps/' + names[i] + '.txt')
+    os.remove('Maps/' + names[i] + '.txt')
     names.pop(i)
     maps.pop(i)
     orders.pop(i)
@@ -76,10 +76,10 @@ def delete(i):
 def add(mapName, map, original=None):
     order = str(len(maps))
     if original != None:
-        os.rename('maps/' + original + '.txt', 'maps/' + mapName + '.txt')
+        os.rename('Maps/' + original + '.txt', 'Maps/' + mapName + '.txt')
         mapIndex = names.index(original)
         order = str(orders[mapIndex])
-    newMap = open('maps/' + mapName + '.txt', 'w')
+    newMap = open('Maps/' + mapName + '.txt', 'w')
     newMap.write(' '.join(order))
     newMap.write('\n')
 

@@ -1,11 +1,9 @@
 import os.path
-import time
-from itertools import count
 
 import pygame
 
 import map_handler
-from app import custom_text, custom_images, button, player, particle, slider
+from App import custom_text, button, slider
 
 
 class basic_display():
@@ -252,7 +250,7 @@ class level_select_screen(basic_display):
             if self.allowed_chars[self.game.current_map].__contains__(self.char_choice_storage):
                 self.game.character = self.char_choice_storage
         else:
-            print('no more maps')
+            print('no more Maps')
 
     def change_character(self, amount):
         if 0 <= self.game.character + amount <= 3:
@@ -314,7 +312,7 @@ class level_select_screen(basic_display):
             if self.slide_dist > 0:
                 self.slide_dist = 0
                 self.slide_due = 0
-        if self.slide_due == 0 and copy != 0:  #spawns buttons if the maps stopped moving
+        if self.slide_due == 0 and copy != 0:  #spawns buttons if the Maps stopped moving
             self.manage_map_buttons(1, offset=copy)
 
     def tick(self):
@@ -613,10 +611,10 @@ class map_editor(basic_display):
 
     def get_map_name(self):
         for i in range(1, 100):
-            path = 'maps/New map ' + str(i) + '.txt'
+            path = 'Maps/New map ' + str(i) + '.txt'
             if not os.path.isfile(path):
                 return 'New map ' + str(i)
-        print('too many maps')
+        print('too many Maps')
 
     def tick(self):
         self.camera += self.movement

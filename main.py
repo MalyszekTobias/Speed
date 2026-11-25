@@ -1,4 +1,4 @@
-from app.game import Game
+from App.game import Game
 import sys
 
 QX = Game()
