@@ -53,11 +53,13 @@ class Magneter(player.Player):
         pygame.draw.circle(self.display.screen, (255, 255, 255),
                            (self.display.camera + self.x + self.width / 2, self.y + self.height / 2),
                            self.numb_magnet_radius, 3)
+        if self.is_founded(source='tick'):
+            self.vel_up = 0
         mousepos = pygame.mouse.get_pos()
         x_offset, y_offset = self.x + self.width / 2 + self.cam - mousepos[0], self.y + self.width / 2 - mousepos[1]
         distance = (x_offset ** 2 + y_offset ** 2) ** 0.5
         if distance > self.numb_magnet_radius and self.magnet_polarity != 0:
-            self.magnetize(mousepos, distance, x_offset, y_offset)
+            self.magnetize(distance, x_offset, y_offset)
 
         player.Player.tick(self)
 
@@ -77,7 +79,7 @@ class Magneter(player.Player):
     def set_correct_cursor(self):
         if not self.display.game.custom_cursors: return
 
-    def magnetize(self, mousepos, distance, ox, oy):
+    def magnetize(self, distance, ox, oy):
         if self.magnet_polarity == 1:
             power =  1/distance * self.magnet_strength + 0.6
         elif self.magnet_polarity == -1:

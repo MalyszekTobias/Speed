@@ -42,6 +42,11 @@ class Runner(player.Player):
             return
         player.Player.nudge(self, direction, block, blockType)
 
+    def tick(self):
+        if self.is_founded(source='tick'):
+            self.vel_up = 0
+        player.Player.tick(self)
+
     def events(self, event):
         player.Player.events(self, event)
         if event.type == pygame.KEYDOWN:

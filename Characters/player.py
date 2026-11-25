@@ -1,14 +1,6 @@
 import time as czas
-from random import random
-import Assets
 import pygame
-from pygame import *
 from App import particle
-
-import random as ran
-
-from map_handler import names
-
 
 class Player:
     def __init__(self, display):
@@ -193,7 +185,7 @@ class Player:
             x = self.x
             w = self.width
             h = self.height
-        elif entity == 'h':
+        else: #entity = hook
             y = self.hook_y
             x = self.hook_x
             w = 1
@@ -243,8 +235,6 @@ class Player:
             self.reset(True)
             self.display.game.timer_text.hidden = True
         self.cam = self.display.camera
-        if self.is_founded(source='tick') and not self.bouncy_mode: ###########################
-            self.vel_up = 0
         current_color = []
         self.current_trail_color = []
         for i in range(3):
